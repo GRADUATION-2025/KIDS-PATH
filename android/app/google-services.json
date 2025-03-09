@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "897044060897",
+    "project_id": "kids-path-58c66",
+    "storage_bucket": "kids-path-58c66.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:897044060897:android:01a09ecddf6a488454f5a0",
+        "android_client_info": {
+          "package_name": "com.example.kidspath"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1PGni3rvHfT9iy2tGHpF2VrIlkyeDN68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
