@@ -1,6 +1,4 @@
-
 class LoginStates{}
-
 class LogininitialState extends LoginStates{}
 class LoginLoadingState extends LoginStates{}
 class LoginSucessState extends LoginStates{}
