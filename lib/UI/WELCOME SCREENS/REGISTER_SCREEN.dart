@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                      Text(
-                      "kids path",
+                      "Kids Path",
                       style: TextStyle(
                         fontSize: 60.sp,
                         fontWeight: FontWeight.bold,
