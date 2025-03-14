@@ -272,6 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        SizedBox(height: 12.h,),
                          Text(
                           'Kids Path',
                           style: TextStyle(

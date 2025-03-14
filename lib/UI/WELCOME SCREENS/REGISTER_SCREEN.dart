@@ -54,6 +54,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(height: 12.h,),
+
                      Text(
                       "Kids Path",
                       style: TextStyle(
