@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
+import 'UI/WELCOME SCREENS/LOGIN_SCREEN.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -9,16 +10,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // Function to handle sign-out
   Future<void> _signOut() async {
     try {
       await FirebaseAuth.instance.signOut(); // Sign out the user
-      // Optionally, you can navigate to the login screen or show a message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signed out successfully')),
-      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      ); // Navigate back to login screen
     } catch (e) {
-      // Handle errors (e.g., show an error message)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error signing out: $e')),
       );
@@ -33,7 +32,7 @@ class _HomeState extends State<Home> {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: _signOut, // Call the sign-out function
+          onPressed: _signOut,
           child: const Text('Sign Out'),
         ),
       ),
