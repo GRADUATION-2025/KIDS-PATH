@@ -53,7 +53,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               children: [
                 SizedBox(height: 30),
                 Text(
-                  "Enter your email and we will send you\ninstructions on how to reset it",
+                  "Enter your email and we will send you instructions on how to reset it",
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 30),
