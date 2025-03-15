@@ -39,12 +39,12 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login Success'),
+        title:  Text('Login Success'),
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: _signOut,
-          child: const Text('Sign Out'),
+          child:  Text('Sign Out'),
         ),
       ),
     );
