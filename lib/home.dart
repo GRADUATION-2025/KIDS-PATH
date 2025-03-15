@@ -21,7 +21,7 @@ class _HomeState extends State<Home> {
       );
 
       // Wait a bit before navigating to ensure the snackbar is seen
-      Future.delayed(const Duration(seconds: 1), () {
+      Future.delayed( Duration(), () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
