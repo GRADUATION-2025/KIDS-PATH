@@ -15,7 +15,7 @@ class _HomeState extends State<Home> {
       await FirebaseAuth.instance.signOut(); // Sign out the user
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       ); // Navigate back to login screen
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -28,12 +28,12 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login Success'),
+        title: Text('Login Success'),
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: _signOut,
-          child: const Text('Sign Out'),
+          child:  Text('Sign Out'),
         ),
       ),
     );
