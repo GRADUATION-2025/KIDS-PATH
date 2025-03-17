@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart'; // Import firebase_auth
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'LOGIC/LOGIN/cubit.dart';
 import 'LOGIC/forget password/cubit.dart';
 import 'UI/WELCOME SCREENS/LOGIN_SCREEN.dart';
 import 'firebase_options.dart';
@@ -43,7 +41,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: AuthWrapper(), // Use AuthWrapper as the home screen
+        home: LoginScreen(), // Use AuthWrapper as the home screen
       ),
     );
   }

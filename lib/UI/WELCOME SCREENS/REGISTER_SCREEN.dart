@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kidspath/UI/PROFILE%20SELECT%20SCREEN/User_Selection.dart';
 import '../../LOGIC/SIGNUP/cubit.dart';
 import '../../LOGIC/SIGNUP/state.dart';
-import '../../home.dart';
 import 'LOGIN_SCREEN.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -26,12 +26,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: BlocConsumer<SignupCubit, SignUpStates>(
         listener: (context, state) {
           if (state is SignupSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("User Created Successfully")),
-            );
+
+
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => Home()),
+              MaterialPageRoute(builder: (context) => UserSelection()),
             );
           } else if (state is SignUpErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
