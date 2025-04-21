@@ -1,229 +1,302 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
+import '../../DATA MODELS/Nursery model/Nursery Model.dart';
+import '../../DATA MODELS/Parent Model/Parent Model.dart';
+import '../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_NURSERY.dart';
+import '../Create_Profile_screen/NURSERY/EditNurseryProfileScreen.dart';
+import '../Create_Profile_screen/PARENT/EditProfileScreen.dart';
 
 
-import '../Create_Profile_screen/NURSERY_PAGE.dart';
-import '../Create_Profile_screen/PARENTS_PAGE.dart';
 
+class RoleSelectionScreen extends StatefulWidget {
+  final User user;
 
-class UserSelection extends StatefulWidget {
-  const UserSelection({super.key});
+  RoleSelectionScreen({required this.user});
 
   @override
-  State<UserSelection> createState() => _UserSelectionState();
-
+  _RoleSelectionScreenState createState() => _RoleSelectionScreenState();
 }
 
-class _UserSelectionState extends State<UserSelection> {
-  String selectedOption = ''; // To track selected option
+class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
+  String selectedRole = "";
 
-  void navigateToNextPage() {
-    if (selectedOption == "Parent") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ParentsPage()),
-      );
-    } else if (selectedOption == "Nursery") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => NurseryPage()),
-      );
-    }
-  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Expanded( // This centers the content vertically
-              child: Center(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() {
+          selectedRole = "";
+        });
+      },
+      child: Scaffold(appBar: AppBar(leading: IconButton(onPressed: (){
+        SystemNavigator.pop();
+      }, icon: Icon(Icons.arrow_back_ios_new_outlined)),),
+        
+        body: Padding(
+          padding:  EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              SizedBox(height: 30.h,),
+              Expanded(// This centers the content vertically
+            child: Column(
+            mainAxisSize: MainAxisSize.min,// Ensures tight wrapping
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              Text(
+                "Continue as",
+                style:GoogleFonts.inter(fontSize: 40.sp, fontWeight: FontWeight.bold),
+              ),
+              ],
+              ),
+              SizedBox(height: 15.h),
+      
+              Row(
+                children: [
+              Text(
+                "To continue to the next page, please\n"
+                    "select which one you are",
+                style: GoogleFonts.inter(fontSize: 15.sp),
+              ),
+              ],
+              ),
+      
+              SizedBox(height: 20.h,),
+      //----------------------------------------------------------------------------///
+              Center(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Ensures tight wrapping
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Continue as",
-                          style: GoogleFonts.inter(fontSize: 40, fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedRole = "Parent";
+                        });
+                      },
+                      child: Container(
+                        height: 105.h,
+                        width: 354.95.w,
+                        decoration: BoxDecoration(
+                          gradient: selectedRole == "Parent"
+                              ? AppGradients.Projectgradient
+                              : null, // No gradient when not selected
+                          color: selectedRole == "Parent" ? null : Colors.white, // Default white color when not selected
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Text(
-                          "To continue to the next page, please\n"
-                              "select which one you are",
-                          style: GoogleFonts.inter(fontSize: 17),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 50),
-
-                    Center(
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedOption = "Parent";
-                              });
-                            },
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 30.r, // Avatar size
+                            backgroundColor: Color(0xFFEFEFF4), // Optional
                             child: Container(
-                              height: 116.32,
-                              width: 354.95,
+                              width: 30.w,  // Custom width
+                              height:30.h, // Custom height
                               decoration: BoxDecoration(
-                                gradient: selectedOption == "Parent"
-                                    ? LinearGradient(
-                                  colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)], // Your gradient colors
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                )
-                                    : null, // No gradient when not selected
-                                color: selectedOption == "Parent" ? null : Colors.white, // Default white color when not selected
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  radius: 30, // Avatar size
-                                  backgroundColor: Color(0xFF7AABFF), // Optional
-                                  child: Container(
-                                    width: 30,  // Custom width
-                                    height:30, // Custom height
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: AssetImage('assets/IMAGES/Icon User.png'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
+                                image: DecorationImage(
+                                  image: AssetImage('assets/IMAGES/Icon User.png'),
+                                  fit: BoxFit.cover,
                                 ),
-                                title: Text(
-                                  "Parent",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  "I am a parent/guardian seeking care",
-                                  style: GoogleFonts.inter(fontSize: 14, color: Colors.black),
-                                ),
-                                trailing: selectedOption == "Parent"
-                                    ? Icon(Icons.check_circle, color: Color(0xFF4CD964))
-                                    : null,
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedOption = "Nursery";
-                              });
-                            },
+                          title: Text(
+                            "Parent",
+                            style: GoogleFonts.inter(
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                              color: selectedRole == "Parent" ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "I am a parent/guardian\n "
+                                "seeking care",
+                            style: GoogleFonts.inter(fontSize: 15.sp,
+                                color: selectedRole == "Parent" ? Colors.white : Colors.black),
+                          ),
+                          trailing: selectedRole == "Parent"
+                              ? Icon(Icons.check_circle, color: Color(0xFF4CD964))
+                              : Icon(Icons.radio_button_unchecked,color:  Colors.grey),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedRole = "Nursery";
+                        });
+                      },
+      
+                      //////////////Nursery//////////////
+                      child: Container(
+                        height: 105.h,
+                        width: 354.95.w,
+                        decoration: BoxDecoration(
+                          gradient: selectedRole == "Nursery"
+                              ? AppGradients.Projectgradient
+                              : null, // No gradient when not selected
+                          color: selectedRole == "Nursery" ? null : Colors.white, // Default white color when not selected
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 30.r, // Avatar size
+                            backgroundColor: Color(0xFFEFEFF4), // Optional
                             child: Container(
-                              height: 116.32,
-                              width: 354.95,
+                              width: 30.w,  // Custom width
+                              height:30.h, // Custom height
                               decoration: BoxDecoration(
-                                gradient: selectedOption == "Nursery"
-                                    ? LinearGradient(
-                                  colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)], // Your gradient colors
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                )
-                                    : null, // No gradient when not selected
-                                color: selectedOption == "Nursery" ? null : Colors.white, // Default white color when not selected
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  radius: 30, // Avatar size
-                                  backgroundColor: Color(0xFFEFEFF4), // Optional
-                                  child: Container(
-                                    width: 30,  // Custom width
-                                    height:30, // Custom height
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: AssetImage('assets/IMAGES/nursery.png'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
+                                image: DecorationImage(
+                                  image: AssetImage('assets/IMAGES/nursery.png'),
+                                  fit: BoxFit.cover,
                                 ),
-                                title: Text(
-                                  "Nursery",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  "I am a preschool & day care provider",
-                                  style: GoogleFonts.inter(fontSize: 14, color: Colors.black),
-                                ),
-                                trailing: selectedOption == "Nursery"
-                                    ? Icon(Icons.check_circle, color: Color(0xFF4CD964))
-                                    : null,
                               ),
                             ),
                           ),
-                        ],
+                          title: Text(
+                            "Nursery",
+                            style: GoogleFonts.inter(
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                              color: selectedRole == "Nursery" ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "I am a preschool & day care provider",
+                            style: GoogleFonts.inter(fontSize: 15.sp,
+                                color: selectedRole == "Nursery" ? Colors.white : Colors.black),
+                          ),
+                          trailing: selectedRole == "Nursery"
+                              ? Icon(Icons.check_circle, color: Color(0xFF4CD964))
+                              : Icon(Icons.radio_button_unchecked,color: Colors.grey),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+            ],
             ),
-          ],
-        ),
-      ),
-
-        bottomNavigationBar: Padding(
-          padding: EdgeInsets.all(35.0),
-          child: SizedBox(
-            width: double.infinity,
-            height: 60,
-            child: ElevatedButton(
-              onPressed: selectedOption.isNotEmpty ? navigateToNextPage : null,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.zero, // Ensures no extra padding that cuts off the gradient
-                backgroundColor: Colors.transparent, // Removes default button color
-                shadowColor: Colors.transparent, // Removes unwanted shadow
               ),
-              child: Ink(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)], // Your gradient colors
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-
-              child: Container(
-                alignment: Alignment.center,
-                child: Text(
-                  "Continue",
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+        ]
           ),
         ),
-      ));
+      
+      //----------------------------------------------------------------------------------//
+      
+          //CONTINUE BUTTON BELOW
+          bottomNavigationBar: Padding(
+              padding: EdgeInsets.all(35.r),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60.h,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await saveUserRole(widget.user.uid, selectedRole, widget.user.email);
+                    if (selectedRole == "Parent") {
+                      Navigator.pushReplacement(context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfileScreen(
+                            parent: Parent(
+                              uid: widget.user.uid,
+                              name: widget.user.displayName ?? "",
+                              email: widget.user.email ?? "",
+                              paymentCards: [],
+                              location: "Location",
+                              profileImageUrl: widget.user.photoURL,
+                              phoneNumber:"",
+                            ),
+                            role: selectedRole,
+                            onProfileComplete: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => BottombarParentScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                    if(selectedRole == "Nursery") {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditNurseryProfileScreen(
+                            nursery: NurseryProfile(
+                              uid: widget.user.uid,
+                              email: widget.user.email ?? '',
+                              role: selectedRole,
+                              name: "",
+                              rating: 0.0,
+                              description: "",
+                              programs: [],
+                              schedules: [],
+                              calendar: "",
+                              hours: "",
+                              language: "",
+                              price: "",
+                              location: "location",
+                              profileImageUrl: null, phoneNumber: '', ownerId: '',
+                            ),
+                            role: selectedRole,
+                            onProfileComplete: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => BottombarNurseryScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.zero,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                  ),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      gradient:AppGradients.Projectgradient,// My gradient colors
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+      
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Continue",
+                        style: GoogleFonts.inter(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+      
+              )
+          )
+      
+      ),
+    );
+  }
+
+
+
+  Future<void> saveUserRole(String uid, String role, String? email) async {
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      'uid': uid,
+      'email': email ?? '',
+      'role': role,
+    }, SetOptions(merge: true));
   }
 }

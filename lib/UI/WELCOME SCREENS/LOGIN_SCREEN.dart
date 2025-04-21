@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../LOGIC/LOGIN/cubit.dart';
 import '../../LOGIC/LOGIN/state.dart';
-import '../../home.dart';
 import '../forget_change_password/forgetscreen.dart';
 import 'REGISTER_SCREEN.dart';
 
@@ -31,10 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
           if (state is LoginSucessState) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Login Successful")),
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const Home()),
             );
           } else if (state is LoginErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -75,9 +70,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           key: formKey,
                           child: Column(
                             children: [
-                              _buildTextField(emailController, "Email", Icons.email),
+                              _buildTextField(
+                                emailController,
+                                "Email",
+                                Icons.email,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  }
+                                  return null;
+                                },
+                              ),
                               const SizedBox(height: 15),
-                              _buildTextField(passwordController, "Password", Icons.lock, obscureText: true),
+                              _buildTextField(
+                                passwordController,
+                                "Password",
+                                Icons.lock,
+                                obscureText: true,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your password';
+                                  }
+                                  return null;
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -91,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   value: _keepMeSignedIn,
                                   onChanged: (value) {
                                     setState(() {
-                                      _keepMeSignedIn = !_keepMeSignedIn; // Toggle state
+                                      _keepMeSignedIn = value!;
                                     });
                                   },
                                   activeColor: Colors.white,
@@ -122,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             if (formKey.currentState?.validate() ?? false) {
                               final email = emailController.text;
                               final password = passwordController.text;
-                              context.read<LoginCubit>().loginWithEmail(email, password);
+                              context.read<LoginCubit>().loginWithEmail(email, password, context);
                             }
                           },
                           text: "Sign In",
@@ -132,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Divider(color: Colors.white, thickness: 1),
                         const SizedBox(height: 15),
                         _buildSocialButton(
-                          onPressed: () => context.read<LoginCubit>().signInWithGoogle(),
+                          onPressed: () => context.read<LoginCubit>().signInWithGoogle(context),
                           text: "Continue with Google",
                           imagePath: 'assets/IMAGES/download.png',
                           color: Colors.white,
@@ -140,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 10.h),
                         _buildSocialButton(
-                          onPressed: () => context.read<LoginCubit>().signInWithFacebook(),
+                          onPressed: () => context.read<LoginCubit>().signInWithFacebook(context),
                           text: "Continue with Facebook",
                           icon: Icons.facebook,
                           color: Colors.blue.shade800,
@@ -181,6 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
       String label,
       IconData icon, {
         bool obscureText = false,
+        String? Function(String?)? validator,
       }) {
     return TextFormField(
       controller: controller,
@@ -197,12 +214,13 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: BorderSide.none,
         ),
       ),
+      validator: validator,
     );
   }
 
   Widget _buildButton({required VoidCallback onPressed, required String text, bool isLoading = false}) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
