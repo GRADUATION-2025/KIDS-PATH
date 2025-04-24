@@ -292,10 +292,13 @@
 
 
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../LOGIC/UserRole/auth_cubit.dart';
+import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
+import '../WELCOME SCREENS/Email Verify/Email Verify.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -334,26 +337,32 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   // Function to trigger the typing animation
   void _startTypingAnimation() {
-    // Split the text into individual characters
     textList = displayText.split("");
 
-    // Typing animation: adds one character every 100 milliseconds
     Timer.periodic(const Duration(milliseconds: 150), (timer) {
       if (textIndex < textList.length) {
         setState(() {
           textIndex++;
         });
       } else {
-        timer.cancel();  // Stop the timer once all text is typed
+        timer.cancel();
       }
     });
 
-    // Navigate to the next screen after animation finishes
-    Future.delayed(const Duration(seconds: 6), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AuthWrapper()),
-      );
+    Future.delayed(const Duration(seconds: 6), () async {
+      final user = FirebaseAuth.instance.currentUser;
+      await user?.reload();  // Ensure latest user info
+      if (user != null && !user.emailVerified) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => EmailVerificationPage()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => AuthWrapper()),
+        );
+      }
     });
   }
 
@@ -371,11 +380,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
           // Fun, child-friendly gradient background
           Container(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)], // Bright yellow to pink
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+                gradient: AppGradients.Projectgradient
             ),
           ),
           // Multiple Animated Stars with up and down movement
