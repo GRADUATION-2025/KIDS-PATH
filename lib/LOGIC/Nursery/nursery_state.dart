@@ -13,6 +13,9 @@ class NurseryLoaded extends NurseryState {
   NurseryLoaded(this.nursery);
 }
 
+
+class NurseryUpdating extends NurseryState {}
+
 class NurseryError extends NurseryState {
   final String message;
   NurseryError(this.message);

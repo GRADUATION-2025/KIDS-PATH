@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import '../../UI/BOOKING/Booking.dart';
+import '../../UI/CHAT/chatList.dart';
 import '../../UI/Create_Profile_screen/PARENT/PARENTS_PAGE.dart';
 import '../../UI/HOME SCREEN/home.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
@@ -33,7 +34,7 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
         index: _selectedindex,
         children: [
           HomeScreen(),
-          Chat_Screen(),
+          ChatListScreen(),
           Booking_screen(),
           Notifcation_Screen(),
           ParentAccountScreen(),

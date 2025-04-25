@@ -5,6 +5,7 @@ import 'package:kidspath/UI/Create_Profile_screen/NURSERY/NURSERY_PAGE.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import '../../UI/BOOKING/Booking.dart';
 
+import '../../UI/CHAT/chatList.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
 import '../../UI/CHAT/chat.dart';
 
@@ -32,7 +33,7 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
       body: IndexedStack(
         index: _selectedindex,
         children: [
-          Chat_Screen(),
+          ChatListScreen(),
           Booking_screen(),
           Notifcation_Screen(),
           NurseryAccountScreen(),
