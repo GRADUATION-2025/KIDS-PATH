@@ -398,12 +398,12 @@
                             // Navigate based on the role after frame is built
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (role == "Parent") {
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => BottombarParentScreen()),
                                 );
                               } else if (role == "Nursery") {
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => BottombarNurseryScreen()),
                                 );

@@ -22,7 +22,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-
   runApp(
     MultiBlocProvider(
       providers: [
