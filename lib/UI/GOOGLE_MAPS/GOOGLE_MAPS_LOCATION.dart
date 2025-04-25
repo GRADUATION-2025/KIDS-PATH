@@ -289,7 +289,7 @@
     // Reset the inactivity timer
     void _resetInactivityTimer() {
       if (_inactivityTimer?.isActive ?? false) _inactivityTimer?.cancel();
-      _inactivityTimer = Timer(const Duration(seconds: 5), () {
+      _inactivityTimer = Timer(const Duration(seconds: 7), () {
         setState(() {
           _showPopup = true; // Show the popup after inactivity
         });
