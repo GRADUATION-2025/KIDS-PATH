@@ -52,7 +52,7 @@ class ParentAccountScreen extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider.value(
@@ -63,6 +63,7 @@ class ParentAccountScreen extends StatelessWidget {
                         onProfileComplete: () {
                           context.read<ParentCubit>().fetchParentData(userId);
                         },
+                        fromRegistration: false,
                       ),
                     ),
                   ),

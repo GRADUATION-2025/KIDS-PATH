@@ -49,7 +49,7 @@ class NurseryAccountScreen extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => EditNurseryProfileScreen(
@@ -58,7 +58,7 @@ class NurseryAccountScreen extends StatelessWidget {
                               onProfileComplete: () {
                                 // Simply fetch the data again after update
                                 context.read<NurseryCubit>().fetchNurseryData(user.uid);
-                              },
+                              }, fromRegistration: false,
                             ),
                           ),
                         );
@@ -94,7 +94,7 @@ class NurseryAccountScreen extends StatelessWidget {
                               ),
                               Text(
                                 nursery.email,
-                                style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                                style: TextStyle(fontSize: 13.sp, color: Colors.grey),
                               ),
                             ],
                           ),

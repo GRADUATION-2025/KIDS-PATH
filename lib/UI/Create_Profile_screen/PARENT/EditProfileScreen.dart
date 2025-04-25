@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import 'dart:io';
@@ -16,11 +17,15 @@ class EditProfileScreen extends StatefulWidget {
   final Parent parent;
   final String role;
   final VoidCallback onProfileComplete;
+  final bool fromRegistration;
+
 
   EditProfileScreen({
+    super.key,
     required this.parent,
     required this.role,
     required this.onProfileComplete,
+    required this.fromRegistration,
   });
 
   @override
@@ -32,6 +37,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   File? _imageFile;
   final ProfileService _profileService = ProfileService();
+
+
 
   @override
   void initState() {
@@ -73,8 +80,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         SnackBar(content: Text("Profile updated successfully!")),
 
       );
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),));
+
+      if(widget.fromRegistration) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),));
+      }
+      else{
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottombarParentScreen(),));
+      }
+
       //widget.onProfileComplete();
       setState(() {});
     } catch (e) {

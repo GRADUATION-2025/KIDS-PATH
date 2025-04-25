@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
+import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import 'dart:io';
 import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
@@ -13,12 +14,14 @@ class EditNurseryProfileScreen extends StatefulWidget {
   final NurseryProfile nursery;
   final String role;
   final VoidCallback onProfileComplete;
+  final bool fromRegistration;
 
   const EditNurseryProfileScreen({
     Key? key,
     required this.nursery,
     required this.role,
     required this.onProfileComplete,
+    required this.fromRegistration,
   }) : super(key: key);
 
   @override
@@ -36,6 +39,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   final List<TextEditingController> _programControllers = [];
   File? _imageFile;
   bool _agreeToTerms = true;
+
 
   @override
   void initState() {
@@ -123,7 +127,13 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Profile updated successfully!")),
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),));
+      if(widget.fromRegistration) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),));
+      }
+      else{
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottombarNurseryScreen(),));
+      }
       //widget.onProfileComplete();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

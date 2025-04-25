@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
@@ -210,14 +211,16 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               location: "Location",
                               profileImageUrl: widget.user.photoURL,
                               phoneNumber:"",
+                              
                             ),
                             role: selectedRole,
                             onProfileComplete: () {
+                              
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => BottombarParentScreen()),
+                                MaterialPageRoute(builder: (context) => GoogleMapsLocationx()),
                               );
-                            },
+                            }, fromRegistration: true,
                           ),
                         ),
                       );
@@ -247,9 +250,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             onProfileComplete: () {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => BottombarNurseryScreen()),
+                                MaterialPageRoute(builder: (context) => GoogleMapsLocationx()),
                               );
-                            },
+                            },fromRegistration: true,
                           ),
                         ),
                       );

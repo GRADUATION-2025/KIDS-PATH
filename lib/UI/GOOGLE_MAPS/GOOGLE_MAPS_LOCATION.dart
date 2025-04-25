@@ -398,14 +398,16 @@
                             // Navigate based on the role after frame is built
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (role == "Parent") {
-                                Navigator.pushReplacement(
+                                Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(builder: (context) => BottombarParentScreen()),
+                                    (route)=>false
                                 );
                               } else if (role == "Nursery") {
-                                Navigator.pushReplacement(
+                                Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(builder: (context) => BottombarNurseryScreen()),
+                                    (route)=>false
                                 );
                               } else {
                                 print('Unknown role');
