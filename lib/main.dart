@@ -70,31 +70,43 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
+
         if (snapshot.hasData && snapshot.data != null) {
           final user = snapshot.data!;
+
           return FutureBuilder<DocumentSnapshot>(
             future: FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(body: Center(child: CircularProgressIndicator()));
               }
-              if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                final userData = userSnapshot.data!.data() as Map<String, dynamic>;
-                final userRole = userData['role'] as String?;
 
-                if (userRole == 'Parent') {
+              if (userSnapshot.hasError) {
+                return const Scaffold(body: Center(child: Text("Something went wrong")));
+              }
+
+              // Check if user document exists
+              if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
+
+                // Check if 'role' field exists
+                final role = userData?['role'];
+                if (role == 'Parent') {
                   return const BottombarParentScreen();
-                } else if (userRole == 'Nursery') {
+                } else if (role == 'Nursery') {
                   return BlocProvider(
                     create: (context) => NurseryCubit()..fetchNurseryData(user.uid),
                     child: const BottombarNurseryScreen(),
                   );
                 }
               }
+
+              // Role not selected yet — send to Role Selection
               return RoleSelectionScreen(user: user);
             },
           );
         }
+
         return const LoginScreen();
       },
     );

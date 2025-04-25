@@ -183,7 +183,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   }
 
   void _startResendCooldown() {
-    _cooldownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _cooldownTimer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
         _resendCooldown--;
         if (_resendCooldown <= 0) {
