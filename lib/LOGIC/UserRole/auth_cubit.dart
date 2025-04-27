@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +5,6 @@ import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 import '../../UI/PROFILE SELECT SCREEN/User_Selection.dart';
 import '../../UI/WELCOME SCREENS/LOGIN_SCREEN.dart';
 import '../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_NURSERY.dart';
-
-
-
-
 class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
