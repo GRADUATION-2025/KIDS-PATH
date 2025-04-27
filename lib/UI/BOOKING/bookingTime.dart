@@ -1,4 +1,4 @@
-
+// Updated BookingTimesScreen
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +23,7 @@ class BookingTimesScreen extends StatelessWidget {
             );
           }
           if (state is BookingStatusUpdated) {
-            Navigator.pop(context); // Go back to previous screen after update
+            Navigator.pop(context);
           }
         },
         builder: (context, state) {
@@ -68,29 +68,57 @@ class BookingTimesScreen extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
-          '$statusText: $displayName\nStatus: ${booking.status}',
+          '$statusText: $displayName\n'
+              'Status: ${booking.status}\n'
+              'Child: ${booking.childName} (${booking.childAge}, ${booking.childGender})',
         ),
-        trailing: isNursery && booking.status == 'pending'
+        trailing: isNursery
             ? Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.check, color: Colors.green),
-              onPressed: () => context.read<BookingCubit>().updateBookingStatus(
-                  booking.id,
-                  'confirmed'
-              ),
+              icon: const Icon(Icons.info_outline),
+              onPressed: () => _showChildDetails(context, booking),
             ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.red),
-              onPressed: () => context.read<BookingCubit>().updateBookingStatus(
-                  booking.id,
-                  'cancelled'
+            if (booking.status == 'pending') ...[
+              IconButton(
+                icon: const Icon(Icons.check, color: Colors.green),
+                onPressed: () => context.read<BookingCubit>()
+                    .updateBookingStatus(booking.id, 'confirmed'),
               ),
-            ),
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.red),
+                onPressed: () => context.read<BookingCubit>()
+                    .updateBookingStatus(booking.id, 'cancelled'),
+              ),
+            ],
           ],
         )
             : _buildStatusIndicator(booking.status),
+      ),
+    );
+  }
+
+  void _showChildDetails(BuildContext context, Booking booking) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Child Details'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Name: ${booking.childName}'),
+            Text('Age: ${booking.childAge}'),
+            Text('Gender: ${booking.childGender}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
@@ -113,6 +141,7 @@ class BookingTimesScreen extends StatelessWidget {
         style: TextStyle(
           color: statusColors[status],
           fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
       ),
     );

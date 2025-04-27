@@ -1,13 +1,11 @@
-
 // Updated BookingCubit
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kidspath/LOGIC/booking/state.dart';
-
 import '../../DATA MODELS/bookingModel/bookingModel.dart';
+import '../../DATA MODELS/Child Model/Child Model.dart';
 
 class BookingCubit extends Cubit<BookingState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -38,6 +36,7 @@ class BookingCubit extends Cubit<BookingState> {
     required DateTime dateTime,
     required String nurseryId,
     required String nurseryName,
+    required Child child,
   }) async {
     if (_isProcessing) return;
     _isProcessing = true;
@@ -46,16 +45,17 @@ class BookingCubit extends Cubit<BookingState> {
     try {
       final user = _auth.currentUser!;
 
-      // Check for existing bookings
+      // Check for existing bookings for same child and nursery
       final existing = await _firestore
           .collection('bookings')
           .where('parentId', isEqualTo: user.uid)
           .where('nurseryId', isEqualTo: nurseryId)
+          .where('childId', isEqualTo: child.id)
           .where('status', isEqualTo: 'pending')
           .get();
 
       if (existing.docs.isNotEmpty) {
-        emit(BookingError('You already have a pending booking with this nursery'));
+        emit(BookingError('You already have a pending booking for this child'));
         return;
       }
 
@@ -78,6 +78,11 @@ class BookingCubit extends Cubit<BookingState> {
         dateTime: dateTime,
         status: 'pending',
         createdAt: Timestamp.now(),
+        updatedAt: null,
+        childId: child.id,
+        childName: child.name,
+        childAge: child.age,
+        childGender: child.gender,
       );
 
       await _firestore.collection('bookings').add(booking.toMap());

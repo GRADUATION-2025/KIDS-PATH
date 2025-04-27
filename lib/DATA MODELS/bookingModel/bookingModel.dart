@@ -1,5 +1,3 @@
-
-
 // Updated Booking Model
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -16,6 +14,10 @@ class Booking {
   final String status;
   final Timestamp createdAt;
   final Timestamp? updatedAt;
+  final String childId;
+  final String childName;
+  final int childAge;
+  final String childGender;
 
   Booking({
     required this.id,
@@ -30,6 +32,10 @@ class Booking {
     required this.status,
     required this.createdAt,
     this.updatedAt,
+    required this.childId,
+    required this.childName,
+    required this.childAge,
+    required this.childGender,
   });
 
   factory Booking.fromFirestore(DocumentSnapshot doc) {
@@ -47,6 +53,10 @@ class Booking {
       status: data['status'] ?? 'pending',
       createdAt: data['createdAt'] ?? Timestamp.now(),
       updatedAt: data['updatedAt'],
+      childId: data['childId'] ?? '',
+      childName: data['childName'] ?? '',
+      childAge: data['childAge'] ?? 0,
+      childGender: data['childGender'] ?? '',
     );
   }
 
@@ -62,6 +72,10 @@ class Booking {
       'dateTime': Timestamp.fromDate(dateTime),
       'status': status,
       'createdAt': FieldValue.serverTimestamp(),
+      'childId': childId,
+      'childName': childName,
+      'childAge': childAge,
+      'childGender': childGender,
       if (updatedAt != null) 'updatedAt': FieldValue.serverTimestamp(),
     };
   }
