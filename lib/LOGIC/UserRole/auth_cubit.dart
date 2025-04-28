@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +5,6 @@ import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 import '../../UI/PROFILE SELECT SCREEN/User_Selection.dart';
 import '../../UI/WELCOME SCREENS/LOGIN_SCREEN.dart';
 import '../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_NURSERY.dart';
-
-
 
 
 class AuthWrapper extends StatelessWidget {
@@ -30,21 +27,28 @@ class AuthWrapper extends StatelessWidget {
               }
               if (userSnapshot.hasData && userSnapshot.data != null) {
                 final userData = userSnapshot.data!;
-                final userRole = userData['role'];
 
-                if (userRole == 'Parent') {
-                  return BottombarParentScreen(); // Navigate to Parent dashboard
-                } else if (userRole == 'Nursery') {
-                  return BottombarNurseryScreen(); // Navigate to Nursery dashboard
+                if (!userData.exists) {
+                  // ❗ New user with no document yet
+                  return RoleSelectionScreen(user: user);
+                }
+
+                final role = userData['role'];
+
+                if (role == 'Parent') {
+                  return BottombarParentScreen();
+                } else if (role == 'Nursery') {
+                  return BottombarNurseryScreen();
                 } else {
-                  return RoleSelectionScreen(user: user); // Navigate to role selection if role is not set
+                  return RoleSelectionScreen(user: user);
                 }
               }
-              return RoleSelectionScreen(user: user); // Navigate to role selection if no role is found
+              // Safety fallback
+              return RoleSelectionScreen(user: user);
             },
           );
         }
-        return LoginScreen(); // Redirect to login screen if not authenticated
+        return LoginScreen();
       },
     );
   }
