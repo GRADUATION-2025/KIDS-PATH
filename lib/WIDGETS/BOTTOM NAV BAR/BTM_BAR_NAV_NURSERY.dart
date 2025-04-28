@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/UI/Create_Profile_screen/NURSERY/NURSERY_PAGE.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import '../../LOGIC/booking/cubit.dart';
 import '../../UI/BOOKING/Booking.dart';
 
+import '../../UI/BOOKING/bookingTime.dart';
 import '../../UI/CHAT/chatList.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
 import '../../UI/CHAT/chat.dart';
@@ -34,7 +37,10 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
         index: _selectedindex,
         children: [
           ChatListScreen(),
-          Booking_screen(),
+          BlocProvider(
+            create: (context) => BookingCubit()..initBookingsStream(isNursery: true),
+            child: BookingTimesScreen(isNursery: true),
+          ),
           Notifcation_Screen(),
           NurseryAccountScreen(),
 
