@@ -32,7 +32,7 @@ class AuthWrapper extends StatelessWidget {
                 final userData = userSnapshot.data!;
 
                 if (!userData.exists) {
-                  // ❗ New user with no document yet
+                  //  New user with no document yet
                   return RoleSelectionScreen(user: user);
                 }
 
