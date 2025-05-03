@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kidspath/LOGIC/booking/cubit.dart';
 import 'LOGIC/Home/home_cubit.dart';
 import 'LOGIC/Nursery/nursery_cubit.dart';
 import 'LOGIC/chat/cubit.dart';
@@ -32,6 +33,8 @@ void main() async {
         BlocProvider(create: (context) => HomeCubit()),
         BlocProvider(create: (context) => ChildCubit()),
         BlocProvider(create: (context) => ChatCubit()),
+        BlocProvider(create: (context) => BookingCubit()),
+
 
       ],
       child: const MyApp(),
