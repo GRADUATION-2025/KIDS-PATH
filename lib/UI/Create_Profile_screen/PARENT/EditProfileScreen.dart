@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 
@@ -152,6 +153,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16)),
             TextField(
               controller: _nameController,
+              keyboardType: TextInputType.text,
+              maxLength: 17,
+              inputFormatters: [
+                FilteringTextInputFormatter.singleLineFormatter
+              ],
 
               decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: John Mark",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
             ),
@@ -166,6 +172,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Text("Phone number", style: TextStyle(color: Colors.grey, fontSize: 16)),
             TextField(
               controller: _phoneController,
+              keyboardType:TextInputType.number ,
+              maxLength: 11,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly
+              ],
               decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: 015501478874",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
             ),
             SizedBox(height: 20),
