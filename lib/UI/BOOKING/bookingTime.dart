@@ -1,4 +1,3 @@
-// Updated BookingTimesScreen
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../LOGIC/booking/cubit.dart';
 import '../../LOGIC/booking/state.dart';
+import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 
 class BookingTimesScreen extends StatelessWidget {
   final bool isNursery;
@@ -14,7 +14,46 @@ class BookingTimesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bookings')),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 30),
+            AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: true,
+              automaticallyImplyLeading: false,
+              title: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return AppGradients.Projectgradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  );
+                },
+                child: const Text(
+                  'Interview Times',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                height: 2,
+                width: MediaQuery.of(context).size.width / 2,
+                decoration: const BoxDecoration(
+                  gradient: AppGradients.Projectgradient,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: BlocConsumer<BookingCubit, BookingState>(
         listener: (context, state) {
           if (state is BookingError) {
@@ -23,7 +62,9 @@ class BookingTimesScreen extends StatelessWidget {
             );
           }
           if (state is BookingStatusUpdated) {
-            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Status updated successfully')),
+            );
           }
         },
         builder: (context, state) {
@@ -38,6 +79,7 @@ class BookingTimesScreen extends StatelessWidget {
 
   Widget _buildBookingsList(BuildContext context, List<Booking> bookings) {
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: bookings.length,
       itemBuilder: (context, index) {
         final booking = bookings[index];
@@ -49,53 +91,117 @@ class BookingTimesScreen extends StatelessWidget {
   Widget _buildBookingItem(BuildContext context, Booking booking) {
     final displayName = isNursery ? booking.parentName : booking.nurseryName;
     final profileImage = isNursery ? booking.parentProfileImage : booking.nurseryProfileImage;
-    final statusText = isNursery ? 'Parent' : 'Nursery';
 
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 22,
-          backgroundImage: profileImage != null
-              ? NetworkImage(profileImage)
-              : null,
-          child: profileImage == null
-              ? Text(displayName.isNotEmpty ? displayName[0] : '?')
-              : null,
-        ),
-        title: Text(
-          DateFormat('MMM dd, yyyy - hh:mm a').format(booking.dateTime),
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
-        subtitle: Text(
-          '$statusText: $displayName\n'
-              'Status: ${booking.status}\n'
-              'Child: ${booking.childName} (${booking.childAge}, ${booking.childGender})',
-        ),
-        trailing: isNursery
-            ? Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () => _showChildDetails(context, booking),
-            ),
-            if (booking.status == 'pending') ...[
-              IconButton(
-                icon: const Icon(Icons.check, color: Colors.green),
-                onPressed: () => context.read<BookingCubit>()
-                    .updateBookingStatus(booking.id, 'confirmed'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.red),
-                onPressed: () => context.read<BookingCubit>()
-                    .updateBookingStatus(booking.id, 'cancelled'),
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
             ],
-          ],
-        )
-            : _buildStatusIndicator(booking.status),
-      ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+              Container(
+              width: 55,
+              height: 55,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(width: 1.5, color: const Color(0xFF0D6EFD)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: profileImage != null
+                    ? Image.network(profileImage, fit: BoxFit.cover)
+                    : Container(
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: Text(
+                    displayName.isNotEmpty ? displayName[0] : '?',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  Text(
+                  displayName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (!isNursery) // Only show child name in parent view
+            Text(
+            'Child: ${booking.childName}',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            DateFormat('EEEE, MMMM dd').format(booking.dateTime),
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.black87,
+            ),
+          ),
+          Text('${DateFormat('h:mm a').format(booking.dateTime)} - ${DateFormat('h:mm a').format(booking.dateTime.add(const Duration(hours: 4)))}',
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black87,
+              ),
+            ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        if (isNursery)
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.info_outline),
+          onPressed: () => _showChildDetails(context, booking),
+        ),
+        if (booking.status == 'pending') ...[
+          _GradientActionButton(
+            label: 'Approve',
+            icon: Icons.check_circle_outline,
+            gradientColors: AppGradients.Projectgradient.colors,
+            onTap: () => context.read<BookingCubit>().updateBookingStatus(booking.id, 'confirmed'),
+          ),
+          const SizedBox(height: 6),
+          _GradientActionButton(
+            label: 'Decline',
+            icon: Icons.highlight_off_outlined,
+            gradientColors: [Color(0xFFEB4D5B), Color(0xFFAE2B29)],
+            onTap: () => context.read<BookingCubit>().updateBookingStatus(booking.id, 'cancelled'),
+          ),
+        ] else
+          _buildStatusPill(booking.status),
+      ],
+    )
+    else
+    _buildStatusPill(booking.status),
+    ],
+    ),
+    ),
+    ),
     );
   }
 
@@ -123,25 +229,76 @@ class BookingTimesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIndicator(String status) {
+  Widget _buildStatusPill(String status) {
     final statusColors = {
-      'confirmed': Colors.green,
-      'cancelled': Colors.red,
+      'confirmed': const Color(0xFF0D6EFD),
+      'cancelled': Colors.grey,
       'pending': Colors.orange,
     };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: statusColors[status]!.withOpacity(0.1),
+        color: statusColors[status]!.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        status.toUpperCase(),
+        status[0].toUpperCase() + status.substring(1),
         style: TextStyle(
           color: statusColors[status],
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
           fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+class _GradientActionButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final List<Color> gradientColors;
+  final VoidCallback onTap;
+
+  const _GradientActionButton({
+    required this.label,
+    required this.icon,
+    required this.gradientColors,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: gradientColors),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.last.withOpacity(0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white, size: 18),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );

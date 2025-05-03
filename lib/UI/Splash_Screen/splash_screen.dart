@@ -290,7 +290,6 @@
 
 // stars up //
 
-
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -299,7 +298,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../LOGIC/UserRole/auth_cubit.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../WELCOME SCREENS/Email Verify/Email Verify.dart';
-
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -310,65 +308,100 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   List<String> textList = [];
-  final String displayText = "Kids Path";  // Full text to be typed
+  final String displayText = "Kids Path";
   int textIndex = 0;
 
   late AnimationController _starAnimationController;
   late Animation<double> _starAnimation;
+  late AnimationController _textAnimationController;
+  late Animation<double> _textAnimation;
 
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
     _startTypingAnimation();
+    _navigateAfterDelay();
+  }
 
-    // Animation controller for the stars
+  void _initializeAnimations() {
     _starAnimationController = AnimationController(
       duration: const Duration(seconds: 4),
       vsync: this,
-    )..repeat(reverse: true);  // Repeats the animation back and forth
+    )..repeat(reverse: true);
 
     _starAnimation = Tween<double>(begin: 0, end: 100).animate(
       CurvedAnimation(
         parent: _starAnimationController,
-        curve: Curves.easeInOut,  // Smooth up-and-down movement
+        curve: Curves.easeInOut,
       ),
+    );
+
+    _textAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _textAnimation = CurvedAnimation(
+      parent: _textAnimationController,
+      curve: Curves.easeOutBack,
     );
   }
 
-  // Function to trigger the typing animation
   void _startTypingAnimation() {
     textList = displayText.split("");
+    _textAnimationController.forward();
 
     Timer.periodic(const Duration(milliseconds: 150), (timer) {
       if (textIndex < textList.length) {
-        setState(() {
-          textIndex++;
-        });
+        setState(() => textIndex++);
       } else {
         timer.cancel();
       }
     });
+  }
 
-    Future.delayed(const Duration(seconds: 6), () async {
-      final user = FirebaseAuth.instance.currentUser;
-      await user?.reload();  // Ensure latest user info
-      if (user != null && !user.emailVerified) {
+  Future<void> _navigateAfterDelay() async {
+    await Future.delayed(const Duration(seconds: 6));
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload();
+
+      // Check if user has any social provider
+      final hasSocialLogin = user.providerData.any(
+            (info) => info.providerId != 'password',
+      );
+
+      if (!hasSocialLogin && !user.emailVerified) {
+        // Only email/password users need verification
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => EmailVerificationPage()),
         );
       } else {
+        // Social users or verified email users
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => AuthWrapper()),
         );
       }
-    });
+    } else {
+      // No user logged in
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => AuthWrapper()),
+      );
+    }
   }
 
   @override
   void dispose() {
     _starAnimationController.dispose();
+    _textAnimationController.dispose();
     super.dispose();
   }
 
@@ -377,56 +410,29 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     return Scaffold(
       body: Stack(
         children: [
-          // Fun, child-friendly gradient background
           Container(
             decoration: const BoxDecoration(
-                gradient: AppGradients.Projectgradient
+              gradient: AppGradients.Projectgradient,
             ),
           ),
-          // Multiple Animated Stars with up and down movement
-          _buildAnimatedStar(40, 80, 1.2), // First star
-          _buildAnimatedStar(120, 150, 0.8), // Second star
-          _buildAnimatedStar(200, 50, 1.5), // Third star
-          _buildAnimatedStar(300, 100, 1.3), // Fourth star
-          _buildAnimatedStar(250, 200, 0.9), // Fifth star
 
-          // Typing text animation
+          // Animated Stars
+          _buildAnimatedStar(40, 80, 1.2),
+          _buildAnimatedStar(120, 150, 0.8),
+          _buildAnimatedStar(200, 50, 1.5),
+          _buildAnimatedStar(300, 100, 1.3),
+          _buildAnimatedStar(250, 200, 0.9),
+
+          // Main Content
           Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(
-                textIndex,  // Create a widget for each typed letter
-                    (index) {
-                  // Animate each character's appearance with bounce and opacity
-                  return AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: 1.0,
-                    child: AnimatedScale(
-                      duration: const Duration(milliseconds: 300),
-                      scale: 1.2,  // Slightly scale the letter for effect
-                      curve: Curves.elasticOut,  // More energetic bounce for kids
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 400),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            child: child,
-                          );
-                        },
-                        child: Text(
-                          textList[index],
-                          key: ValueKey<int>(index),  // Unique key for transition
-                          style: GoogleFonts.pacifico(  // Playful font style for kids
-                            fontSize: 55,  // Large and fun text size
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 1.8,  // Letter spacing for readability
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+            child: ScaleTransition(
+              scale: _textAnimation,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  textIndex,
+                      (index) => _buildAnimatedLetter(textList[index], index),
+                ),
               ),
             ),
           ),
@@ -435,10 +441,31 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
   }
 
-  // Helper function to build animated stars
+  Widget _buildAnimatedLetter(String letter, int index) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return ScaleTransition(
+          scale: animation,
+          child: child,
+        );
+      },
+      child: Text(
+        letter,
+        key: ValueKey<int>(index),
+        style: GoogleFonts.pacifico(
+          fontSize: 55,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          letterSpacing: 1.8,
+        ),
+      ),
+    );
+  }
+
   Widget _buildAnimatedStar(double left, double top, double scale) {
     return Positioned(
-      top: top + _starAnimation.value,  // Adding the animated movement
+      top: top + _starAnimation.value,
       left: left,
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 800),
@@ -446,17 +473,16 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         child: AnimatedScale(
           duration: const Duration(milliseconds: 800),
           scale: textIndex == displayText.length ? scale : 0.0,
-          child: Icon(
-            Icons.star,  // Star icon
-            size: 50,  // Size of the star
-            color: Colors.white ,
+          child: const Icon(
+            Icons.star,
+            size: 50,
+            color: Colors.white,
           ),
         ),
       ),
     );
   }
 }
-
 
 //
 //

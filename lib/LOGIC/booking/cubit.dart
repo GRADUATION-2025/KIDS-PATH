@@ -1,4 +1,3 @@
-// Updated BookingCubit
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,10 +23,12 @@ class BookingCubit extends Cubit<BookingState> {
     _bookingsSubscription = _firestore
         .collection('bookings')
         .where(isNursery ? 'nurseryId' : 'parentId', isEqualTo: userId)
-        .orderBy('dateTime', descending: true)
+        .orderBy('createdAt', descending: true) // Updated sorting field
         .snapshots()
         .listen((snapshot) {
-      final bookings = snapshot.docs.map((doc) => Booking.fromFirestore(doc)).toList();
+      final bookings = snapshot.docs
+          .map((doc) => Booking.fromFirestore(doc))
+          .toList();
       emit(BookingsLoaded(bookings));
     });
   }
@@ -45,7 +46,7 @@ class BookingCubit extends Cubit<BookingState> {
     try {
       final user = _auth.currentUser!;
 
-      // Check for existing bookings for same child and nursery
+      // Check for existing pending bookings
       final existing = await _firestore
           .collection('bookings')
           .where('parentId', isEqualTo: user.uid)
@@ -55,29 +56,26 @@ class BookingCubit extends Cubit<BookingState> {
           .get();
 
       if (existing.docs.isNotEmpty) {
-        emit(BookingError('You already have a pending booking for this child'));
+        emit(BookingError('Existing pending booking for this child'));
         return;
       }
 
-      // Get parent and nursery data
+      // Fetch user data
       final parentDoc = await _firestore.collection('parents').doc(user.uid).get();
-      final parentData = parentDoc.data() as Map<String, dynamic>;
-
       final nurseryDoc = await _firestore.collection('nurseries').doc(nurseryId).get();
-      final nurseryData = nurseryDoc.data() as Map<String, dynamic>;
 
       final booking = Booking(
         id: '',
         parentId: user.uid,
         nurseryId: nurseryId,
-        parentName: parentData['name'] ?? 'Parent',
-        parentEmail: parentData['email'] ?? '',
-        parentProfileImage: parentData['profileImageUrl'],
+        parentName: parentDoc['name'] ?? 'Parent',
+        parentEmail: parentDoc['email'] ?? '',
+        parentProfileImage: parentDoc['profileImageUrl'],
         nurseryName: nurseryName,
-        nurseryProfileImage: nurseryData['profileImageUrl'],
+        nurseryProfileImage: nurseryDoc['profileImageUrl'],
         dateTime: dateTime,
         status: 'pending',
-        createdAt: Timestamp.now(),
+        createdAt: Timestamp.now(), // Set creation timestamp
         updatedAt: null,
         childId: child.id,
         childName: child.name,
