@@ -49,12 +49,12 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.black),
-              onPressed: () => context.read<HomeCubit>().refreshData(),
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(Icons.refresh, color: Colors.black),
+          //     onPressed: () => context.read<HomeCubit>().refreshData(),
+          //   ),
+          // ],
         ),
         body: _HomeBody(),
       ),

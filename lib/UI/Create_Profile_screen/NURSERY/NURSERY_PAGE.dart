@@ -23,17 +23,17 @@ class NurseryAccountScreen extends StatelessWidget {
       create: (context) => NurseryCubit()..fetchNurseryData(user.uid),
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-
-          actions: [
-            IconButton(
-              icon: Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {},
-            ),
-          ],
-        ),
+        // // appBar: AppBar(
+        // //   elevation: 0,
+        // //   backgroundColor: Colors.white,
+        //
+        //   // actions: [
+        //   //   IconButton(
+        //   //     icon: Icon(Icons.more_vert, color: Colors.black),
+        //   //     onPressed: () {},
+        //   //   ),
+        //   // ],
+        // ),
         body: BlocConsumer<NurseryCubit, NurseryState>(
           listener: (context, state) {
             // Remove the NurseryUpdated check since it's not defined
@@ -47,6 +47,7 @@ class NurseryAccountScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                     SizedBox(height: kToolbarHeight),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
