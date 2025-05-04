@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_paymob/paymob_response.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../LOGIC/PAYMOB/paymob_helper.dart';
 import '../../LOGIC/booking/cubit.dart';
@@ -21,7 +24,6 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   WebViewController? _controller;
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -47,28 +49,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ..setNavigationDelegate(
             NavigationDelegate(
               onNavigationRequest: (request) {
-                // Handle Paymob's success pattern
-                if (request.url.contains('/success') ||
-                    request.url.contains('success=true')) {
+                if (request.url.contains('/success') || request.url.contains('success=true')) {
                   _handlePaymentSuccess();
                   return NavigationDecision.prevent;
                 }
 
-                // Add more specific checks if needed
-                if (request.url.contains('/fail') ||
-                    request.url.contains('failed=true')) {
+                if (request.url.contains('/fail') || request.url.contains('failed=true')) {
                   _handlePaymentFailure();
                   return NavigationDecision.prevent;
                 }
+
                 return NavigationDecision.navigate;
               },
-            )
+            ),
           )
           ..loadRequest(
             Uri.parse('https://accept.paymob.com/api/acceptance/iframes/911300?payment_token=$paymentKey'),
           );
       });
-    } on Exception catch (e) {
+    } catch (e) {
       Navigator.pop(context);
       showDialog(
         context: context,
@@ -87,33 +86,49 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _handlePaymentSuccess() async {
-    // Close webview first
-    Navigator.pop(context);
 
 
+    final parentId = FirebaseAuth.instance.currentUser?.uid;
 
     try {
+
       await context.read<BookingCubit>().updateBookingStatus(
           widget.bookingId,
           'confirmed'
       );
 
-      // Close loading and refresh
-      Navigator.pop(context); // Close loading
-      context.read<BookingCubit>().initBookingsStream(isNursery: false);
+      // Assuming Paymob provides the last 4 digits in the payment response.
+      final cardLast4 = "4245"; // Replace this with the actual last 4 digits from Paymob response
 
-      // Show success message
+      // 🔹 Save payment info to Firestore, including cardLast4
+      await FirebaseFirestore.instance.collection('Transaction-Data').add({
+        'parentId': parentId,
+        'bookingId': widget.bookingId,
+        'Amount': widget.amount,
+        'Status': 'paid',
+        'CreatedAt': FieldValue.serverTimestamp(),
+        'CardLast4': cardLast4,  // Store the last 4 digits of the card
+      });
+
+      // 🔹 Update booking status to confirmed
+
+
+      // 🔹 Refresh bookings and show success
+      context.read<BookingCubit>().initBookingsStream(isNursery: false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Payment successful! Booking confirmed'),
           backgroundColor: Colors.green,
         ),
       );
+
+      Navigator.pop(context); // Close loading or previous screen if needed
+
     } catch (e) {
-      Navigator.pop(context); // Close loading
+      Navigator.pop(context); // Close any open dialogs
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Status update failed: ${e.toString()}'),
+          content: Text('Error: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -123,7 +138,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void _handlePaymentFailure() {
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Payment failed. Please try again')),
+      const SnackBar(
+        content: Text('Payment failed. Please try again'),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -131,12 +149,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Payment Gateway')),
-      body:
-      Stack(
+      body: Stack(
         children: [
-          if (_controller != null)
-            WebViewWidget(controller: _controller!),
-
+          if (_controller != null) WebViewWidget(controller: _controller!),
+          if (_controller == null)
+            const Center(child: CircularProgressIndicator()),
         ],
       ),
     );
