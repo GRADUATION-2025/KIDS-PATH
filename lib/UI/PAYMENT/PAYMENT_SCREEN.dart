@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_paymob/paymob_response.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -89,6 +88,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
 
     final parentId = FirebaseAuth.instance.currentUser?.uid;
+    final parentDoc = await FirebaseFirestore.instance.collection('parents').doc(parentId).get();
+    final bookingDoc = await FirebaseFirestore.instance.collection('bookings').doc(widget.bookingId).get();
+    final parentName = parentDoc['name'];
+    final childName = bookingDoc['childName'];
+    final nurseryName = bookingDoc['nurseryName'];
+    final nurseryId = bookingDoc['nurseryId'];
+    final childId = bookingDoc['childId'];
 
     try {
 
@@ -103,11 +109,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
       // 🔹 Save payment info to Firestore, including cardLast4
       await FirebaseFirestore.instance.collection('Transaction-Data').add({
         'parentId': parentId,
+        'name': parentName,
         'bookingId': widget.bookingId,
+        'childName': childName,
+        'nurseryName': nurseryName,
+        'nurseryId': nurseryId,
+        'childId':childId,
         'Amount': widget.amount,
         'Status': 'paid',
         'CreatedAt': FieldValue.serverTimestamp(),
-        'CardLast4': cardLast4,  // Store the last 4 digits of the card
+        'CardLast4': cardLast4,
       });
 
       // 🔹 Update booking status to confirmed
