@@ -312,6 +312,7 @@ import '../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../LOGIC/booking/cubit.dart';
 import '../../LOGIC/booking/state.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
+import '../PAYMENT/PAYMENT_SCREEN.dart';
 
 class BookingTimesScreen extends StatefulWidget {
   final bool isNursery;
@@ -326,7 +327,8 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookingCubit>().initBookingsStream(isNursery: widget.isNursery);
+      context.read<BookingCubit>().initBookingsStream(
+          isNursery: widget.isNursery);
     });
   }
 
@@ -338,9 +340,8 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 30),
             AppBar(
-              backgroundColor: Colors.white,
+
               elevation: 0,
               centerTitle: true,
               automaticallyImplyLeading: false,
@@ -364,7 +365,10 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
               alignment: Alignment.centerLeft,
               child: Container(
                 height: 2,
-                width: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width / 2,
                 decoration: const BoxDecoration(
                   gradient: AppGradients.Projectgradient,
                 ),
@@ -380,22 +384,14 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
               SnackBar(content: Text(state.message)),
             );
           }
-          if (state is BookingStatusUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Status updated successfully')),
-            );
-          }
         },
         builder: (context, state) {
           if (state is BookingsLoaded) {
             return _buildBookingsList(context, state.bookings);
           }
-          if (state is BookingError) {
-            return Center(child: Text(state.message));
-          }
           return const Center(child: CircularProgressIndicator());
         },
-      ),
+      )
     );
   }
 
@@ -406,7 +402,8 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        context.read<BookingCubit>().initBookingsStream(isNursery: widget.isNursery);
+        context.read<BookingCubit>().initBookingsStream(
+            isNursery: widget.isNursery);
       },
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -420,144 +417,172 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
   }
 
   Widget _buildBookingItem(BuildContext context, Booking booking) {
-    final displayName = widget.isNursery ? booking.parentName : booking.nurseryName;
-    final profileImage = widget.isNursery ? booking.parentProfileImage : booking.nurseryProfileImage;
+    final displayName = widget.isNursery ? booking.parentName : booking
+        .nurseryName;
+    final profileImage = widget.isNursery ? booking.parentProfileImage : booking
+        .nurseryProfileImage;
 
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.12),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
               Container(
-              width: 55,
-              height: 55,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(width: 1.5, color: const Color(0xFF0D6EFD)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: profileImage != null
-                    ? Image.network(profileImage, fit: BoxFit.cover)
-                    : Container(
-                  color: Colors.grey[300],
-                  alignment: Alignment.center,
-                  child: Text(
-                    displayName.isNotEmpty ? displayName[0] : '?',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                width: 55,
+                height: 55,
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      width: 1.5, color: const Color(0xFF0D6EFD)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: profileImage != null
+                      ? Image.network(profileImage, fit: BoxFit.cover)
+                      : Container(
+                    color: Colors.grey[300],
+                    alignment: Alignment.center,
+                    child: Text(
+                      displayName.isNotEmpty ? displayName[0] : '?',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
+              const SizedBox(width: 12),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  Text(
-                  displayName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (!widget.isNursery)
+                      Text(
+                        'Child: ${booking.childName}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('EEEE, MMMM dd').format(booking.dateTime),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      '${DateFormat('h:mm a').format(
+                          booking.dateTime)} - ${DateFormat('h:mm a').format(
+                          booking.dateTime.add(const Duration(hours: 4)))}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                if (!widget.isNursery)
-            Text(
-            'Child: ${booking.childName}',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            DateFormat('EEEE, MMMM dd').format(booking.dateTime),
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black87,
-            ),
-          ),
-          Text(
-            '${DateFormat('h:mm a').format(booking.dateTime)} - ${DateFormat('h:mm a').format(booking.dateTime.add(const Duration(hours: 4)))}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
               ),
-            ),
+              const SizedBox(width: 8),
+              if (widget.isNursery)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.info_outline),
+                      onPressed: () => _showChildDetails(context, booking),
+                    ),
+                    if (booking.status == 'pending') ...[
+                      _GradientActionButton(
+                        label: 'Approve',
+                        icon: Icons.check_circle_outline,
+                        gradientColors: AppGradients.Projectgradient.colors,
+                        onTap: () =>
+                            context.read<BookingCubit>().updateBookingStatus(
+                                booking.id, 'payment_pending'),
+                      ),
+                      const SizedBox(height: 6),
+                      _GradientActionButton(
+                        label: 'Decline',
+                        icon: Icons.highlight_off_outlined,
+                        gradientColors: [
+                          const Color(0xFFEB4D5B),
+                          const Color(0xFFAE2B29)
+                        ],
+                        onTap: () =>
+                            context.read<BookingCubit>().updateBookingStatus(
+                                booking.id, 'cancelled'),
+                      ),
+                    ] else
+                      _buildStatusPill(booking.status),
+                  ],
+                )
+              else
+                booking.status == 'payment_pending' && !widget.isNursery
+                    ? _GradientActionButton(
+                  label: 'Payment',
+                  icon: Icons.payment,
+                  gradientColors: AppGradients.Projectgradient.colors,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentScreen(
+                        bookingId: booking.id,
+                        amount: 199.99, // Your actual amount
+                      ),
+                    ),
+                  ),
+                )
+                    : _buildStatusPill(booking.status),
             ],
           ),
         ),
-        const SizedBox(width: 8),
-        if (widget.isNursery)
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.info_outline),
-          onPressed: () => _showChildDetails(context, booking),
-        ),
-        if (booking.status == 'pending') ...[
-          _GradientActionButton(
-            label: 'Approve',
-            icon: Icons.check_circle_outline,
-            gradientColors: AppGradients.Projectgradient.colors,
-            onTap: () => context.read<BookingCubit>().updateBookingStatus(booking.id, 'confirmed'),
-          ),
-          const SizedBox(height: 6),
-          _GradientActionButton(
-            label: 'Decline',
-            icon: Icons.highlight_off_outlined,
-            gradientColors: [const Color(0xFFEB4D5B), const Color(0xFFAE2B29)],
-            onTap: () => context.read<BookingCubit>().updateBookingStatus(booking.id, 'cancelled'),
-          ),
-        ] else
-          _buildStatusPill(booking.status),
-      ],
-    )
-    else
-    _buildStatusPill(booking.status),
-    ],
-    ),
-    ),
-    ),
+      ),
     );
   }
 
   void _showChildDetails(BuildContext context, Booking booking) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Child Details'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Name: ${booking.childName}'),
-            Text('Age: ${booking.childAge}'),
-            Text('Gender: ${booking.childGender}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+      builder: (context) =>
+          AlertDialog(
+            title: const Text('Child Details'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Name: ${booking.childName}'),
+                Text('Age: ${booking.childAge}'),
+                Text('Gender: ${booking.childGender}'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -566,6 +591,7 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
       'confirmed': const Color(0xFF0D6EFD),
       'cancelled': Colors.grey,
       'pending': Colors.orange,
+      'payment_pending': Colors.purple, // New status color
     };
 
     return Container(

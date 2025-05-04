@@ -152,7 +152,7 @@ class BookingCubit extends Cubit<BookingState> {
       final bookings = snapshot.docs
           .map((doc) => Booking.fromFirestore(doc))
           .toList();
-      emit(BookingsLoaded(bookings));
+      emit(BookingsLoaded(bookings,isNursery));
     }, onError: (error) {
       emit(BookingError('Failed to load bookings: $error'));
     });
@@ -218,14 +218,18 @@ class BookingCubit extends Cubit<BookingState> {
   Future<void> updateBookingStatus(String bookingId, String status) async {
     if (_isProcessing) return;
     _isProcessing = true;
-    emit(BookingLoading());
 
     try {
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': status,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      emit(BookingStatusUpdated());
+
+      // Force refresh with current user type
+      final currentState = state;
+      if (currentState is BookingsLoaded) {
+        initBookingsStream(isNursery: currentState.isNurseryView);
+      }
     } catch (e) {
       emit(BookingError('Update failed: ${e.toString()}'));
     } finally {

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import '../../LOGIC/LOGIN/cubit.dart';
 import '../../LOGIC/LOGIN/state.dart';
 import '../forget_change_password/forgetscreen.dart';
@@ -40,12 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, state) {
           return Scaffold(
             body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+              decoration:  BoxDecoration(
+                gradient: AppGradients.Projectgradient
+
               ),
               child: Center(
                 child: Padding(

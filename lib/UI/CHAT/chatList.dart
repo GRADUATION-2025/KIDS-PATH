@@ -25,7 +25,6 @@ class ChatListScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 30),
             AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
@@ -63,9 +62,9 @@ class ChatListScreen extends StatelessWidget {
       body: StreamBuilder<List<ChatRoom>>(
         stream: context.read<ChatCubit>().getUserChats(userId),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          // if (snapshot.connectionState == ConnectionState.waiting) {
+          //   return const Center(child: CircularProgressIndicator());
+          // }
 
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));

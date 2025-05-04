@@ -11,11 +11,16 @@ final class BookingInitial extends BookingState {}
 
 final class BookingLoading extends BookingState {}
 
-final class BookingsLoaded extends BookingState {
+// Modify state to carry view type
+class BookingsLoaded extends BookingState {
   final List<Booking> bookings;
+  final bool isNurseryView;
 
-  BookingsLoaded(this.bookings);
+  BookingsLoaded(this.bookings, this.isNurseryView);
 }
+
+// Update where you emit this state
+
 
 final class BookingCreated extends BookingState {}
 

@@ -265,6 +265,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           nurseryName: widget.nurseryName,
                           child: _selectedChild!,
                         );
+
                       },
                       child: Container(
                         width: double.infinity,

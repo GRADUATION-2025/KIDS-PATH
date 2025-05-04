@@ -62,7 +62,11 @@ dependencies:
   shared_preferences: ^2.5.3
   rxdart: ^0.27.7
   table_calendar: ^3.0.9
-
+  webview_flutter: ^4.2.2
+  url_launcher: ^6.3.1
+  dio: ^5.8.0+1
+  flutter_paymob: ^1.0.5
+  paymob_payment: ^0.0.1+1
 
 
 
