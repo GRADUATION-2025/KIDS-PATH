@@ -305,6 +305,7 @@
 //   }
 // }
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -317,6 +318,7 @@ import '../PAYMENT/PAYMENT_SCREEN.dart';
 class BookingTimesScreen extends StatefulWidget {
   final bool isNursery;
 
+
   const BookingTimesScreen({required this.isNursery});
 
   @override
@@ -325,6 +327,7 @@ class BookingTimesScreen extends StatefulWidget {
 }
 
 class _BookingTimesScreenState extends State<BookingTimesScreen> {
+
 
 
   @override
@@ -548,16 +551,47 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                   label: 'Payment',
                   icon: Icons.payment,
                   gradientColors: AppGradients.Projectgradient.colors,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentScreen(
-                        bookingId: booking.id,
-                        amount: 199, nurseryId: booking.nurseryId,
-                         // Your actual amount
-                      ),
-                    ),
-                  ),
+                  onTap: () async {
+                    try {
+                      final nurseryDoc = await FirebaseFirestore.instance
+                          .collection('nurseries')
+                          .doc(booking.nurseryId)
+                          .get();
+
+                      if (nurseryDoc.exists) {
+                        // Handle different data types and potential string values
+                        final priceData = nurseryDoc['price'];
+                        double price = 0.0;
+
+                        if (priceData is String) {
+                          // Try parsing string to double
+                          price = double.tryParse(priceData) ?? 0.0;
+                        } else if (priceData is num) {
+                          // Convert int/double to double
+                          price = priceData.toDouble();
+                        }
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentScreen(
+                              bookingId: booking.id,
+                              amount: price,
+                              nurseryId: booking.nurseryId,
+                            ),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Nursery not found')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error fetching price: $e')),
+                      );
+                    }
+                  },
                 )
                     : _buildStatusPill(booking.status),
             ],
