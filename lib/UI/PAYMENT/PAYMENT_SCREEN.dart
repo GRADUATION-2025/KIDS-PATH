@@ -10,11 +10,13 @@ import '../../LOGIC/booking/cubit.dart';
 class PaymentScreen extends StatefulWidget {
   final String bookingId;
   final double amount;
+  final String nurseryId;
 
   const PaymentScreen({
     super.key,
     required this.bookingId,
     required this.amount,
+    required this.nurseryId
   });
 
   @override
@@ -88,13 +90,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
 
     final parentId = FirebaseAuth.instance.currentUser?.uid;
+
     final parentDoc = await FirebaseFirestore.instance.collection('parents').doc(parentId).get();
     final bookingDoc = await FirebaseFirestore.instance.collection('bookings').doc(widget.bookingId).get();
+    final nurseryDoc = await FirebaseFirestore.instance.collection('nurseries').doc(widget.nurseryId).get();
     final parentName = parentDoc['name'];
     final childName = bookingDoc['childName'];
     final nurseryName = bookingDoc['nurseryName'];
     final nurseryId = bookingDoc['nurseryId'];
     final childId = bookingDoc['childId'];
+    final price = nurseryDoc['price'];
 
     try {
 
@@ -115,7 +120,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'nurseryName': nurseryName,
         'nurseryId': nurseryId,
         'childId':childId,
-        'Amount': widget.amount,
+        'Amount': price,
         'Status': 'paid',
         'CreatedAt': FieldValue.serverTimestamp(),
         'CardLast4': cardLast4,

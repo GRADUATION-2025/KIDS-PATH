@@ -316,13 +316,17 @@ import '../PAYMENT/PAYMENT_SCREEN.dart';
 
 class BookingTimesScreen extends StatefulWidget {
   final bool isNursery;
+
   const BookingTimesScreen({required this.isNursery});
 
   @override
   State<BookingTimesScreen> createState() => _BookingTimesScreenState();
+
 }
 
 class _BookingTimesScreenState extends State<BookingTimesScreen> {
+
+
   @override
   void initState() {
     super.initState();
@@ -331,6 +335,7 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
           isNursery: widget.isNursery);
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -548,7 +553,8 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                     MaterialPageRoute(
                       builder: (context) => PaymentScreen(
                         bookingId: booking.id,
-                        amount: 199.99, // Your actual amount
+                        amount: 199, nurseryId: booking.nurseryId,
+                         // Your actual amount
                       ),
                     ),
                   ),
