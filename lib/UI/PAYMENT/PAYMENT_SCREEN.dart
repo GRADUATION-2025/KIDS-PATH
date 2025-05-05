@@ -124,18 +124,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'Amount': nurseryData['price'],
         'Status': 'paid',
         'CreatedAt': FieldValue.serverTimestamp(),
-        'CardLast4': paymentToken.isNotEmpty ? paymentToken.substring(paymentToken.length - 4) : '****',
+
       });
 
-      // Save to new payments collection
-      await FirebaseFirestore.instance.collection('payments').add({
-        'parentId': parent.uid,
-        'cardToken': paymentToken,
-        'bookingId': widget.bookingId,
-        'paymentDate': FieldValue.serverTimestamp(),
-        'amount': widget.amount,
-        'nurseryId': widget.nurseryId,
-      });
+
+
 
       // Refresh data and show success
       context.read<BookingCubit>().initBookingsStream(isNursery: false);
