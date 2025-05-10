@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:kidspath/UI/HOME%20SCREEN/SEARCH%20FILTER/SEARCH.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
@@ -137,7 +140,19 @@ class _HomeContentView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SearchBar(),
+            _SearchBar(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchFilterScreen()
+
+
+                  )
+                );
+              },
+            ),
+
             const SizedBox(height: 20),
             _BannerImage(),
             const SizedBox(height: 20),
@@ -152,20 +167,54 @@ class _HomeContentView extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const _SearchBar({this.onTap});
+
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Type what you want to search...',
-        prefixIcon: const Icon(Icons.search),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+    return
+
+
+      GestureDetector(onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.black),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search, ),
+              SizedBox(width: 15),
+              Expanded(
+                child: Text(
+                  'Tap to Search...',
+                  style: GoogleFonts.inter(fontSize: 15.sp),
+                ),
+              ),
+            ],
+          ),
         ),
-        filled: true,
-        fillColor: Colors.grey.shade100,
-      ),
-    );
+      );
+
+
+
+
+    //   TextField(
+    //   onTap: onTap,
+    //   decoration: InputDecoration(
+    //     hintText: 'Type what you want to search...',
+    //     prefixIcon: const Icon(Icons.search),
+    //     border: OutlineInputBorder(
+    //       borderRadius: BorderRadius.circular(10),
+    //       borderSide: BorderSide(color: Colors.grey.shade300),
+    //     ),
+    //     filled: true,
+    //     fillColor: Colors.grey.shade100,
+    //   ),
+    // );
   }
 }
 

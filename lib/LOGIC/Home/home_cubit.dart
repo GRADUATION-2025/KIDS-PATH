@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
+import '../../DATA MODELS/search filter/filter.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
@@ -71,6 +72,73 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
+
+  Future<void> loadFilteredNurseries(FilterParams filters) async {
+    emit(HomeLoading());
+    try {
+      Query query = _firestore.collection('nurseries');
+
+      // Price Range
+      query = query
+          .where('price', isGreaterThanOrEqualTo: filters.priceRange.start)
+          .where('price', isLessThanOrEqualTo: filters.priceRange.end);
+
+      // Star Rating
+      query = query.where('rating', isGreaterThanOrEqualTo: filters.minRating);
+
+      // Schedule Type
+      if (filters.schedule.isNotEmpty) {
+        query = query.where('schedules', arrayContains: filters.schedule);
+      }
+
+      // Curriculum
+      if (filters.curriculum.isNotEmpty) {
+        query = query.where('curriculumType', isEqualTo: filters.curriculum);
+      }
+
+      // Opening Hours
+      query = query
+          .where('openingTime', isLessThanOrEqualTo: filters.startTime)
+          .where('closingTime', isGreaterThanOrEqualTo: filters.endTime);
+
+      // Special Features
+      if (filters.overnight) {
+        query = query.where('overnightCare', isEqualTo: true);
+      }
+      if (filters.weekend) {
+        query = query.where('weekendCare', isEqualTo: true);
+      }
+      if (filters.afterCare) {
+        query = query.where('afterCare', isEqualTo: true);
+      }
+
+      // Age Groups
+      if (filters.ageGroup.isNotEmpty) {
+        query = query.where('ageGroups', arrayContains: filters.ageGroup);
+      }
+
+      final nurseriesQuery = await query.get();
+      final nurseries = nurseriesQuery.docs.map(_mapToNurseryProfile).toList();
+
+      if (!isClosed) {
+        emit(HomeLoaded(
+          nurseries: nurseries,
+          popularNurseries: nurseries,
+          topRatedNurseries: nurseries,
+          userName: (state as HomeLoading).userName,
+          profileImageUrl: (state as HomeLoading).profileImageUrl,
+        ));
+      }
+    } catch (e) {
+      if (!isClosed) {
+        emit(NurseryHomeError('Filter error: ${e.toString()}'));
+      }
+      debugPrint('Filter error: $e');
+    }
+  }
+
+
+
   Future<void> _loadNurseries() async {
     try {
       final nurseriesQuery = await _firestore.collection('nurseries').get();
@@ -95,22 +163,22 @@ class HomeCubit extends Cubit<HomeState> {
   NurseryProfile _mapToNurseryProfile(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return NurseryProfile(
-      uid: doc.id,
-      name: data['name'] ?? 'Unnamed Nursery',
-      profileImageUrl: data['profileImageUrl'],
-      rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
-      description: data['description'] ?? '',
-      price: data['price'] ?? '',
-      hours: data['hours'] ?? '',
-      language: data['language'] ?? '',
-      programs: List<String>.from(data['programs'] ?? []),
-      phoneNumber: data['phoneNumber'] ?? '',
-      email: data['email'] ?? '',
-      role: data['role'] ?? '',
-      schedules: List<String>.from(data['schedules'] ?? []),
-      calendar: data['calendar'] ?? '',
-      ownerId: data['ownerId'] ?? '',
-      location: ""
+        uid: doc.id,
+        name: data['name'] ?? 'Unnamed Nursery',
+        profileImageUrl: data['profileImageUrl'],
+        rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
+        description: data['description'] ?? '',
+        price: data['price'] ?? '',
+        hours: data['hours'] ?? '',
+        language: data['language'] ?? '',
+        programs: List<String>.from(data['programs'] ?? []),
+        phoneNumber: data['phoneNumber'] ?? '',
+        email: data['email'] ?? '',
+        role: data['role'] ?? '',
+        schedules: List<String>.from(data['schedules'] ?? []),
+        calendar: data['calendar'] ?? '',
+        ownerId: data['ownerId'] ?? '',
+        location: ""
     );
   }
 
