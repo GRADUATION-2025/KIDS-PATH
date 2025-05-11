@@ -11,7 +11,13 @@ class _Notifcation_ScreenState extends State<Notifcation_Screen> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text("NOTIFICATIONS"),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("NOTIFICATIONS "),
+          Text("UNDER DEVELOPMENT "),
+        ],
+      ),
     );
   }
 }
