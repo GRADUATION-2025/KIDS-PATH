@@ -4,13 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import '../../LOGIC/booking/cubit.dart';
-import '../../UI/BOOKING/Booking.dart';
 import '../../UI/BOOKING/bookingTime.dart';
 import '../../UI/CHAT/chatList.dart';
 import '../../UI/Create_Profile_screen/PARENT/PARENTS_PAGE.dart';
 import '../../UI/HOME SCREEN/home.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
-import '../../UI/CHAT/chat.dart';
+
 
 class BottombarParentScreen extends StatefulWidget {
   final int initialIndex;
@@ -74,7 +73,7 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
     );
   }
 
-  /// Generic method to create BottomNavigationBarItem with an icon and a label.
+
   BottomNavigationBarItem _buildBottomNavItem(IconData icon, String label, int index) {
     return BottomNavigationBarItem(
       icon: Column(

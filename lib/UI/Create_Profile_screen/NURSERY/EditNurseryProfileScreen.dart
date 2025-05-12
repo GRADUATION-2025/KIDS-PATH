@@ -2,6 +2,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:kidspath/LOGIC/Nursery/nursery_state.dart';
 import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
@@ -87,9 +88,16 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    if (!_agreeToTerms) {
+    final newName = _nameController.text.trim();
+    final newPhone = _phoneController.text.trim();
+    final newDescription = _descriptionController.text.trim();
+    final newPrice = _priceController.text.trim();
+    final newHours = _hoursController.text.trim();
+    final newLanguage = _languageController.text.trim();
+    final newPrograms = _programControllers;
+    if (newName.isEmpty || newPhone.isEmpty|| newDescription.isEmpty|| newPrice.isEmpty|| newHours.isEmpty|| newPrograms.isEmpty|| newLanguage.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please agree to the Terms of Service")),
+        SnackBar(content: Text("Please enter valid details")),
       );
       return;
     }
@@ -102,6 +110,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
             .child('profile_images/${widget.nursery.uid}.jpg');
         await storageRef.putFile(_imageFile!);
         imageUrl = await storageRef.getDownloadURL();
+      }
+      if (!_agreeToTerms) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please agree to the Terms of Service")),
+        );
+        return;
       }
 
       final programs = _programControllers
@@ -237,30 +251,60 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
             SizedBox(
               width: double.infinity,
               height: 50,
-              child: ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                child: Ink(
-                  decoration: BoxDecoration(
-                    gradient: AppGradients.Projectgradient,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Save Profile",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                child: ElevatedButton(
+                    onPressed: _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                  ),
-                ),
-              ),
-            ),
+                    child: BlocBuilder<NurseryCubit, NurseryState>(
+                        builder: (context, state) {
+                          final isLoading = state is NurseryLoading;
+
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _saveProfile,
+                              // Disable when loading
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
+                              child: Ink(
+                                decoration: BoxDecoration(
+                                  gradient: AppGradients.Projectgradient
+                                  ,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  alignment: Alignment.center,
+                                  child: isLoading
+                                      ? SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white
+                                    ),
+                                  )
+                                      : Text(
+                                    "Save Profile",
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+
+                            ),
+
+                          );
+                        }
+                        )
+                )
+            )
           ],
         ),
       ),
