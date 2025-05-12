@@ -41,7 +41,7 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
             create: (context) => BookingCubit()..initBookingsStream(isNursery: true),
             child: BookingTimesScreen(isNursery: true),
           ),
-          Notifcation_Screen(),
+          NotificationScreen(),
           NurseryAccountScreen(),
 
         ],

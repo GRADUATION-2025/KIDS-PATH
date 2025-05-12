@@ -42,7 +42,7 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
             create: (context) => BookingCubit()..initBookingsStream(isNursery: false),
             child: BookingTimesScreen(isNursery: false),
           ),
-          Notifcation_Screen(),
+          NotificationScreen(),
           ParentAccountScreen(),
 
         ],

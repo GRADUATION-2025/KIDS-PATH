@@ -6,7 +6,7 @@ import 'package:kidspath/WIDGETS/CONSTANTS/constants.dart';
 class PaymobHelper {
   static const String _apiKey = Paymob.api_key;
   static const String _currency = 'EGP';
-  static const int _integrationId = Paymob.cardPaymentMethodIntegrationId; // Your iframe integration ID
+  static const int _integrationId = Paymob.cardPaymentMethodIntegrationId;
 
   static Future<String?> getAuthToken() async {
     final response = await http.post(
@@ -24,16 +24,14 @@ class PaymobHelper {
   static Future<String?> createOrder(double amount, String bookingId) async {
     try {
       final token = await getAuthToken();
-      if (token == null) {
-        throw Exception('Authentication failed');
-      }
+      if (token == null) throw Exception('Authentication failed');
 
       final response = await http.post(
         Uri.parse('https://accept.paymob.com/api/ecommerce/orders'),
         body: jsonEncode({
           'auth_token': token,
-          'delivery_needed': false, // Should be boolean, not string
-          'amount_cents': (amount * 100).round(), // Use integer value
+          'delivery_needed': false,
+          'amount_cents': (amount * 100).round(),
           'currency': _currency,
           'merchant_order_id': bookingId,
         }),
@@ -45,9 +43,7 @@ class PaymobHelper {
       if (response.statusCode == 201) {
         return responseBody['id'].toString();
       } else {
-        throw Exception(
-            'Order creation failed: ${responseBody['detail'] ?? response.body}'
-        );
+        throw Exception('Order creation failed: ${responseBody['detail'] ?? response.body}');
       }
     } catch (e) {
       debugPrint('CreateOrder Error: $e');

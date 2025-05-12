@@ -15,7 +15,7 @@ class PaymentScreen extends StatefulWidget {
     super.key,
     required this.bookingId,
     required this.amount,
-    required this.nurseryId
+    required this.nurseryId,
   });
 
   @override
@@ -40,7 +40,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         widget.amount,
         widget.bookingId,
       );
-
       if (paymentKey == null) throw Exception('Failed to get payment key');
 
       setState(() {
@@ -48,38 +47,32 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ..setJavaScriptMode(JavaScriptMode.unrestricted)
           ..setNavigationDelegate(
             NavigationDelegate(
-              onNavigationRequest: (request) async {
-                if (request.url.contains('/success') ||
-                    request.url.contains('success=true')) {
-                  final uri = Uri.parse(request.url);
-                  final paymentToken = uri.queryParameters['token'] ?? '';
-                  if (!_isProcessing) {
-                    _isProcessing = true;
-                    await _handlePaymentSuccess(paymentToken);
-                  }
+              onNavigationRequest: (req) async {
+                final url = req.url;
+                if ((url.contains('/success') || url.contains('success=true')) && !_isProcessing) {
+                  _isProcessing = true;
+                  await _handlePaymentSuccess();
                   return NavigationDecision.prevent;
                 }
-
-                if (request.url.contains('/fail') ||
-                    request.url.contains('failed=true')) {
+                if ((url.contains('/fail') || url.contains('failed=true')) && !_isProcessing) {
+                  _isProcessing = true;
                   _handlePaymentFailure();
                   return NavigationDecision.prevent;
                 }
-
                 return NavigationDecision.navigate;
               },
             ),
           )
-          ..loadRequest(
-            Uri.parse('https://accept.paymob.com/api/acceptance/iframes/911300?payment_token=$paymentKey'),
-          );
+          ..loadRequest(Uri.parse(
+            'https://accept.paymob.com/api/acceptance/iframes/911300?payment_token=$paymentKey',
+          ));
       });
     } catch (e) {
-      _showErrorDialog('Failed to initialize payment: ${e.toString()}');
+      _showErrorDialog('Initialization Error: $e');
     }
   }
 
-  Future<void> _handlePaymentSuccess(String paymentToken) async {
+  Future<void> _handlePaymentSuccess() async {
     final parent = FirebaseAuth.instance.currentUser;
     if (parent == null) {
       _showErrorDialog('User not authenticated');
@@ -87,94 +80,99 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
 
     try {
-      // Get required documents
-      final parentDoc = await FirebaseFirestore.instance
+      // 1) Confirm booking
+      await context
+          .read<BookingCubit>()
+          .updateBookingStatus(widget.bookingId, 'confirmed');
+
+      // 2) Log transaction & fetch parent name
+      final parentDoc  = await FirebaseFirestore.instance
           .collection('parents').doc(parent.uid).get();
+      final parentName = parentDoc['name'] as String;
       final bookingDoc = await FirebaseFirestore.instance
           .collection('bookings').doc(widget.bookingId).get();
       final nurseryDoc = await FirebaseFirestore.instance
           .collection('nurseries').doc(widget.nurseryId).get();
 
-      // Validate documents
-      if (!parentDoc.exists || !bookingDoc.exists || !nurseryDoc.exists) {
-        _showErrorDialog('Missing required data');
-        return;
-      }
-
-      // Extract data
-      final parentData = parentDoc.data()!;
-      final bookingData = bookingDoc.data()!;
-      final nurseryData = nurseryDoc.data()!;
-
-      // Update booking status
-      await context.read<BookingCubit>().updateBookingStatus(
-          widget.bookingId,
-          'confirmed'
-      );
-
-      // Save to Transaction-Data collection
       await FirebaseFirestore.instance.collection('Transaction-Data').add({
         'parentId': parent.uid,
-        'name': parentData['name'],
+        'name': parentName,
         'bookingId': widget.bookingId,
-        'childName': bookingData['childName'],
-        'nurseryName': bookingData['nurseryName'],
-        'nurseryId': bookingData['nurseryId'],
-        'childId': bookingData['childId'],
-        'Amount': nurseryData['price'],
+        'childName': bookingDoc['childName'],
+        'nurseryName': bookingDoc['nurseryName'],
+        'nurseryId': bookingDoc['nurseryId'],
+        'childId': bookingDoc['childId'],
+        'Amount': nurseryDoc['price'],
         'Status': 'paid',
         'CreatedAt': FieldValue.serverTimestamp(),
-
       });
 
+      // 3a) Parent notification
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'userId': parent.uid,
+        'type': 'payment',
+        'title': 'Payment Successful',
+        'message': 'Your payment for booking ${widget.bookingId} succeeded.',
+        'bookingId': widget.bookingId,
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
 
+      // 3b) Nursery notification with parent name
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'userId': widget.nurseryId,
+        'type': 'payment',
+        'title': 'Payment Received',
+        'message':
+        'You’ve received payment from $parentName for booking ${widget.bookingId}.',
+        'bookingId': widget.bookingId,
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
 
-
-      // Refresh data and show success
-      context.read<BookingCubit>().initBookingsStream(isNursery: false);
-      _showSuccess('Payment successful! Booking confirmed');
-
+      _showSuccess('Payment successful! Booking confirmed.');
     } catch (e) {
-      _showErrorDialog('Payment processing failed: ${e.toString()}');
+      _showErrorDialog('Processing Error: $e');
     } finally {
       _isProcessing = false;
     }
   }
 
-  void _handlePaymentFailure() {
+  void _handlePaymentFailure() async {
+    final parent = FirebaseAuth.instance.currentUser;
+    if (parent != null) {
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'userId': parent.uid,
+        'type': 'payment',
+        'title': 'Payment Failed',
+        'message': 'Your payment for booking ${widget.bookingId} failed.',
+        'bookingId': widget.bookingId,
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
+    }
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Payment failed. Please try again'),
-        backgroundColor: Colors.red,
-      ),
+      const SnackBar(content: Text('Payment failed. Please try again.'), backgroundColor: Colors.red),
     );
+    _isProcessing = false;
   }
 
-  void _showErrorDialog(String message) {
+  void _showErrorDialog(String msg) {
+    if (!mounted) return;
     Navigator.pop(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Payment Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text('Error'),
+      content: Text(msg),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+    ));
   }
 
-  void _showSuccess(String message) {
+  void _showSuccess(String msg) {
+    if (!mounted) return;
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
+      SnackBar(content: Text(msg), backgroundColor: Colors.green),
     );
   }
 
@@ -185,8 +183,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       body: Stack(
         children: [
           if (_controller != null) WebViewWidget(controller: _controller!),
-          if (_controller == null)
-            const Center(child: CircularProgressIndicator()),
+          if (_controller == null) const Center(child: CircularProgressIndicator()),
         ],
       ),
     );
