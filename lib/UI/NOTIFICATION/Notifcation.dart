@@ -15,7 +15,7 @@ class NotificationScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.grey,
           elevation: 0,
           title: _GradientTitle('Notifications'),
         ),
