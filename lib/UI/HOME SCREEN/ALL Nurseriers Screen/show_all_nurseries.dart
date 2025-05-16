@@ -417,7 +417,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                             Icons.search, color: Colors.deepPurple),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors
-                              .transparent),
+                              .black),
                           borderRadius: BorderRadius.circular(25),
                         ),
                         focusedBorder: OutlineInputBorder(
