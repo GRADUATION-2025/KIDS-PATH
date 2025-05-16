@@ -15,6 +15,7 @@ class NurseryProfile {
   final String location;
   final String? profileImageUrl;
 
+
   NurseryProfile({
     required this.uid,
     required this.email,
@@ -30,7 +31,8 @@ class NurseryProfile {
     required this.language,
     required this.price,
     required this.location,
-    this.profileImageUrl, required ownerId,
+    this.profileImageUrl,
+    required ownerId,
   });
 
   factory NurseryProfile.fromMap(Map<String, dynamic> map) {

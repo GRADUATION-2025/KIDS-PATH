@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kidspath/UI/HOME%20SCREEN/SEARCH%20FILTER/SEARCH.dart';
+
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
 import '../../LOGIC/Home/home_state.dart';
+import '../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_PARENT.dart';
 import '../Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 import 'ALL Nurseriers Screen/show_all_nurseries.dart';
 
@@ -143,14 +144,12 @@ class _HomeContentView extends StatelessWidget {
           children: [
             _SearchBar(
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchFilterScreen()
-
-
-                  )
+                  MaterialPageRoute(builder: (context) => ShowAllNurseries()),
+                      (route) => false,
                 );
+
               },
             ),
 
@@ -255,13 +254,13 @@ class _PopularNurseriesSection extends StatelessWidget {
               'Popular Nursery',
               style: GoogleFonts.inter(fontSize: 18.sp,fontWeight: FontWeight.bold),
                      ),
-             SizedBox(width: 140,),
-             GestureDetector(onTap: (){
-               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShowAllNurseries(),));
-
-             },
-                 child: Text("See All",
-                   style:GoogleFonts.inter(fontSize: 15,) ,)),
+             // SizedBox(width: 140,),
+             // GestureDetector(onTap: (){
+             //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShowAllNurseries(),));
+             //
+             // },
+             //     child: Text("See All",
+             //       style:GoogleFonts.inter(fontSize: 15,) ,)),
 
            ],
          ),

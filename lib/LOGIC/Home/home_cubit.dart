@@ -72,72 +72,42 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
+////////search filter//////
+//   Future<void> loadFilteredNurseries(FilterParams filters) async {
+//     emit(HomeLoading());
+//     try {
+//       Query query = _firestore.collection('nurseries');
+//
+//       if (filters.priceRange != null) {
+//         query = query
+//             .where('price', isGreaterThanOrEqualTo: filters.priceRange!.start)
+//             .where('price', isLessThanOrEqualTo: filters.priceRange!.end);
+//       }
+//
+//       if (filters.minRating != null) {
+//         query = query.where('rating', isGreaterThanOrEqualTo: filters.minRating);
+//       }
+//
+//       if (filters.ageGroup != null) {
+//         query = query.where('ageGroups', arrayContains: filters.ageGroup);
+//       }
+//
+//       final nurseriesQuery = await query.get();
+//       final nurseries = nurseriesQuery.docs.map(_mapToNurseryProfile).toList();
+//
+//       emit(HomeLoaded(
+//         nurseries: nurseries,
+//         popularNurseries: nurseries,
+//         topRatedNurseries: nurseries,
+//         userName: (state as HomeLoading).userName,
+//         profileImageUrl: (state as HomeLoading).profileImageUrl,
+//       ));
+//     } catch (e) {
+//       emit(NurseryHomeError('Filter error: ${e.toString()}'));
+//     }
+//   }
 
-  Future<void> loadFilteredNurseries(FilterParams filters) async {
-    emit(HomeLoading());
-    try {
-      Query query = _firestore.collection('nurseries');
-
-      // Price Range
-      query = query
-          .where('price', isGreaterThanOrEqualTo: filters.priceRange.start)
-          .where('price', isLessThanOrEqualTo: filters.priceRange.end);
-
-      // Star Rating
-      query = query.where('rating', isGreaterThanOrEqualTo: filters.minRating);
-
-      // Schedule Type
-      if (filters.schedule.isNotEmpty) {
-        query = query.where('schedules', arrayContains: filters.schedule);
-      }
-
-      // Curriculum
-      if (filters.curriculum.isNotEmpty) {
-        query = query.where('curriculumType', isEqualTo: filters.curriculum);
-      }
-
-      // Opening Hours
-      query = query
-          .where('openingTime', isLessThanOrEqualTo: filters.startTime)
-          .where('closingTime', isGreaterThanOrEqualTo: filters.endTime);
-
-      // Special Features
-      if (filters.overnight) {
-        query = query.where('overnightCare', isEqualTo: true);
-      }
-      if (filters.weekend) {
-        query = query.where('weekendCare', isEqualTo: true);
-      }
-      if (filters.afterCare) {
-        query = query.where('afterCare', isEqualTo: true);
-      }
-
-      // Age Groups
-      if (filters.ageGroup.isNotEmpty) {
-        query = query.where('ageGroups', arrayContains: filters.ageGroup);
-      }
-
-      final nurseriesQuery = await query.get();
-      final nurseries = nurseriesQuery.docs.map(_mapToNurseryProfile).toList();
-
-      if (!isClosed) {
-        emit(HomeLoaded(
-          nurseries: nurseries,
-          popularNurseries: nurseries,
-          topRatedNurseries: nurseries,
-          userName: (state as HomeLoading).userName,
-          profileImageUrl: (state as HomeLoading).profileImageUrl,
-        ));
-      }
-    } catch (e) {
-      if (!isClosed) {
-        emit(NurseryHomeError('Filter error: ${e.toString()}'));
-      }
-      debugPrint('Filter error: $e');
-    }
-  }
-
-
+///////////------/////////////////
 
   Future<void> _loadNurseries() async {
     try {

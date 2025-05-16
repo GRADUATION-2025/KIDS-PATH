@@ -37,6 +37,7 @@ class NurseryCubit extends Cubit<NurseryState> {
         calendar: '',
         location: "",
         ownerId: uid,
+
       );
 
       await nurseryRef.set(newNursery.toMap());
@@ -95,6 +96,7 @@ class NurseryCubit extends Cubit<NurseryState> {
         calendar: '',
         location: "",
         ownerId: uid,
+
       );
 
       await _firestore.collection('nurseries').doc(uid).set(newNursery.toMap());
