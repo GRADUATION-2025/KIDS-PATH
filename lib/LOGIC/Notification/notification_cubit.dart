@@ -8,40 +8,60 @@ import 'notification_state.dart';
 class NotificationCubit extends Cubit<NotificationState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  StreamSubscription<QuerySnapshot>? _sub;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   NotificationCubit() : super(NotificationInitial()) {
-    initNotifications();
+    _initializeNotifications();
   }
 
-  void initNotifications() {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) {
+  void _initializeNotifications() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
       emit(NotificationError('User not authenticated'));
       return;
     }
 
-    _sub?.cancel();
+    _subscription?.cancel();
     emit(NotificationLoading());
 
-    _sub = _firestore
+    _subscription = _firestore
         .collection('notifications')
-        .where('userId', isEqualTo: uid)
+        .where('userId', isEqualTo: userId)
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .listen((snap) {
-      final notes = snap.docs
+        .listen((snapshot) {
+      final notifications = snapshot.docs
           .map((doc) => NotificationModel.fromFirestore(doc))
           .toList();
-      emit(NotificationsLoaded(notes));
-    }, onError: (e) {
-      emit(NotificationError('Failed to load notifications: $e'));
+      emit(NotificationsLoaded(notifications));
+    }, onError: (error) {
+      emit(NotificationError('Failed to load notifications: $error'));
     });
+  }
+
+  Future<void> deleteNotification(String notificationId) async {
+    if (state is! NotificationsLoaded) return;
+
+    final currentState = state as NotificationsLoaded;
+    final updatedNotifications = currentState.notifications
+        .where((notification) => notification.id != notificationId)
+        .toList();
+
+    // Optimistic update
+    emit(NotificationsLoaded(updatedNotifications));
+
+    try {
+      await _firestore.collection('notifications').doc(notificationId).delete();
+    } catch (error) {
+      // Revert on error
+      emit(NotificationsLoaded(currentState.notifications));
+      throw Exception('Failed to delete notification: $error');
+    }
   }
 
   @override
   Future<void> close() {
-    _sub?.cancel();
+    _subscription?.cancel();
     return super.close();
   }
 }
