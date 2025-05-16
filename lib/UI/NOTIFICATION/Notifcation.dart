@@ -60,34 +60,15 @@ class NotificationScreen extends StatelessWidget {
   Widget _buildTile(NotificationModel note) {
     final bool isPayment = note.type == 'payment';
 
-    // status logic unchanged
-    String statusText;
-    Color statusColor;
-    if (isPayment) {
-      final title = note.title.toLowerCase();
-      final success = title.contains('successful') || title.contains('received');
-      statusText = success ? 'Done' : 'Failed';
-      statusColor = success ? Colors.green : Colors.red;
-    } else {
-      if (note.title.contains('Confirmed')) {
-        statusText = '';
-        statusColor = Colors.green;
-      } else if (note.title.contains('Accepted')) {
-        statusText = '';
-        statusColor = Colors.green;
-      } else if (note.title.contains('Rejected')) {
-        statusText = '';
-        statusColor = Colors.red;
-      } else {
-        statusText = '';
-        statusColor = Colors.grey;
-      }
-    }
+    String? statusText;
+    Color? statusColor;
+
+
 
     return ListTile(
       leading: Container(
-        width:  40,
-        height:  40,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           gradient: AppGradients.Projectgradient,
           borderRadius: BorderRadius.circular(8),
@@ -99,16 +80,19 @@ class NotificationScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(note.message),
-          const SizedBox(height: 4),
-          Text('Booking ID: ${note.bookingId}'),
+          if (isPayment && note.childName != null && note.childName!.isNotEmpty)
+            Text('Child: ${note.childName!}'),
         ],
       ),
-      trailing: Text(
+      trailing: statusText != null
+          ? Text(
         statusText,
         style: TextStyle(fontWeight: FontWeight.bold, color: statusColor),
-      ),
+      )
+          : null,
     );
   }
+
 }
 
 /// Renders gradient-colored text using your Projectgradient.
