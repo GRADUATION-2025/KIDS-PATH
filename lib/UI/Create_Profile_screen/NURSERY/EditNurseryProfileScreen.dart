@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kidspath/LOGIC/Nursery/nursery_state.dart';
 import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
@@ -40,6 +41,8 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   final List<TextEditingController> _programControllers = [];
   File? _imageFile;
   bool _agreeToTerms = true;
+  String _selectedAge=  "";
+
 
 
   @override
@@ -52,6 +55,8 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     _priceController.text = widget.nursery.price;
     _hoursController.text = widget.nursery.hours;
     _languageController.text = widget.nursery.language;
+    _selectedAge = widget.nursery.age;
+
 
     // Initialize program controllers
     if (widget.nursery.programs.isNotEmpty) {
@@ -88,6 +93,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
+
     final newName = _nameController.text.trim();
     final newPhone = _phoneController.text.trim();
     final newDescription = _descriptionController.text.trim();
@@ -95,12 +101,16 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     final newHours = _hoursController.text.trim();
     final newLanguage = _languageController.text.trim();
     final newPrograms = _programControllers;
-    if (newName.isEmpty || newPhone.isEmpty|| newDescription.isEmpty|| newPrice.isEmpty|| newHours.isEmpty|| newPrograms.isEmpty|| newLanguage.isEmpty) {
+    final newAge = _selectedAge;
+
+    if (newName.isEmpty || newPhone.isEmpty|| newDescription.isEmpty|| newPrice.isEmpty|| newHours.isEmpty|| newPrograms.isEmpty|| newLanguage.isEmpty || newAge.isEmpty ) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter valid details")),
       );
+
       return;
     }
+
 
     try {
       String? imageUrl;
@@ -131,6 +141,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
         description: _descriptionController.text.trim(),
         price: _priceController.text.trim(),
         hours: _hoursController.text.trim(),
+        age: _selectedAge,
         language: _languageController.text.trim(),
         programs: programs,
         schedules: widget.nursery.schedules,
@@ -216,6 +227,8 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
             _buildFormField("Operating Hours", _hoursController,"Operating Hours"),
             SizedBox(height: 20),
             _buildFormField("Language", _languageController,"Language"),
+            SizedBox(height: 20),
+            _buildAgeGroupSelector(),
 
             // Programs Section - Added this part
             SizedBox(height: 20),
@@ -364,6 +377,43 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
       ],
     );
   }
+
+
+  Widget _buildAgeGroupSelector() {
+    const ageGroups = {
+      '6-12 Months': '6-12 Months',
+      '1 year': '1 year',
+      '2 years ': '2 years',
+      '3 years ': '3 years',
+      '4 years': '4 years',
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Age Group", style: TextStyle(color: Colors.grey, fontSize: 16)),
+        Column(
+          children: ageGroups.entries.map((entry) {
+            return RadioListTile<String>(
+
+              title: Text(entry.value,style: GoogleFonts.inter(fontSize: 15,fontWeight: FontWeight.bold),),
+              value: entry.key,
+              groupValue: _selectedAge,
+              onChanged: (value) {
+                setState(() {
+                  _selectedAge = value!;
+                });
+              },
+              activeColor: Colors.red,
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
 
   @override
   void dispose() {

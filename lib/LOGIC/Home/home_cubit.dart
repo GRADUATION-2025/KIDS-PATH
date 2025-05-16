@@ -144,6 +144,7 @@ class HomeCubit extends Cubit<HomeState> {
         programs: List<String>.from(data['programs'] ?? []),
         phoneNumber: data['phoneNumber'] ?? '',
         email: data['email'] ?? '',
+        age: data['age'] ?? '',
         role: data['role'] ?? '',
         schedules: List<String>.from(data['schedules'] ?? []),
         calendar: data['calendar'] ?? '',

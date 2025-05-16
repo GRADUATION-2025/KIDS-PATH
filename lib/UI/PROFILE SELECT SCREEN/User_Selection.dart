@@ -244,6 +244,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               language: "",
                               price: "",
                               location: "location",
+                              age: "",
                               profileImageUrl: null, phoneNumber: '', ownerId: '',
                             ),
                             role: selectedRole,

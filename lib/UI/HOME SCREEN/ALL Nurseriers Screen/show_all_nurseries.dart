@@ -28,10 +28,26 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   String? _selectedLocation;
   int? _minPrice;
   int? _maxPrice;
-  int? _selectedAge;
+  String? _selectedAge;
   int? _minRating;
 
   GeoPoint? _userLocation;
+
+  // Age standardization method
+  String? _getAgeLabel(String? age) {
+    if (age == null) return null;
+    final cleanAge = age.toLowerCase().trim();
+
+    if (cleanAge.contains('6-12 months') ) return '6-12 months';
+    if (cleanAge.contains('1 year') ) return '1 year';
+    if (cleanAge.contains('2 years') ) return '2 years';
+    if (cleanAge.contains('3 years') ) return '3 years';
+    if (cleanAge.contains('4years') ) return '4 years';
+    return null;
+  }
+
+
+
 
   @override
   void initState() {
@@ -47,45 +63,15 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     super.dispose();
   }
 
-  String? _getAgeLabel(int? age) {
-    switch (age) {
-      case 0:
-        return "6-12 months";
-      case 1:
-        return "1";
-      case 2:
-        return "2";
-      case 3:
-        return "3";
-      case 4:
-        return "4";
-      default:
-        return null;
-    }
-  }
 
-  int? _getAgeFromLabel(String? label) {
-    switch (label) {
-      case "6-12 months":
-        return 0;
-      case "1":
-        return 1;
-      case "2":
-        return 2;
-      case "3":
-        return 3;
-      case "4":
-        return 4;
-      default:
-        return null;
-    }
-  }
+
 
   Future<GeoPoint?> _getUserSavedLocation() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return null;
 
-    final doc = await FirebaseFirestore.instance.collection("parents").doc(userId).get();
+    final doc = await FirebaseFirestore.instance.collection("parents").doc(
+        userId).get();
     return doc.data()?['location'] as GeoPoint?;
   }
 
@@ -108,7 +94,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     String? tempLocation = _selectedLocation;
     int? tempMinPrice = _minPrice;
     int? tempMaxPrice = _maxPrice;
-    int? tempSelectedAge = _selectedAge;
+    String? tempSelectedAge = _selectedAge;
     int tempMinRating = _minRating ?? 0;
 
     showModalBottomSheet(
@@ -126,7 +112,10 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                 top: 24,
                 left: 16,
                 right: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                bottom: MediaQuery
+                    .of(context)
+                    .viewInsets
+                    .bottom + 24,
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -140,7 +129,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           foreground: Paint()
-                            ..shader = AppGradients.Projectgradient.createShader(
+                            ..shader = AppGradients.Projectgradient
+                                .createShader(
                               const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
                             ),
                         ),
@@ -154,7 +144,9 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     TextField(
                       decoration: _inputDecoration("Enter location"),
                       controller: TextEditingController(text: tempLocation),
-                      onChanged: (value) => setModalState(() => tempLocation = value),
+                      onChanged: (value) =>
+                          setModalState(() =>
+                          tempLocation = value),
                     ),
                     const SizedBox(height: 8),
 
@@ -169,11 +161,13 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                             _userLocation = userLocation;
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Location detected successfully!")),
+                            const SnackBar(content: Text(
+                                "Location detected successfully!")),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Could not detect saved location.")),
+                            const SnackBar(content: Text(
+                                "Could not detect saved location.")),
                           );
                         }
                       },
@@ -185,20 +179,16 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     const Text("Child Age"),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
-                      value: _getAgeLabel(tempSelectedAge),
+                      value: tempSelectedAge,
                       decoration: _inputDecoration("Select age group"),
                       items: const [
-                        DropdownMenuItem(value: "6-12 months", child: Text("6–12 months")),
-                        DropdownMenuItem(value: "1", child: Text("1 year")),
-                        DropdownMenuItem(value: "2", child: Text("2 years")),
-                        DropdownMenuItem(value: "3", child: Text("3 years")),
-                        DropdownMenuItem(value: "4", child: Text("4 years")),
+                        DropdownMenuItem(value: "6-12 months", child: Text("6-12 months")),
+                        DropdownMenuItem(value: "1 year", child: Text("1 year")),
+                        DropdownMenuItem(value: "2 years", child: Text("2 years")),
+                        DropdownMenuItem(value: "3 years", child: Text("3 years")),
+                        DropdownMenuItem(value: "4 years", child: Text("4 years")),
                       ],
-                      onChanged: (value) {
-                        setModalState(() {
-                          tempSelectedAge = _getAgeFromLabel(value);
-                        });
-                      },
+                      onChanged: (value) => setModalState(() => tempSelectedAge = value),
                     ),
 
                     const SizedBox(height: 16),
@@ -210,8 +200,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                       children: [
                         Expanded(
                           child: TextField(
-                            keyboardType: TextInputType.numberWithOptions(decimal: false),
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            keyboardType: TextInputType.numberWithOptions(
+                                decimal: false),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                             decoration: _inputDecoration("Min Price"),
                             controller: TextEditingController(
                               text: tempMinPrice?.toString() ?? '',
@@ -229,8 +222,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
-                            keyboardType: TextInputType.numberWithOptions(decimal: false),
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            keyboardType: TextInputType.numberWithOptions(
+                                decimal: false),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                             decoration: _inputDecoration("Max Price"),
                             controller: TextEditingController(
                               text: tempMaxPrice?.toString() ?? '',
@@ -254,20 +250,25 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     Center(
                       child: Text(
                         "Nursery Rating",
-                        style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.inter(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Center(
                         child: RatingBar.builder(
                           initialRating: tempMinRating.toDouble(),
-                          minRating: 1, // Changed from 0 to 1
+                          minRating: 1,
+                          // Changed from 0 to 1
                           direction: Axis.horizontal,
                           allowHalfRating: false,
                           itemCount: 5,
                           itemSize: 30,
-                          itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
-                          onRatingUpdate: (rating) => setModalState(() => tempMinRating = rating.toInt()),
+                          itemBuilder: (context, _) =>
+                          const Icon(Icons.star, color: Colors.amber),
+                          onRatingUpdate: (rating) =>
+                              setModalState(() =>
+                              tempMinRating = rating.toInt()),
                         )
                     ),
 
@@ -276,9 +277,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     // Apply Filters Button
                     GestureDetector(
                       onTap: () {
-                        if (tempMinPrice != null && tempMaxPrice != null && tempMinPrice! > tempMaxPrice!) {
+                        if (tempMinPrice != null && tempMaxPrice != null &&
+                            tempMinPrice! > tempMaxPrice!) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Maximum price must be greater than minimum price")),
+                            const SnackBar(content: Text(
+                                "Maximum price must be greater than minimum price")),
                           );
                           return;
                         }
@@ -287,7 +290,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           _minPrice = tempMinPrice;
                           _maxPrice = tempMaxPrice;
                           _selectedAge = tempSelectedAge;
-                          _minRating = tempMinRating; // Remove null check to allow 0
+                          _minRating =
+                              tempMinRating; // Remove null check to allow 0
                         });
 
                         Navigator.pop(context);
@@ -367,7 +371,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => BottombarParentScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => BottombarParentScreen()),
                       (route) => false,
                 );
               },
@@ -408,13 +413,16 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         fillColor: Colors.grey.shade100,
                         hintText: 'Search Nursery by Name',
                         hintStyle: const TextStyle(color: Colors.black),
-                        prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
+                        prefixIcon: const Icon(
+                            Icons.search, color: Colors.deepPurple),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.transparent),
+                          borderSide: const BorderSide(color: Colors
+                              .transparent),
                           borderRadius: BorderRadius.circular(25),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.deepPurple),
+                          borderSide: const BorderSide(color: Colors
+                              .deepPurple),
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
@@ -445,35 +453,41 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   }
                   if (state is HomeLoaded) {
                     final nurseries = state.nurseries;
-                    final filteredNurseries = nurseries.where((nursery) {
-                      final nameMatch = nursery.name
+                    final filteredNurseries = nurseries.where((nurseries) {
+                      final nameMatch = nurseries.name
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase());
 
-                      final locationMatch = _selectedLocation == null ||
-                          _selectedLocation!.isEmpty ||
-                          nursery.location.toLowerCase().contains(_selectedLocation!.toLowerCase());
+                      // final locationMatch = _selectedLocation == null ||
+                      //     _selectedLocation!.isEmpty ||
+                      //     nursery.location.toLowerCase().contains(_selectedLocation!.toLowerCase());
 
-                      // final ageMatch = _selectedAge == null ||
-                      //     nursery.ageGroups.contains(_getAgeLabel(_selectedAge));
+                      // Age filter with standardization
+                      final nurseryAge = _getAgeLabel(nurseries.age);
+                      final selectedAge = _getAgeLabel(_selectedAge);
+                      final ageMatch = _selectedAge == null || nurseryAge == selectedAge;
 
-                      final price = nursery.price ?? 0;
-                      final priceMatch = (_minPrice == null || price == _minPrice!) &&
-                          (_maxPrice == null || price == _maxPrice!);
+
+
+                      // final price = nursery.price ?? 0;
+                      // final priceMatch = (_minPrice == null ||
+                      //     price == _minPrice!) &&
+                      //     (_maxPrice == null || price == _maxPrice!);
 
                       // Corrected rating match
                       final ratingMatch = _minRating == null ||
-                          (nursery.rating?.toInt() ?? 0) == _minRating!; // Exact match
+                          (nurseries.rating?.toInt() ?? 0) >=
+                              _minRating!; // Exact match
 
                       // final distanceMatch = _userLocation == null ||
                       //     (nursery.location != null &&
                       //         _calculateDistance(_userLocation!, nursery.location!) <= 20);
 
                       return nameMatch &&
-                          locationMatch &&
-                          // ageMatch &&
-                          priceMatch &&
-                          ratingMatch ;
+                          // locationMatch &&
+                          ageMatch &&
+                          // priceMatch &&
+                          ratingMatch;
                       // distanceMatch;
                     }).toList();
 
@@ -494,10 +508,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           final nursery = filteredNurseries[index];
                           return
                             TopRatedCard(nursery: nursery);
-
                         }
                     );
-
                   }
                   if (state is NurseryHomeError) {
                     return Center(
@@ -513,4 +525,6 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
       ),
     );
   }
+
+
 }

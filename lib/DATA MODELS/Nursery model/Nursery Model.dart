@@ -12,6 +12,7 @@ class NurseryProfile {
   final String hours;
   final String language;
   final String price;
+  final String age;
   final String location;
   final String? profileImageUrl;
 
@@ -28,6 +29,7 @@ class NurseryProfile {
     required this.schedules,
     required this.calendar,
     required this.hours,
+    required this.age,
     required this.language,
     required this.price,
     required this.location,
@@ -48,6 +50,7 @@ class NurseryProfile {
       schedules: List<String>.from(map['schedules'] ?? []),
       calendar: map['calendar'] ?? '',
       hours: map['hours'] ?? '9 AM - 5 PM',
+      age: map['age'] ?? '',
       language: map['language'] ?? 'English',
       price: map['price'] ?? '\$500/month',
       location: map['location'] ?? '',
@@ -70,8 +73,10 @@ class NurseryProfile {
       'hours': hours,
       'language': language,
       'price': price,
+      'age': age,
       'location':location,
       'profileImageUrl': profileImageUrl,
+
     };
   }
 }

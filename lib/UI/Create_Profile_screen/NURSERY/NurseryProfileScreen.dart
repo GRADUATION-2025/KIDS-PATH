@@ -305,15 +305,25 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             // Images Section
             _sectionTitle("Gallery"),
             _buildImageGallerySection(),
+            _sectionTitle("Child Age"),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                widget.nursery.age,
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 15,
+                  height: 1.4,
+                ),
+              ),
+            ),
 
             // Programs Section
             _sectionTitle("Programs"),
             if (widget.nursery.programs.isNotEmpty)
               ...widget.nursery.programs.map((program) => _programCard(
                   program.split(' ')[0],
-                  program,
-                  program.contains('Infant') ? '0 mo - 12 mo' :
-                  program.contains('Toddler') ? '12 mo - 2 yr' : '2 yr - 5 yr'
+
               )).toList(),
 
             // Price Section
@@ -511,7 +521,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     );
   }
 
-  Widget _programCard(String title, String subtitle, String age) {
+  Widget _programCard(String title,) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       shape: RoundedRectangleBorder(
@@ -523,8 +533,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
           title,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text("$subtitle • $age"),
-        trailing: const Icon(Icons.keyboard_arrow_down),
+
       ),
     );
   }
