@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../DATA MODELS/search filter/filter.dart';
 import '../../../LOGIC/Home/home_cubit.dart';
 import '../../../LOGIC/Home/home_state.dart';
-import '../../../WIDGETS/nurserycard.dart';
+import '../../../WIDGETS/searchResultCard/nurserycard.dart';
 
 class FilterResultsScreen extends StatelessWidget {
   final FilterParams filters;

@@ -15,7 +15,7 @@ class NotificationScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.grey,
+          backgroundColor: Colors.white,
           elevation: 0,
           title: _GradientTitle('Notifications'),
         ),
@@ -70,16 +70,16 @@ class NotificationScreen extends StatelessWidget {
       statusColor = success ? Colors.green : Colors.red;
     } else {
       if (note.title.contains('Confirmed')) {
-        statusText = 'Confirmed';
+        statusText = '';
         statusColor = Colors.green;
       } else if (note.title.contains('Accepted')) {
-        statusText = 'Accepted';
+        statusText = '';
         statusColor = Colors.green;
       } else if (note.title.contains('Rejected')) {
-        statusText = 'Rejected';
+        statusText = '';
         statusColor = Colors.red;
       } else {
-        statusText = 'Pending';
+        statusText = '';
         statusColor = Colors.grey;
       }
     }

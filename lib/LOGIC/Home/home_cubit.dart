@@ -187,7 +187,9 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   List<NurseryProfile> _getTopRatedNurseries(List<NurseryProfile> allNurseries) {
-    return List<NurseryProfile>.from(allNurseries)
+    return allNurseries
+        .where((nursery) => nursery.rating == 5)
+        .toList()
       ..sort((a, b) => b.rating.compareTo(a.rating));
   }
 

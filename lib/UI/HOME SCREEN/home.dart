@@ -9,6 +9,7 @@ import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
 import '../../LOGIC/Home/home_state.dart';
 import '../Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
+import 'ALL Nurseriers Screen/show_all_nurseries.dart';
 
 
 class HomeScreen extends StatelessWidget {
@@ -246,18 +247,30 @@ class _PopularNurseriesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text(
-          'Popular Nursery',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
+         Row(
+           children: [
+             Text(
+              'Popular Nursery',
+              style: GoogleFonts.inter(fontSize: 18.sp,fontWeight: FontWeight.bold),
+                     ),
+             SizedBox(width: 140,),
+             GestureDetector(onTap: (){
+               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShowAllNurseries(),));
+
+             },
+                 child: Text("See All",
+                   style:GoogleFonts.inter(fontSize: 15,) ,)),
+
+           ],
+         ),
+         SizedBox(height: 10),
         SizedBox(
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: nurseries.length,
+            itemCount: 4,
             itemBuilder: (context, index) {
               return _PopularNurseryCard(nursery: nurseries[index]);
             },
@@ -279,7 +292,7 @@ class _PopularNurseryCard extends StatelessWidget {
       onTap: () => _navigateToProfile(context, nursery),
       child: Container(
         width: 80,
-        margin: const EdgeInsets.only(right: 12),
+        margin: const EdgeInsets.only(right: 18),
         child: Column(
           children: [
             _NurseryAvatar(profileImageUrl: nursery.profileImageUrl),
@@ -352,7 +365,7 @@ class _TopRatedSection extends StatelessWidget {
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          itemCount: nurseries.length,
+          itemCount: 4,
           itemBuilder: (context, index) {
             return _TopRatedCard(nursery: nurseries[index]);
           },

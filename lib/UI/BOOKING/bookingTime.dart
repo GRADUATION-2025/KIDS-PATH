@@ -707,6 +707,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../LOGIC/booking/cubit.dart';
@@ -797,7 +799,11 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
 
   Widget _buildBookingsList(BuildContext context, List<Booking> bookings) {
     if (bookings.isEmpty) {
-      return const Center(child: Text('No bookings found'));
+      return  Center(child: Text('No Bookings Found',
+          style: GoogleFonts.inter(
+              fontSize: 15.sp,fontWeight: FontWeight.bold)
+      )
+      );
     }
 
     return RefreshIndicator(
