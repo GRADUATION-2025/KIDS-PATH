@@ -453,43 +453,35 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   }
                   if (state is HomeLoaded) {
                     final nurseries = state.nurseries;
-                    final filteredNurseries = nurseries.where((nurseries) {
-                      final nameMatch = nurseries.name
+
+                    final filteredNurseries = nurseries.where((nursery) {
+                      final nameMatch = nursery.name
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase());
 
-                      // final locationMatch = _selectedLocation == null ||
-                      //     _selectedLocation!.isEmpty ||
-                      //     nursery.location.toLowerCase().contains(_selectedLocation!.toLowerCase());
+                      // If search is typed, it must match
+                      if (_searchController.text.isNotEmpty && !nameMatch) {
+                        return false;
+                      }
 
-                      // Age filter with standardization
-                      final nurseryAge = _getAgeLabel(nurseries.age);
+                      // Filters — each can match independently
+                      final nurseryAge = _getAgeLabel(nursery.age);
                       final selectedAge = _getAgeLabel(_selectedAge);
-                      final ageMatch = _selectedAge == null || nurseryAge == selectedAge;
+                      final ageMatch = _selectedAge != null && nurseryAge == selectedAge;
 
+                      final ratingMatch = _minRating != null &&
+                          nursery.rating != null &&
+                          nursery.rating!.round() == _minRating!;
 
+                      // Add more filter options here (e.g., price, distance) using same pattern
 
-                      // final price = nursery.price ?? 0;
-                      // final priceMatch = (_minPrice == null ||
-                      //     price == _minPrice!) &&
-                      //     (_maxPrice == null || price == _maxPrice!);
+                      // If no filters selected, return true (show all)
+                      final noFiltersSelected = _selectedAge == null && _minRating == null;
 
-                      // Corrected rating match
-                      final ratingMatch = _minRating == null ||
-                          (nurseries.rating?.toInt() ?? 0) >=
-                              _minRating!; // Exact match
-
-                      // final distanceMatch = _userLocation == null ||
-                      //     (nursery.location != null &&
-                      //         _calculateDistance(_userLocation!, nursery.location!) <= 20);
-
-                      return nameMatch &&
-                          // locationMatch &&
-                          ageMatch &&
-                          // priceMatch &&
-                          ratingMatch;
-                      // distanceMatch;
+                      // Return true if any filter matches, or no filters at all
+                      return noFiltersSelected || ageMatch || ratingMatch;
                     }).toList();
+
 
                     if (filteredNurseries.isEmpty) {
                       return Center(
