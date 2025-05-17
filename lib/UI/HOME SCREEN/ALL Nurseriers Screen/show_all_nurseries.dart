@@ -155,7 +155,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     const Text("Location"),
                     const SizedBox(height: 6),
                     TextField(
-                      decoration: _inputDecoration("Enter location"),
+                      decoration: _inputDecoration("Enter location",""),
                       controller: TextEditingController(text: tempLocation),
                       onChanged: (value) =>
                           setModalState(() =>
@@ -193,7 +193,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
                       value: tempSelectedAge,
-                      decoration: _inputDecoration("Select age group"),
+                      decoration: _inputDecoration("Select age group",""),
                       items: const [
                         DropdownMenuItem(value: "6-12 months", child: Text("6-12 months")),
                         DropdownMenuItem(value: "1 year", child: Text("1 year")),
@@ -218,7 +218,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
                             ],
-                            decoration: _inputDecoration("Min Price"),
+                            decoration: _inputDecoration("Min Price", "K EGP"),
                             controller: _minPriceController,
 
                             onChanged: (value) {
@@ -239,7 +239,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
                             ],
-                            decoration: _inputDecoration("Max Price"),
+                            decoration: _inputDecoration("Max Price","K EGP"),
                             controller: _maxPriceController,
 
                             onChanged: (value) {
@@ -287,15 +287,9 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
 
                     // Apply Filters Button
                     GestureDetector(
+
                       onTap: () {
-                        if (tempMinPrice != null && tempMaxPrice != null &&
-                            tempMinPrice! > tempMaxPrice!) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text(
-                                "Maximum price must be greater than minimum price")),
-                          );
-                          return;
-                        }
+
                         setState(() {
                           _selectedLocation = tempLocation;
                           _minPrice = tempMinPrice;
@@ -337,9 +331,10 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(String hint,String thousand) {
     return InputDecoration(
       hintText: hint,
+      suffixText: thousand,
       filled: true,
       fillColor: Colors.grey.shade100,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -397,6 +392,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
               tooltip: 'Reset Search Field',
               onPressed: () {
                 _searchController.clear();
+                _minPriceController.clear();
+                _maxPriceController.clear();
                 setState(() {
                   _selectedLocation = null;
                   _minPrice = null;
