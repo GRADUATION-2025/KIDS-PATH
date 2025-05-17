@@ -23,6 +23,7 @@ class ShowAllNurseries extends StatefulWidget {
 }
 
 class _ShowAllNurseriesState extends State<ShowAllNurseries> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
@@ -33,23 +34,19 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   String? _selectedAge;
   int? _minRating;
 
-  GeoPoint? _userLocation;
-
-  // Age standardization method
-  String? _getAgeLabel(String? age) {
-    if (age == null) return null;
-    final cleanAge = age.toLowerCase().trim();
-
-    if (cleanAge.contains('6-12 months') ) return '6-12 months';
-    if (cleanAge.contains('1 year') ) return '1 year';
-    if (cleanAge.contains('2 years') ) return '2 years';
-    if (cleanAge.contains('3 years') ) return '3 years';
-    if (cleanAge.contains('4years') ) return '4 years';
-    return null;
+  String normalizeAge(String? age) {
+    if (age == null) return '';
+    return age
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'[^a-z0-9]'), '')
+        .replaceAll('months', 'month')
+        .replaceAll('years', 'year');
   }
 
-
-
+  Query _buildQuery() {
+    return _firestore.collection('nurseries');
+  }
 
   @override
   void initState() {
@@ -65,8 +62,6 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     super.dispose();
   }
 
-
-  // Price parsing method
   double _parsePrice(String priceString) {
     try {
       final numericString = priceString.replaceAll(RegExp(r'[^0-9.]'), '');
@@ -76,38 +71,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     }
   }
 
-
-  Future<GeoPoint?> _getUserSavedLocation() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return null;
-
-    final doc = await FirebaseFirestore.instance.collection("parents").doc(
-        userId).get();
-    return doc.data()?['location'] as GeoPoint?;
-  }
-
-  double _calculateDistance(GeoPoint a, GeoPoint b) {
-    const earthRadius = 6371; // km
-    final dLat = (b.latitude - a.latitude) * pi / 180;
-    final dLon = (b.longitude - a.longitude) * pi / 180;
-
-    final lat1 = a.latitude * pi / 180;
-    final lat2 = b.latitude * pi / 180;
-
-    final aCalc = sin(dLat / 2) * sin(dLat / 2) +
-        sin(dLon / 2) * sin(dLon / 2) * cos(lat1) * cos(lat2);
-    final c = 2 * atan2(sqrt(aCalc), sqrt(1 - aCalc));
-
-    return earthRadius * c;
-  }
-
-
-
   void _showFilterDialog() {
     String? tempLocation = _selectedLocation;
     int? tempMinPrice = _minPrice;
     int? tempMaxPrice = _maxPrice;
-    String? tempSelectedAge = _selectedAge;
+    String? tempAge = _selectedAge;
     int tempMinRating = _minRating ?? 0;
 
     showModalBottomSheet(
@@ -115,8 +83,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -125,10 +92,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                 top: 24,
                 left: 16,
                 right: 16,
-                bottom: MediaQuery
-                    .of(context)
-                    .viewInsets
-                    .bottom + 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -142,10 +106,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           foreground: Paint()
-                            ..shader = AppGradients.Projectgradient
-                                .createShader(
-                              const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
-                            ),
+                            ..shader = AppGradients.Projectgradient.createShader(
+                                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                         ),
                       ),
                     ),
@@ -155,11 +117,9 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     const Text("Location"),
                     const SizedBox(height: 6),
                     TextField(
-                      decoration: _inputDecoration("Enter location",""),
+                      decoration: _inputDecoration("Enter location", ""),
                       controller: TextEditingController(text: tempLocation),
-                      onChanged: (value) =>
-                          setModalState(() =>
-                          tempLocation = value),
+                      onChanged: (value) => setModalState(() => tempLocation = value),
                     ),
                     const SizedBox(height: 8),
 
@@ -167,33 +127,17 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     ElevatedButton.icon(
                       icon: const Icon(Icons.my_location),
                       label: const Text("Detect Location"),
-                      onPressed: () async {
-                        final userLocation = await _getUserSavedLocation();
-                        if (userLocation != null) {
-                          setModalState(() {
-                            _userLocation = userLocation;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text(
-                                "Location detected successfully!")),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text(
-                                "Could not detect saved location.")),
-                          );
-                        }
-                      },
+                      onPressed: () async {},
                     ),
 
                     const SizedBox(height: 16),
 
-                    // Age Dropdown
+                    // Age Dropdown - Fixed value and onChanged
                     const Text("Child Age"),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
-                      value: tempSelectedAge,
-                      decoration: _inputDecoration("Select age group",""),
+                      value: tempAge, // Use tempAge here
+                      decoration: _inputDecoration("Select age group", ""),
                       items: const [
                         DropdownMenuItem(value: "6-12 months", child: Text("6-12 months")),
                         DropdownMenuItem(value: "1 year", child: Text("1 year")),
@@ -201,7 +145,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         DropdownMenuItem(value: "3 years", child: Text("3 years")),
                         DropdownMenuItem(value: "4 years", child: Text("4 years")),
                       ],
-                      onChanged: (value) => setModalState(() => tempSelectedAge = value),
+                      onChanged: (value) => setModalState(() => tempAge = value),
                     ),
 
                     const SizedBox(height: 16),
@@ -213,14 +157,10 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                       children: [
                         Expanded(
                           child: TextField(
-                            keyboardType: TextInputType.numberWithOptions(
-                                decimal: false),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
+                            keyboardType: TextInputType.numberWithOptions(decimal: false),
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             decoration: _inputDecoration("Min Price", "K EGP"),
                             controller: _minPriceController,
-
                             onChanged: (value) {
                               if (value.isEmpty) {
                                 setModalState(() => tempMinPrice = null);
@@ -234,14 +174,10 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
-                            keyboardType: TextInputType.numberWithOptions(
-                                decimal: false),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            decoration: _inputDecoration("Max Price","K EGP"),
+                            keyboardType: TextInputType.numberWithOptions(decimal: false),
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            decoration: _inputDecoration("Max Price", "K EGP"),
                             controller: _maxPriceController,
-
                             onChanged: (value) {
                               if (value.isEmpty) {
                                 setModalState(() => tempMaxPrice = null);
@@ -269,8 +205,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     Center(
                         child: RatingBar.builder(
                           initialRating: tempMinRating.toDouble(),
-                          minRating: 1,
-                          // Changed from 0 to 1
+                          minRating: 0,
                           direction: Axis.horizontal,
                           allowHalfRating: false,
                           itemCount: 5,
@@ -278,27 +213,21 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           itemBuilder: (context, _) =>
                           const Icon(Icons.star, color: Colors.amber),
                           onRatingUpdate: (rating) =>
-                              setModalState(() =>
-                              tempMinRating = rating.toInt()),
-                        )
-                    ),
+                              setModalState(() => tempMinRating = rating.toInt()),
+                        )),
 
                     const SizedBox(height: 30),
 
                     // Apply Filters Button
                     GestureDetector(
-
                       onTap: () {
-
                         setState(() {
                           _selectedLocation = tempLocation;
                           _minPrice = tempMinPrice;
                           _maxPrice = tempMaxPrice;
-                          _selectedAge = tempSelectedAge;
-                          _minRating =
-                              tempMinRating; // Remove null check to allow 0
+                          _selectedAge = tempAge;
+                          _minRating = tempMinRating == 0 ? null : tempMinRating; // Convert 0 to null
                         });
-
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -331,7 +260,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint,String thousand) {
+  InputDecoration _inputDecoration(String hint, String thousand) {
     return InputDecoration(
       hintText: hint,
       suffixText: thousand,
@@ -377,8 +306,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => BottombarParentScreen()),
+                  MaterialPageRoute(builder: (context) => BottombarParentScreen()),
                       (route) => false,
                 );
               },
@@ -400,7 +328,6 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   _maxPrice = null;
                   _selectedAge = null;
                   _minRating = null;
-                  _userLocation = null;
                 });
                 FocusScope.of(context).unfocus();
               },
@@ -421,16 +348,13 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         fillColor: Colors.grey.shade100,
                         hintText: 'Search Nursery by Name',
                         hintStyle: const TextStyle(color: Colors.black),
-                        prefixIcon: const Icon(
-                            Icons.search, color: Colors.deepPurple),
+                        prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors
-                              .black),
+                          borderSide: const BorderSide(color: Colors.black),
                           borderRadius: BorderRadius.circular(25),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors
-                              .deepPurple),
+                          borderSide: const BorderSide(color: Colors.deepPurple),
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
@@ -469,54 +393,54 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase());
 
-                      // If search is typed, it must match
                       if (_searchController.text.isNotEmpty && !nameMatch) {
                         return false;
                       }
 
-                      // Filters — each can match independently
-                      final nurseryAge = _getAgeLabel(nursery.age);
-                      final selectedAge = _getAgeLabel(_selectedAge);
-                      final ageMatch = _selectedAge != null && nurseryAge == selectedAge;
+                      // Age filter - using normalized values
+                      if (_selectedAge != null) {
+                        final nurseryAge = normalizeAge(nursery.age);
+                        final selectedAge = normalizeAge(_selectedAge);
+                        if (nurseryAge != selectedAge) {
+                          return false;
+                        }
+                      }
 
-                      final ratingMatch = _minRating != null &&
-                          nursery.rating != null &&
-                          nursery.rating!.round() == _minRating!;
-
+                      // Rating filter
+                      if (_minRating != null) {
+                        if (nursery.rating == null || nursery.rating!.round() != _minRating!) {
+                          return false;
+                        }
+                      }
 
                       // Price filter
                       final price = _parsePrice(nursery.price);
-                      final priceMatch = (_minPrice == null || price >= _minPrice!) &&
-                          (_maxPrice == null || price <= _maxPrice!);
+                      if (_minPrice != null && price < _minPrice!) {
+                        return false;
+                      }
+                      if (_maxPrice != null && price > _maxPrice!) {
+                        return false;
+                      }
 
-                      // Add more filter options here (e.g., price, distance) using same pattern
-
-                      // If no filters selected, return true (show all)
-                      final noFiltersSelected = _selectedAge == null && _minRating == null;
-
-                      // Return true if any filter matches, or no filters at all
-                      return noFiltersSelected || ageMatch || ratingMatch || priceMatch ;
+                      return true;
                     }).toList();
-
 
                     if (filteredNurseries.isEmpty) {
                       return Center(
                         child: Text(
-                          "No nurseries found matching the criteria.",
-                          style: GoogleFonts.inter(fontSize: 18),
-                        ),
+                            "No nurseries found matching the criteria.",
+                            style: GoogleFonts.inter(fontSize: 18)),
                       );
                     }
 
                     return ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredNurseries.length,
-                        itemBuilder: (context, index) {
-                          final nursery = filteredNurseries[index];
-                          return
-                            TopRatedCard(nursery: nursery);
-                        }
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filteredNurseries.length,
+                      itemBuilder: (context, index) {
+                        final nursery = filteredNurseries[index];
+                        return TopRatedCard(nursery: nursery);
+                      },
                     );
                   }
                   if (state is NurseryHomeError) {
@@ -533,6 +457,4 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
       ),
     );
   }
-
-
 }
