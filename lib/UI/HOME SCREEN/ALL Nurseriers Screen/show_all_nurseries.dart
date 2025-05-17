@@ -24,6 +24,8 @@ class ShowAllNurseries extends StatefulWidget {
 
 class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _minPriceController = TextEditingController();
+  final TextEditingController _maxPriceController = TextEditingController();
 
   String? _selectedLocation;
   int? _minPrice;
@@ -64,6 +66,15 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   }
 
 
+  // Price parsing method
+  double _parsePrice(String priceString) {
+    try {
+      final numericString = priceString.replaceAll(RegExp(r'[^0-9.]'), '');
+      return double.parse(numericString);
+    } catch (e) {
+      return 0.0;
+    }
+  }
 
 
   Future<GeoPoint?> _getUserSavedLocation() async {
@@ -89,6 +100,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
 
     return earthRadius * c;
   }
+
+
 
   void _showFilterDialog() {
     String? tempLocation = _selectedLocation;
@@ -206,9 +219,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             decoration: _inputDecoration("Min Price"),
-                            controller: TextEditingController(
-                              text: tempMinPrice?.toString() ?? '',
-                            ),
+                            controller: _minPriceController,
+
                             onChanged: (value) {
                               if (value.isEmpty) {
                                 setModalState(() => tempMinPrice = null);
@@ -228,9 +240,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             decoration: _inputDecoration("Max Price"),
-                            controller: TextEditingController(
-                              text: tempMaxPrice?.toString() ?? '',
-                            ),
+                            controller: _maxPriceController,
+
                             onChanged: (value) {
                               if (value.isEmpty) {
                                 setModalState(() => tempMaxPrice = null);
@@ -453,6 +464,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   }
                   if (state is HomeLoaded) {
                     final nurseries = state.nurseries;
+                    final int? _minPrice = int.tryParse(_minPriceController.text);
+                    final int? _maxPrice = int.tryParse(_maxPriceController.text);
 
                     final filteredNurseries = nurseries.where((nursery) {
                       final nameMatch = nursery.name
@@ -473,13 +486,19 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           nursery.rating != null &&
                           nursery.rating!.round() == _minRating!;
 
+
+                      // Price filter
+                      final price = _parsePrice(nursery.price);
+                      final priceMatch = (_minPrice == null || price >= _minPrice!) &&
+                          (_maxPrice == null || price <= _maxPrice!);
+
                       // Add more filter options here (e.g., price, distance) using same pattern
 
                       // If no filters selected, return true (show all)
                       final noFiltersSelected = _selectedAge == null && _minRating == null;
 
                       // Return true if any filter matches, or no filters at all
-                      return noFiltersSelected || ageMatch || ratingMatch;
+                      return noFiltersSelected || ageMatch || ratingMatch || priceMatch ;
                     }).toList();
 
 
