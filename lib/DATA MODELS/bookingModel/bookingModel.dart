@@ -18,6 +18,7 @@ class Booking {
   final String childName;
   final int childAge;
   final String childGender;
+  final bool rated;
 
   Booking({
     required this.id,
@@ -36,6 +37,7 @@ class Booking {
     required this.childName,
     required this.childAge,
     required this.childGender,
+    required this.rated,
   });
 
   factory Booking.fromFirestore(DocumentSnapshot doc) {
@@ -57,6 +59,7 @@ class Booking {
       childName: data['childName'] ?? '',
       childAge: data['childAge'] ?? 0,
       childGender: data['childGender'] ?? '',
+      rated: data['rated'] ?? false,
     );
   }
 
@@ -76,6 +79,7 @@ class Booking {
       'childName': childName,
       'childAge': childAge,
       'childGender': childGender,
+      'rated': rated,
       if (updatedAt != null) 'updatedAt': FieldValue.serverTimestamp(),
     };
   }

@@ -70,7 +70,7 @@ class NotificationModel {
       title: data['title'] as String,
       message: data['message'] as String,
       bookingId: data['bookingId'] as String? ?? '',
-      timestamp: data['timestamp'] as Timestamp,
+      timestamp: data['timestamp'] ?? Timestamp.now(),
       isRead: data['isRead'] as bool? ?? false,
       childName: data['childName'] as String?, // ✅ Safely parse from Firestore
     );

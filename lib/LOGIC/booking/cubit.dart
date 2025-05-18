@@ -83,6 +83,7 @@ class BookingCubit extends Cubit<BookingState> {
         childName: child.name,
         childAge: child.age,
         childGender: child.gender,
+        rated: false
       );
       await ref.set(booking.toMap());
       emit(BookingCreated());
@@ -222,9 +223,44 @@ class BookingCubit extends Cubit<BookingState> {
     });
   }
 
-  @override
-  Future<void> close() {
-    _bookingsSubscription?.cancel();
-    return super.close();
+  Future<void> submitRating({
+    required String nurseryId,
+    required String bookingId,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      final user = _auth.currentUser!;
+
+      // Validate rating
+      if (rating < 1 || rating > 5) {
+        throw Exception('Rating must be between 1-5 stars');
+      }
+
+      // Store rating
+      await _firestore.collection('ratings').add({
+        'nurseryId': nurseryId,
+        'parentId': user.uid,
+        'rating': rating,
+        'comment': comment,
+        'timestamp': FieldValue.serverTimestamp(),
+        'bookingId': bookingId,
+      });
+
+      // Update specific booking as rated
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'rated': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Refresh bookings list
+      if (state is BookingsLoaded) {
+        final currentState = state as BookingsLoaded;
+        initBookingsStream(isNursery: currentState.isNurseryView);
+      }
+
+    } catch (e) {
+      emit(BookingError('Rating submission failed: $e'));
+    }
   }
 }
