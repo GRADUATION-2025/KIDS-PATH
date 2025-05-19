@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import '../../../LOGIC/ image/img upload/upload img.dart';
 import '../../../LOGIC/booking/cubit.dart';
 import '../../../LOGIC/chat/cubit.dart';
 import '../../../LOGIC/chat/state.dart';
+import '../../../LOGIC/rating stats.dart';
 import '../../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../BOOKING/Booking.dart';
 import '../../CHAT/chat.dart';
@@ -355,27 +357,41 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             ),
 
             // Client Feedback
-            _sectionTitle("Client Feedback"),
+            _sectionTitle("Clients Ratings"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${widget.nursery.rating} out of 5",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: widget.nursery.rating / 5,
-                    color: const Color(0xFF07C8F9),
-                    minHeight: 8,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ],
+              child: FutureBuilder<QuerySnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('ratings')
+                    .where('nurseryId', isEqualTo: widget.nursery.uid)
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Error loading ratings: ${snapshot.error}');
+                  }
+
+                  final ratings = snapshot.data?.docs ?? [];
+                  final stats = RatingStats.fromRatings(ratings);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${widget.nursery.rating.toStringAsFixed(1)} out of 5 • ${stats.totalRatings} ratings",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ..._buildRatingBars(stats),
+                    ],
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
@@ -415,6 +431,61 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildRatingBars(RatingStats stats) {
+    return [5, 4, 3, 2, 1].map((stars) {
+      final percentage = stats.starPercentages[stars] ?? 0.0;
+      final count = stats.starCounts[stars] ?? 0;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          children: [
+          SizedBox(
+          width: 80,
+          child: Text('$stars stars', style: const TextStyle(fontSize: 14))),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: LinearProgressIndicator(
+                value: percentage / 100,
+                minHeight: 12,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  _getProgressBarColor(stars),
+                ),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 60,
+            child: Text(
+                '${percentage.toStringAsFixed(1)}%',
+                style: const TextStyle(fontSize: 14)),
+          ),
+          Text(
+            '($count)',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
+          ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Color _getProgressBarColor(int stars) {
+    return const [
+      Color(0xFFFF0000), // 1 star - red
+      Color(0xFFFF4500), // 2 stars - orange red
+      Color(0xFFFFA500), // 3 stars - orange
+      Color(0xFF9ACD32), // 4 stars - yellow green
+      Color(0xFF32CD32), // 5 stars - green
+    ][stars - 1];
   }
 
   Widget _buildImageGallerySection() {
@@ -537,4 +608,5 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
       ),
     );
   }
+
 }
