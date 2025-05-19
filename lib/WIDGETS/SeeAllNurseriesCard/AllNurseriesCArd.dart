@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
+import '../../LOGIC/rating stats.dart';
 import '../../UI/Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 
 class TopRatedCard extends StatelessWidget {
@@ -76,7 +77,17 @@ class _NurseryMainImage extends StatelessWidget {
     );
   }
 }
+double _calculateAverageRating(Map<int, int> starCounts) {
+  int total = starCounts.values.fold(0, (a, b) => a + b);
+  if (total == 0) return 0.0;
 
+  int sum = starCounts.entries.fold(
+      0,
+          (sum, entry) => sum + entry.key * entry.value
+  );
+
+  return sum / total;
+}
 class _NurseryInfo extends StatelessWidget {
   final NurseryProfile nursery;
 
@@ -107,12 +118,44 @@ class _NurseryInfo extends StatelessWidget {
                 children: [
                   const Icon(LucideIcons.star, size: 16, color: Colors.amber),
                   const SizedBox(width: 4),
-                  Text(
-                    nursery.rating.toStringAsFixed(1),
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontSize: 14,
-                    ),
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('ratings')
+                        .where('nurseryId', isEqualTo: nursery.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text(
+                          '...',
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 14,
+                          ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Text(
+                          '?',
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 14,
+                          ),
+                        );
+                      }
+
+                      final ratings = snapshot.data?.docs ?? [];
+                      final stats = RatingStats.fromRatings(ratings);
+                      final averageRating = _calculateAverageRating(stats.starCounts);
+
+                      return Text(
+                        averageRating.toStringAsFixed(1),
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 14,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

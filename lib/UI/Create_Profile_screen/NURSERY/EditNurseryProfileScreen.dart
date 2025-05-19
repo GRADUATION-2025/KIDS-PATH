@@ -147,6 +147,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
         schedules: widget.nursery.schedules,
         calendar: widget.nursery.calendar,
         profileImageUrl: imageUrl,
+        
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

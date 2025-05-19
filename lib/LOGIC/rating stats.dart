@@ -14,16 +14,18 @@ class RatingStats {
   factory RatingStats.fromRatings(List<QueryDocumentSnapshot> ratings) {
     final counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
 
+    // Count all ratings without modifying existing counts
     for (final rating in ratings) {
       final stars = rating['rating'] as int;
-      counts[stars] = counts[stars]! + 1;
+      counts[stars] = counts[stars]! + 1; // Only increment, never decrement
     }
 
     final total = ratings.length;
-    final percentages = counts.map((star, count) => MapEntry(
-        star,
-        total > 0 ? (count / total * 100) : 0.0
-    ));
+    final percentages = counts.map((star, count) =>
+        MapEntry(
+            star,
+            total > 0 ? (count / total * 100) : 0.0
+        ));
 
     return RatingStats(
       totalRatings: total,

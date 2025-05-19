@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
+import '../../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../../LOGIC/ image/img upload/upload img.dart';
 import '../../../LOGIC/booking/cubit.dart';
 import '../../../LOGIC/chat/cubit.dart';
@@ -18,7 +20,8 @@ import '../../CHAT/chat.dart';
 class NurseryProfileScreen extends StatefulWidget {
   final NurseryProfile nursery;
 
-  const NurseryProfileScreen({Key? key, required this.nursery}) : super(key: key);
+
+  const NurseryProfileScreen({Key? key, required this.nursery, }) : super(key: key);
 
   @override
   State<NurseryProfileScreen> createState() => _NurseryProfileScreenState();
@@ -192,9 +195,35 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                           Row(
                             children: [
                               const Icon(Icons.star, color: Colors.yellow, size: 16),
-                              Text(
-                                "${widget.nursery.rating} • ${widget.nursery.language}",
-                                style: const TextStyle(color: Colors.black),
+                              StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('ratings')
+                                    .where('nurseryId', isEqualTo: widget.nursery.uid)
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return Text(
+                                      "Loading... • ${widget.nursery.language}",
+                                      style: const TextStyle(color: Colors.black),
+                                    );
+                                  }
+
+                                  if (snapshot.hasError) {
+                                    return Text(
+                                      "Error • ${widget.nursery.language}",
+                                      style: const TextStyle(color: Colors.black),
+                                    );
+                                  }
+
+                                  final ratings = snapshot.data?.docs ?? [];
+                                  final stats = RatingStats.fromRatings(ratings);
+                                  final averageRating = _calculateAverageRating(stats.starCounts);
+
+                                  return Text(
+                                    "${averageRating.toStringAsFixed(1)} • ${widget.nursery.language}",
+                                    style: const TextStyle(color: Colors.black),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -357,14 +386,15 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             ),
 
             // Client Feedback
+            // Client Feedback Section
             _sectionTitle("Clients Ratings"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: FutureBuilder<QuerySnapshot>(
-                future: FirebaseFirestore.instance
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
                     .collection('ratings')
                     .where('nurseryId', isEqualTo: widget.nursery.uid)
-                    .get(),
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -381,7 +411,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${widget.nursery.rating.toStringAsFixed(1)} out of 5 • ${stats.totalRatings} ratings",
+                        "${_calculateAverageRating(stats.starCounts).toStringAsFixed(1)} out of 5  /  ${stats.totalRatings} Ratings",
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -399,6 +429,17 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         ),
       ),
     );
+  }
+// Add this method to calculate average rating
+  double _calculateAverageRating(Map<int, int> starCounts) {
+    int total = starCounts.values.reduce((a, b) => a + b);
+    if (total == 0) return 0.0;
+
+    int sum = starCounts.entries
+        .map((entry) => entry.key * entry.value)
+        .reduce((a, b) => a + b);
+
+    return sum / total;
   }
 
   Widget _buildImageUploadSection() {
@@ -443,8 +484,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         child: Row(
           children: [
           SizedBox(
-          width: 80,
-          child: Text('$stars stars', style: const TextStyle(fontSize: 14))),
+          width: 100,
+          child: Text('${'⭐' }  $stars Stars', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold))),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -465,13 +506,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                 '${percentage.toStringAsFixed(1)}%',
                 style: const TextStyle(fontSize: 14)),
           ),
-          Text(
-            '($count)',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+
           ],
         ),
       );
