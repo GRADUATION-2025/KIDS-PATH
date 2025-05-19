@@ -212,7 +212,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               location: "Location",
                               profileImageUrl: widget.user.photoURL,
                               phoneNumber:"",
-                              
+
                             ),
                             role: selectedRole,
                             onProfileComplete: () {
@@ -246,6 +246,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               price: "",
                               location: "location",
                               age: "",
+                              averageRating: 0.0,
+                              totalRatings: 0,
                               profileImageUrl: null, phoneNumber: '', ownerId: '',
                             ),
                             role: selectedRole,

@@ -27,6 +27,8 @@ class NurseryCubit extends Cubit<NurseryState> {
         rating: 0.0,
         description: '',
         price: 'Contact for pricing',
+        totalRatings:0 ,
+        averageRating:0.0 ,
         hours: '',
         language: "",
         age: "",
@@ -98,6 +100,8 @@ class NurseryCubit extends Cubit<NurseryState> {
         calendar: '',
         location: "",
         ownerId: uid,
+        averageRating: 0.0,
+        totalRatings: 0
 
       );
 

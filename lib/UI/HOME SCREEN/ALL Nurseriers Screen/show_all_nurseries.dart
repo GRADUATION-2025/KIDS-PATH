@@ -7,12 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:kidspath/LOGIC/rating%20stats.dart';
 
 import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../../LOGIC/Home/home_cubit.dart';
 import '../../../LOGIC/Home/home_state.dart';
-import '../../../LOGIC/rating stats.dart';
 import '../../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_PARENT.dart';
 import '../../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../../WIDGETS/SeeAllNurseriesCard/AllNurseriesCArd.dart';
@@ -387,7 +385,6 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   }
                   if (state is HomeLoaded) {
                     final nurseries = state.nurseries;
-
                     final int? _minPrice = int.tryParse(_minPriceController.text);
                     final int? _maxPrice = int.tryParse(_maxPriceController.text);
 
@@ -409,13 +406,12 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         }
                       }
 
-                      // Rating filter
                       if (_minRating != null) {
-                        if (nursery.rating == null || nursery.rating!.round() != _minRating!) {
+                        if (nursery.averageRating == null ||
+                            nursery.averageRating! < _minRating!.toDouble()) {
                           return false;
                         }
                       }
-
                       // Price filter
                       final price = _parsePrice(nursery.price);
                       if (_minPrice != null && price < _minPrice!) {

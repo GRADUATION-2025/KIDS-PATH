@@ -404,6 +404,13 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                     return Text('Error loading ratings: ${snapshot.error}');
                   }
 
+                  // Update the average rating in Firestore whenever ratings change
+                  if (snapshot.hasData) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _updateAverageRating(widget.nursery.uid);
+                    });
+                  }
+
                   final ratings = snapshot.data?.docs ?? [];
                   final stats = RatingStats.fromRatings(ratings);
 
@@ -642,6 +649,31 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
 
       ),
     );
+  }
+  Future<void> _updateAverageRating(String nurseryId) async {
+    try {
+      // Get all ratings for this nursery
+      final ratingsSnapshot = await FirebaseFirestore.instance
+          .collection('ratings')
+          .where('nurseryId', isEqualTo: nurseryId)
+          .get();
+
+      final ratings = ratingsSnapshot.docs;
+      final stats = RatingStats.fromRatings(ratings);
+      final averageRating = _calculateAverageRating(stats.starCounts);
+
+      // Update the nursery document with the new average rating
+      await FirebaseFirestore.instance
+          .collection('nurseries')
+          .doc(nurseryId)
+          .update({
+        'averageRating': averageRating,
+        'totalRatings': stats.totalRatings,
+      });
+    } catch (e) {
+      print('Error updating average rating: $e');
+      // You might want to handle this error in your UI
+    }
   }
 
 }

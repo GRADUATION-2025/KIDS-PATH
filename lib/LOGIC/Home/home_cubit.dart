@@ -149,7 +149,9 @@ class HomeCubit extends Cubit<HomeState> {
         schedules: List<String>.from(data['schedules'] ?? []),
         calendar: data['calendar'] ?? '',
         ownerId: data['ownerId'] ?? '',
-        location: ""
+        location: "",
+        averageRating: 0.0,
+        totalRatings: 0
     );
   }
 
@@ -233,5 +235,3 @@ class HomeCubit extends Cubit<HomeState> {
     await _initialize();
   }
 }
-
-
