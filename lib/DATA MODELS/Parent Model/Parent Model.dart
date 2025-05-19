@@ -3,6 +3,7 @@ class Parent {
   final String uid;
   final String name;
   final String email;
+  final String role;
   final String phoneNumber;
   final List<String> paymentCards;
   final String location;
@@ -13,6 +14,7 @@ class Parent {
     required this.name,
     required this.email,
     required this.phoneNumber,
+    required this.role,
     required this.paymentCards,
     required this.location,
     this.profileImageUrl,
@@ -25,6 +27,7 @@ class Parent {
       'email': email,
       "phoneNumber": phoneNumber,
       "paymentCards": paymentCards,
+      "role": role,
       'location': location,
       'profileImageUrl': profileImageUrl,
 
@@ -36,6 +39,7 @@ class Parent {
       uid: map['uid'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
+      role: map['role'] ?? '',
       phoneNumber: map["phoneNumber"] ?? '',
       paymentCards: List<String>.from(map["paymentCards"] ?? []),
       location: map['location'] ?? '',

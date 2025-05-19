@@ -119,7 +119,7 @@ class HomeCubit extends Cubit<HomeState> {
         emit(HomeLoaded(
           nurseries: nurseries,
           popularNurseries: _getPopularNurseries(nurseries),
-          topRatedNurseries: _getTopRatedNurseries(nurseries),
+          topRatedNurseries: await getTopRatedNurseries(nurseries),
           userName: loadingState.userName,
           profileImageUrl: loadingState.profileImageUrl,
         ));
@@ -157,11 +157,43 @@ class HomeCubit extends Cubit<HomeState> {
     return List<NurseryProfile>.from(allNurseries)..shuffle();
   }
 
-  List<NurseryProfile> _getTopRatedNurseries(List<NurseryProfile> allNurseries) {
-    return allNurseries
-        .where((nursery) => nursery.rating == 5)
-        .toList()
-      ..sort((a, b) => b.rating.compareTo(a.rating));
+  Future<List<NurseryProfile>> getTopRatedNurseries(List<NurseryProfile> allNurseries) async {
+    final ratingsSnapshot = await FirebaseFirestore.instance.collection('ratings').get();
+
+    // Group ratings by nurseryId
+    final Map<String, List<int>> ratingsMap = {};
+
+    for (var doc in ratingsSnapshot.docs) {
+      final String nurseryId = doc['nurseryId'];
+      final int rating = doc['rating'];
+
+      if (!ratingsMap.containsKey(nurseryId)) {
+        ratingsMap[nurseryId] = [];
+      }
+      ratingsMap[nurseryId]!.add(rating);
+    }
+
+    // Calculate average rating per nurseryId
+    final Map<String, double> avgRatings = {};
+    ratingsMap.forEach((nurseryId, ratings) {
+      final average = ratings.reduce((a, b) => a + b) / ratings.length;
+      avgRatings[nurseryId] = average;
+    });
+
+    // Filter nurseries with average rating == 5
+    final topRatedNurseries = allNurseries.where((nursery) {
+      final avg = avgRatings[nursery.uid];
+      return avg != null && avg == 5.0;
+    }).toList();
+
+    // Sort by descending rating (though all are 5.0 here)
+    topRatedNurseries.sort((a, b) {
+      final avgA = avgRatings[a.uid]!;
+      final avgB = avgRatings[b.uid]!;
+      return avgB.compareTo(avgA);
+    });
+
+    return topRatedNurseries;
   }
 
   void _setupListeners() {
@@ -182,14 +214,14 @@ class HomeCubit extends Cubit<HomeState> {
     );
 
     _nurseriesSubscription = _firestore.collection('nurseries').snapshots().listen(
-          (snapshot) {
+          (snapshot) async {
         if (state is HomeLoaded) {
           final nurseries = snapshot.docs.map(_mapToNurseryProfile).toList();
           final currentState = state as HomeLoaded;
           emit(currentState.copyWith(
             nurseries: nurseries,
             popularNurseries: _getPopularNurseries(nurseries),
-            topRatedNurseries: _getTopRatedNurseries(nurseries),
+            topRatedNurseries: await getTopRatedNurseries(nurseries),
           ));
         }
       },

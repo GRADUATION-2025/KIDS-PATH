@@ -94,7 +94,7 @@ class NurseryAccountScreen extends StatelessWidget {
                                 style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                nursery.email,
+                                nursery.role,
                                 style: TextStyle(fontSize: 13.sp, color: Colors.grey),
                               ),
                             ],

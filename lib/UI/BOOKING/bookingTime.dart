@@ -123,92 +123,92 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
     final profileImage = widget.isNursery ? booking.parentProfileImage : booking.nurseryProfileImage;
 
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.12),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
               Container(
-              width: 55,
-              height: 55,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(width: 1.5, color: const Color(0xFF0D6EFD)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: profileImage != null
-                    ? Image.network(profileImage, fit: BoxFit.cover)
-                    : Container(
-                  color: Colors.grey[300],
-                  alignment: Alignment.center,
-                  child: Text(
-                    displayName.isNotEmpty ? displayName[0] : '?',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                width: 55,
+                height: 55,
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(width: 1.5, color: const Color(0xFF0D6EFD)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: profileImage != null
+                      ? Image.network(profileImage, fit: BoxFit.cover)
+                      : Container(
+                    color: Colors.grey[300],
+                    alignment: Alignment.center,
+                    child: Text(
+                      displayName.isNotEmpty ? displayName[0] : '?',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
+              const SizedBox(width: 12),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  Text(
-                  displayName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (!widget.isNursery)
+                      Text(
+                        'Child: ${booking.childName}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('EEEE, MMMM dd').format(booking.dateTime),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      '${DateFormat('h:mm a').format(booking.dateTime)} - ${DateFormat('h:mm a').format(booking.dateTime.add(const Duration(hours: 4)))}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                if (!widget.isNursery)
-            Text(
-            'Child: ${booking.childName}',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            DateFormat('EEEE, MMMM dd').format(booking.dateTime),
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black87,
-            ),
-          ),
-          Text(
-            '${DateFormat('h:mm a').format(booking.dateTime)} - ${DateFormat('h:mm a').format(booking.dateTime.add(const Duration(hours: 4)))}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
               ),
-            ),
+              const SizedBox(width: 8),
+              if (widget.isNursery)
+                _NurseryActions(booking: booking)
+              else
+                _ParentActions(booking: booking),
             ],
           ),
         ),
-        const SizedBox(width: 8),
-        if (widget.isNursery)
-    _NurseryActions(booking: booking)
-    else
-    _ParentActions(booking: booking),
-    ],
-    ),
-    ),
-    ),
+      ),
     );
   }
 
@@ -478,23 +478,29 @@ void _showChildDetails(BuildContext context, Booking booking) {
 }
 
 Widget _buildStatusPill(String status) {
+  // Define all possible statuses with their colors
   final statusColors = {
     'confirmed': const Color(0xFF0D6EFD),
     'cancelled': Colors.grey,
     'pending': Colors.orange,
     'payment_pending': Colors.purple,
+    'rated': Colors.green,
+    // Add any other possible statuses here
   };
+
+  // Get the color for the status, default to grey if not found
+  final color = statusColors[status] ?? Colors.grey;
 
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
-      color: statusColors[status]!.withOpacity(0.15),
+      color: color.withOpacity(0.15),
       borderRadius: BorderRadius.circular(20),
     ),
     child: Text(
       status[0].toUpperCase() + status.substring(1),
       style: TextStyle(
-        color: statusColors[status],
+        color: color,
         fontWeight: FontWeight.w600,
         fontSize: 12,
       ),

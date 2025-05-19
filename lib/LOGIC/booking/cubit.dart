@@ -67,23 +67,23 @@ class BookingCubit extends Cubit<BookingState> {
 
       final ref = _firestore.collection('bookings').doc();
       final booking = Booking(
-        id: ref.id,
-        parentId: parentId,
-        nurseryId: nurseryId,
-        parentName: parentDoc['name'] ?? 'Parent',
-        parentEmail: parentDoc['email'] ?? '',
-        parentProfileImage: parentDoc['profileImageUrl'],
-        nurseryName: nurseryName,
-        nurseryProfileImage: nurseryDoc['profileImageUrl'],
-        dateTime: dateTime,
-        status: 'pending',
-        createdAt: Timestamp.now(),
-        updatedAt: null,
-        childId: child.id,
-        childName: child.name,
-        childAge: child.age,
-        childGender: child.gender,
-        rated: false
+          id: ref.id,
+          parentId: parentId,
+          nurseryId: nurseryId,
+          parentName: parentDoc['name'] ?? 'Parent',
+          parentEmail: parentDoc['email'] ?? '',
+          parentProfileImage: parentDoc['profileImageUrl'],
+          nurseryName: nurseryName,
+          nurseryProfileImage: nurseryDoc['profileImageUrl'],
+          dateTime: dateTime,
+          status: 'pending',
+          createdAt: Timestamp.now(),
+          updatedAt: null,
+          childId: child.id,
+          childName: child.name,
+          childAge: child.age,
+          childGender: child.gender,
+          rated: false
       );
       await ref.set(booking.toMap());
       emit(BookingCreated());

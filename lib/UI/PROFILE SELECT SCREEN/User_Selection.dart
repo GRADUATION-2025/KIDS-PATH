@@ -207,6 +207,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               uid: widget.user.uid,
                               name: widget.user.displayName ?? "",
                               email: widget.user.email ?? "",
+                              role: "",
                               paymentCards: [],
                               location: "Location",
                               profileImageUrl: widget.user.photoURL,
