@@ -29,6 +29,7 @@ class NurseryProfileScreen extends StatefulWidget {
 
 class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
   final NurseryImageService _imageService = NurseryImageService();
+  final nurseries = FirebaseFirestore.instance.collection("nurseries");
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late Future<List<String>> _imagesFuture;
   bool _isUploading = false;
@@ -667,7 +668,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
           .collection('nurseries')
           .doc(nurseryId)
           .update({
-        'averageRating': averageRating,
+        'rating': widget.nursery.rating,
         'totalRatings': stats.totalRatings,
       });
     } catch (e) {

@@ -405,12 +405,12 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           return false;
                         }
                       }
-
+//// fix /////////////////
                       if (_minRating != null) {
-                        if (nursery.averageRating == null ||
-                            nursery.averageRating! < _minRating!.toDouble()) {
+                        if (nursery.rating == null || nursery.rating!.round() != _minRating!) {
                           return false;
                         }
+
                       }
                       // Price filter
                       final price = _parsePrice(nursery.price);

@@ -246,6 +246,12 @@ class BookingCubit extends Cubit<BookingState> {
         'timestamp': FieldValue.serverTimestamp(),
         'bookingId': bookingId,
       });
+      await FirebaseFirestore.instance
+          .collection('nurseries')
+          .doc(nurseryId)
+          .update({
+        'rating': rating,
+      });
 
       // Update specific booking as rated
       await _firestore.collection('bookings').doc(bookingId).update({
