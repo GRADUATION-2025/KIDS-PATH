@@ -670,6 +670,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
           .update({
         'rating': widget.nursery.rating,
         'totalRatings': stats.totalRatings,
+        "averageRating":averageRating
+
       });
     } catch (e) {
       print('Error updating average rating: $e');

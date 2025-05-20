@@ -185,7 +185,7 @@ class HomeCubit extends Cubit<HomeState> {
     // Filter nurseries with average rating == 5
     final topRatedNurseries = allNurseries.where((nursery) {
       final avg = avgRatings[nursery.uid];
-      return avg != null && avg == 5.0;
+      return avg != null && avg > 0.0;
     }).toList();
 
     // Sort by descending rating (though all are 5.0 here)

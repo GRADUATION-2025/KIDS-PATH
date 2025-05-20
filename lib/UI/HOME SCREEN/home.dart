@@ -355,6 +355,9 @@ class _TopRatedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Filter nurseries with rating exactly 5.0
+    final topRatedNurseries = nurseries.where((n) => n.rating == 5.0).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -363,14 +366,20 @@ class _TopRatedSection extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        ListView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: nurseries.length > 4 ? 4 : nurseries.length,
-          itemBuilder: (context, index) {
-            return _TopRatedCard(nursery: nurseries[index]);
-          },
-        ),
+        if (topRatedNurseries.isEmpty)
+          const Text(
+            'No 5-star nurseries yet.',
+            style: TextStyle(color: Colors.grey),
+          )
+        else
+          ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: topRatedNurseries.length > 4 ? 4 : topRatedNurseries.length,
+            itemBuilder: (context, index) {
+              return _TopRatedCard(nursery: topRatedNurseries[index]);
+            },
+          ),
       ],
     );
   }
