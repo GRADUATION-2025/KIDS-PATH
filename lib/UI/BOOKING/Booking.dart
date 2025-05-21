@@ -240,52 +240,69 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // Done Button
-                    GestureDetector(
-                      onTap: () {
-                        if (_selectedChild == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select a child')),
-                          );
-                          return;
-                        }
+BlocBuilder<BookingCubit, BookingState>(
+  builder: (context, state) {
+    final isLoading = state is BookingLoading;
 
-                        final dateTime = DateTime(
-                          _selectedDate.year,
-                          _selectedDate.month,
-                          _selectedDate.day,
-                          _selectedTime.hour,
-                          _selectedTime.minute,
-                        );
+    return GestureDetector(
+      onTap: isLoading
+          ? null
+          : () {
+        if (_selectedChild == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a child')),
+          );
+          return;
+        }
 
-                        context.read<BookingCubit>().createBooking(
-                          dateTime: dateTime,
-                          nurseryId: widget.nurseryId,
-                          nurseryName: widget.nurseryName,
-                          child: _selectedChild!,
-                        );
+        final dateTime = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          _selectedTime.hour,
+          _selectedTime.minute,
+        );
 
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: AppGradients.buttonGradient,
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Done',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+        context.read<BookingCubit>().createBooking(
+          dateTime: dateTime,
+          nurseryId: widget.nurseryId,
+          nurseryName: widget.nurseryName,
+          child: _selectedChild!,
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: isLoading
+            ? BoxDecoration(
+          color: Colors.grey.shade400,
+          borderRadius: BorderRadius.circular(12),
+        )
+            : AppGradients.buttonGradient,
+        alignment: Alignment.center,
+        child: isLoading
+            ? const SizedBox(
+          height: 24,
+          width: 24,
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            strokeWidth: 2.5,
+          ),
+        )
+            : const Text(
+          'Done',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }),
+              ]),
             ),
-          ],
+            )],
         ),
       ),
     );
