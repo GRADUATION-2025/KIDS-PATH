@@ -14,6 +14,7 @@ class NurseryProfile {
   final String price;
   final String age;
   final String location;
+  final String Coordinates;
   final String? profileImageUrl;
   final double averageRating;
   final int totalRatings;
@@ -35,6 +36,7 @@ class NurseryProfile {
     required this.language,
     required this.price,
     required this.location,
+    required this.Coordinates,
     required this.averageRating,
     required this.totalRatings,
     this.profileImageUrl,
@@ -58,6 +60,7 @@ class NurseryProfile {
       averageRating: map['averageRating'] ?? '',
       totalRatings: map['totalRatings'] ?? '',
       language: map['language'] ?? 'English',
+      Coordinates: map['Coordinates'] ?? 'English',
       price: map['price'] ?? '\$500/month',
       location: map['location'] ?? '',
       profileImageUrl: map['profileImageUrl'], ownerId: null,
@@ -83,6 +86,7 @@ class NurseryProfile {
       'price': price,
       'age': age,
       'location':location,
+      'Coordinates':Coordinates,
       'profileImageUrl': profileImageUrl,
 
     };

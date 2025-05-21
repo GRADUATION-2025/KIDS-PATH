@@ -39,6 +39,7 @@ class NurseryCubit extends Cubit<NurseryState> {
         schedules: ['Full-time'],
         calendar: '',
         location: "",
+        Coordinates: "",
         ownerId: uid,
 
       );
@@ -99,6 +100,7 @@ class NurseryCubit extends Cubit<NurseryState> {
         schedules: ['Full-time'],
         calendar: '',
         location: "",
+          Coordinates: "",
         ownerId: uid,
         averageRating: 0.0,
         totalRatings: 0

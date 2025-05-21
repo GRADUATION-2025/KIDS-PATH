@@ -7,6 +7,7 @@ class Parent {
   final String phoneNumber;
   final List<String> paymentCards;
   final String location;
+  final String Coordinates;
   final String? profileImageUrl;
 
   Parent({
@@ -17,6 +18,7 @@ class Parent {
     required this.role,
     required this.paymentCards,
     required this.location,
+    required this.Coordinates,
     this.profileImageUrl,
   });
 
@@ -29,6 +31,7 @@ class Parent {
       "paymentCards": paymentCards,
       "role": role,
       'location': location,
+      'Coordinates': Coordinates,
       'profileImageUrl': profileImageUrl,
 
     };
@@ -43,6 +46,7 @@ class Parent {
       phoneNumber: map["phoneNumber"] ?? '',
       paymentCards: List<String>.from(map["paymentCards"] ?? []),
       location: map['location'] ?? '',
+      Coordinates: map['Coordinates'] ?? '',
       profileImageUrl: map['profileImageUrl'],
     );
   }

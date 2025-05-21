@@ -337,6 +337,7 @@
             .doc(user.uid)
             .set({
           'location': _streetAddress,
+          'Coordinates':GeoPoint(_centerLocation.longitude,_centerLocation.latitude)
         }, SetOptions(merge: true));
 
         ScaffoldMessenger.of(context).showSnackBar(

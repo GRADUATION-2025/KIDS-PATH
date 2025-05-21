@@ -150,6 +150,7 @@ class HomeCubit extends Cubit<HomeState> {
         calendar: data['calendar'] ?? '',
         ownerId: data['ownerId'] ?? '',
         location: "",
+        Coordinates: "",
         averageRating: 0.0,
         totalRatings: 0
     );
