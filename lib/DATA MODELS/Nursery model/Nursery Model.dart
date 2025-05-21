@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class NurseryProfile {
   final String uid;
   final String email;
@@ -14,7 +16,7 @@ class NurseryProfile {
   final String price;
   final String age;
   final String location;
-  final String Coordinates;
+  final GeoPoint Coordinates;
   final String? profileImageUrl;
   final double averageRating;
   final int totalRatings;
@@ -60,7 +62,7 @@ class NurseryProfile {
       averageRating: map['averageRating'] ?? '',
       totalRatings: map['totalRatings'] ?? '',
       language: map['language'] ?? 'English',
-      Coordinates: map['Coordinates'] ?? 'English',
+      Coordinates: map['Coordinates'] ?? GeoPoint(0, 0),
       price: map['price'] ?? '\$500/month',
       location: map['location'] ?? '',
       profileImageUrl: map['profileImageUrl'], ownerId: null,

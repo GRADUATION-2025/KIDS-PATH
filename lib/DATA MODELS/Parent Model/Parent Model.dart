@@ -1,4 +1,6 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Parent {
   final String uid;
   final String name;
@@ -7,7 +9,7 @@ class Parent {
   final String phoneNumber;
   final List<String> paymentCards;
   final String location;
-  final String Coordinates;
+  final GeoPoint Coordinates;
   final String? profileImageUrl;
 
   Parent({
@@ -46,7 +48,7 @@ class Parent {
       phoneNumber: map["phoneNumber"] ?? '',
       paymentCards: List<String>.from(map["paymentCards"] ?? []),
       location: map['location'] ?? '',
-      Coordinates: map['Coordinates'] ?? '',
+      Coordinates: map['Coordinates'] ?? GeoPoint(0, 0),
       profileImageUrl: map['profileImageUrl'],
     );
   }

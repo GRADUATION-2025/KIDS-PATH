@@ -39,7 +39,7 @@ class NurseryCubit extends Cubit<NurseryState> {
         schedules: ['Full-time'],
         calendar: '',
         location: "",
-        Coordinates: "",
+        Coordinates: GeoPoint(0, 0),
         ownerId: uid,
 
       );
@@ -100,7 +100,7 @@ class NurseryCubit extends Cubit<NurseryState> {
         schedules: ['Full-time'],
         calendar: '',
         location: "",
-          Coordinates: "",
+          Coordinates: GeoPoint(0, 0),
         ownerId: uid,
         averageRating: 0.0,
         totalRatings: 0

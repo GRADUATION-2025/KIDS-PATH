@@ -389,6 +389,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                     final int? _maxPrice = int.tryParse(_maxPriceController.text);
 
                     final filteredNurseries = nurseries.where((nursery) {
+                      ////Name Filter////
                       final nameMatch = nursery.name
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase());
@@ -405,7 +406,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           return false;
                         }
                       }
-//// fix /////////////////
+                     /////////Ratings///////
                       if (_minRating != null) {
                         if (nursery.rating == null || nursery.rating!.round() != _minRating!) {
                           return false;

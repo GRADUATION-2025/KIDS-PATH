@@ -212,7 +212,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               location: "Location",
                               profileImageUrl: widget.user.photoURL,
                               phoneNumber:"",
-                              Coordinates:"Coordinates",
+                              Coordinates:GeoPoint(0, 0),
 
                             ),
                             role: selectedRole,
@@ -246,7 +246,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               language: "",
                               price: "",
                               location: "location",
-                              Coordinates: "Coordinates",
+                              Coordinates: GeoPoint(0, 0),
                               age: "",
                               averageRating: 0.0,
                               totalRatings: 0,
