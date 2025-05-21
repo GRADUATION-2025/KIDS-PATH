@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import '../../../LOGIC/Nursery/nursery_cubit.dart';
 import '../../../LOGIC/Nursery/nursery_state.dart';
 import '../../../LOGIC/delete account/account_deletion_handler.dart';
+import '../../GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 import '../../forget_change_password/forgetscreen.dart';
 import 'EditNurseryProfileScreen.dart';
 import 'NurseryProfileScreen.dart';
@@ -125,7 +127,11 @@ class NurseryAccountScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                       ),
                     ),
-                    accountOption(Icons.notifications, "Notifications"),
+                    accountOption(Icons.notifications, "Notifications",onTap: () => Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
+                          (route) => false,
+                    ),),
                     accountOption(Icons.privacy_tip, "Privacy Settings"),
                     accountOption(
                       Icons.logout,
@@ -139,11 +145,12 @@ class NurseryAccountScreen extends StatelessWidget {
                     ),
                     Divider(height: 20.h),
                     sectionTitle("More Options"),
-                    toggleOption("Newsletter", true),
-                    toggleOption("Text Messages", false),
+                    toggleOption("Dark Mode", true),
+                    // toggleOption("Text Messages", false),
                     currencyOption("Currency", "EGP"),
                     currencyOption("Languages", "English"),
-                    currencyOption("Location", "Alexandria"),
+                    currencyOption("Location", "Alexandria",onTap: () => Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),),(route) => false,)),
                   ],
                 ),
               );
@@ -185,8 +192,8 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget currencyOption(String title, String value) {
-    return ListTile(
+  Widget currencyOption(String title, String value,{VoidCallback? onTap}) {
+    return ListTile(onTap: onTap,
       title: Text(title, style: TextStyle(fontSize: 16.sp)),
       trailing: Text(value, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
     );
