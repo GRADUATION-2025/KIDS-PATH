@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
@@ -13,6 +12,9 @@ class Message {
   final String senderType; // 'nursery' or 'parent'
   final String? deletedBy; // ID of user who deleted
   final DateTime? deletedAt; // When deleted
+  final String? mediaUrl;
+  final String? mediaType; // 'image' or 'video'
+  final String? thumbnailUrl; // for video previews
 
   Message({
     required this.id,
@@ -26,6 +28,9 @@ class Message {
     required this.senderType,
     this.deletedBy,
     this.deletedAt,
+    this.mediaUrl,
+    this.mediaType,
+    this.thumbnailUrl,
   });
 
   factory Message.fromMap(Map<String, dynamic> map) {
@@ -41,6 +46,9 @@ class Message {
       senderType: map['senderType'] ?? 'parent',
       deletedBy: map['deletedBy'],
       deletedAt: map['deletedAt'] != null ? (map['deletedAt'] as Timestamp).toDate() : null,
+      mediaUrl: map['mediaUrl'],
+      mediaType: map['mediaType'],
+      thumbnailUrl: map['thumbnailUrl'],
     );
   }
 
@@ -57,6 +65,9 @@ class Message {
       'senderType': senderType,
       'deletedBy': deletedBy,
       'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
+      'mediaUrl': mediaUrl,
+      'mediaType': mediaType,
+      'thumbnailUrl': thumbnailUrl,
     };
   }
 

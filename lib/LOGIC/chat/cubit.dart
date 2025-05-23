@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kidspath/LOGIC/chat/state.dart';
 import '../../DATA MODELS/chatModel/chatRoom.dart';
 import '../../DATA MODELS/chatModel/massage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatCubit extends Cubit<ChatState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -99,7 +100,12 @@ class ChatCubit extends Cubit<ChatState> {
   Future<void> sendMessage({
     required String chatRoomId,
     required String senderId,
-    required String content, required String senderName, String? senderImageUrl,
+    required String content,
+    required String senderName,
+    String? senderImageUrl,
+    String? mediaUrl,
+    String? mediaType,
+    String? thumbnailUrl,
   }) async {
     try {
       final isNursery = await isUserNursery(senderId);
@@ -123,6 +129,9 @@ class ChatCubit extends Cubit<ChatState> {
         'isRead': isNursery,
         'senderType': isNursery ? 'nursery' : 'parent',
         'deleted': false,
+        'mediaUrl': mediaUrl,
+        'mediaType': mediaType,
+        'thumbnailUrl': thumbnailUrl,
       });
 
       batch.update(
@@ -219,12 +228,23 @@ class ChatCubit extends Cubit<ChatState> {
         return;
       }
 
+      // Delete media from Firebase Storage if it exists
+      if (message.mediaUrl != null) {
+        final ref = FirebaseStorage.instance.refFromURL(message.mediaUrl!);
+        await ref.delete();
+      }
+
+      // Update the message to show 'This message was deleted' for everyone
       await _firestore
           .collection('chatRooms')
           .doc(chatRoomId)
           .collection('messages')
           .doc(messageId)
           .update({
+        'content': 'This message was deleted',
+        'mediaUrl': null,
+        'mediaType': null,
+        'thumbnailUrl': null,
         'deleted': true,
         'deletedBy': currentUserId,
         'deletedAt': FieldValue.serverTimestamp(),
@@ -233,6 +253,15 @@ class ChatCubit extends Cubit<ChatState> {
       await _firestore.collection('chatRooms').doc(chatRoomId).update({
         'lastUpdated': FieldValue.serverTimestamp(),
       });
+
+      // Wait 10 seconds, then remove the message document
+      await Future.delayed(const Duration(seconds: 10));
+      await _firestore
+          .collection('chatRooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .doc(messageId)
+          .delete();
     } catch (e) {
       emit(ChatError('Failed to delete message: ${e.toString()}'));
     }
