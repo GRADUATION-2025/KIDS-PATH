@@ -9,8 +9,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
 import '../../LOGIC/Home/home_state.dart';
-import '../../LOGIC/rating stats.dart';
-import '../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_PARENT.dart';
+import '../../LOGIC/RATING/rating stats.dart';
+
 import '../Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 import 'ALL Nurseriers Screen/show_all_nurseries.dart';
 

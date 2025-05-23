@@ -6,13 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
-import '../../../DATA MODELS/bookingModel/bookingModel.dart';
-
 import '../../../LOGIC/booking/cubit.dart';
 import '../../../LOGIC/chat/cubit.dart';
 import '../../../LOGIC/chat/state.dart';
 import '../../../LOGIC/image/img upload/upload img.dart';
-import '../../../LOGIC/rating stats.dart';
+import '../../../LOGIC/RATING/rating stats.dart';
 import '../../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../BOOKING/Booking.dart';
 import '../../CHAT/chat.dart';
