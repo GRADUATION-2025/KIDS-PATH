@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Parent {
   final String uid;
@@ -48,8 +49,10 @@ class Parent {
       phoneNumber: map["phoneNumber"] ?? '',
       paymentCards: List<String>.from(map["paymentCards"] ?? []),
       location: map['location'] ?? '',
-      Coordinates: map['Coordinates'] ?? GeoPoint(0, 0),
+      Coordinates: map['Coordinates'] as GeoPoint? ?? GeoPoint(0.0, 0.0),
       profileImageUrl: map['profileImageUrl'],
     );
   }
+  LatLng get latLng => LatLng(Coordinates.latitude, Coordinates.longitude);
+
 }

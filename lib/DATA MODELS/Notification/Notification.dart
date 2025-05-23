@@ -35,10 +35,6 @@
 //
 //
 
-
-
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotificationModel {
@@ -62,6 +58,27 @@ class NotificationModel {
     this.childName, // ✅ Include in constructor
   });
 
+  NotificationModel copyWith({
+    String? id,
+    String? type,
+    String? title,
+    String? message,
+    String? bookingId,
+    Timestamp? timestamp,
+    bool? isRead,
+    String? childName,
+  }) {
+    return NotificationModel(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      bookingId: bookingId ?? this.bookingId,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+      childName: childName ?? this.childName,
+    );
+  }
   factory NotificationModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return NotificationModel(
@@ -70,7 +87,7 @@ class NotificationModel {
       title: data['title'] as String,
       message: data['message'] as String,
       bookingId: data['bookingId'] as String? ?? '',
-      timestamp: data['timestamp'] ?? Timestamp.now(),
+      timestamp: data['timestamp'] as Timestamp,
       isRead: data['isRead'] as bool? ?? false,
       childName: data['childName'] as String?, // ✅ Safely parse from Firestore
     );

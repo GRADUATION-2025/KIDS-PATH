@@ -132,6 +132,19 @@ class HomeCubit extends Cubit<HomeState> {
 
   NurseryProfile _mapToNurseryProfile(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    
+    // Validate coordinates
+    GeoPoint coordinates;
+    if (data['Coordinates'] != null && data['Coordinates'] is GeoPoint) {
+      coordinates = data['Coordinates'] as GeoPoint;
+      // Validate that coordinates are not (0,0)
+      if (coordinates.latitude == 0.0 && coordinates.longitude == 0.0) {
+        coordinates = GeoPoint(0.0, 0.0); // Mark as invalid
+      }
+    } else {
+      coordinates = GeoPoint(0.0, 0.0); // Mark as invalid
+    }
+
     return NurseryProfile(
         uid: doc.id,
         name: data['name'] ?? 'Unnamed Nursery',
@@ -149,10 +162,10 @@ class HomeCubit extends Cubit<HomeState> {
         schedules: List<String>.from(data['schedules'] ?? []),
         calendar: data['calendar'] ?? '',
         ownerId: data['ownerId'] ?? '',
-        location: "",
-        Coordinates: GeoPoint(0, 0),
-        averageRating: 0.0,
-        totalRatings: 0
+        location: data['location'] ?? '',
+        Coordinates: coordinates,
+        averageRating: (data['averageRating'] as num?)?.toDouble() ?? 0.0,
+        totalRatings: (data['totalRatings'] as num?)?.toInt() ?? 0
     );
   }
 

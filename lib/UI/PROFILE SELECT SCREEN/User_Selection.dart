@@ -212,7 +212,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               location: "Location",
                               profileImageUrl: widget.user.photoURL,
                               phoneNumber:"",
-                              Coordinates:GeoPoint(0, 0),
+                              Coordinates:GeoPoint(0.0, 0.0),
 
                             ),
                             role: selectedRole,
@@ -245,12 +245,14 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               hours: "",
                               language: "",
                               price: "",
-                              location: "location",
-                              Coordinates: GeoPoint(0, 0),
+                              location: "",
+                              Coordinates: GeoPoint(0.0, 0.0),
                               age: "",
                               averageRating: 0.0,
                               totalRatings: 0,
-                              profileImageUrl: null, phoneNumber: '', ownerId: '',
+                              profileImageUrl: null,
+                              phoneNumber: '',
+                              ownerId: widget.user.uid,
                             ),
                             role: selectedRole,
                             onProfileComplete: () {
@@ -258,7 +260,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                                 context,
                                 MaterialPageRoute(builder: (context) => GoogleMapsLocationx()),
                               );
-                            },fromRegistration: true,
+                            },
+                            fromRegistration: true,
                           ),
                         ),
                       );

@@ -8,9 +8,9 @@ import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import 'dart:io';
 
 import '../../../DATA MODELS/Parent Model/Parent Model.dart';
-import '../../../LOGIC/ image/profile_service.dart';
 import '../../../LOGIC/Parent/parent_cubit.dart';
 import '../../../LOGIC/Parent/parent_state.dart';
+import '../../../LOGIC/image/profile_service.dart';
 import '../../GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 
 

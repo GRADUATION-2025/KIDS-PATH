@@ -13,6 +13,7 @@ import 'LOGIC/chat/cubit.dart';
 import 'LOGIC/child/child_cubit.dart';
 import 'LOGIC/forget password/cubit.dart';
 import 'LOGIC/Parent/parent_cubit.dart';
+import 'SERVICES/one_signal_service.dart';
 import 'UI/PROFILE SELECT SCREEN/User_Selection.dart';
 import 'UI/Splash_Screen/splash_screen.dart';
 import 'UI/WELCOME SCREENS/LOGIN_SCREEN.dart';
@@ -26,6 +27,36 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize OneSignal
+  try {
+    await OneSignalService().initialize();
+
+    // Listen to auth state changes
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user != null) {
+        // User is signed in
+        await OneSignalService().setExternalUserId(user.uid);
+
+        // Get user role and set it in OneSignal
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        if (userDoc.exists) {
+          final role = userDoc.data()?['role'];
+          if (role != null) {
+            await OneSignalService().setUserRole(role);
+          }
+        }
+      } else {
+        // User is signed out
+        await OneSignalService().setExternalUserId(null);
+      }
+    });
+  } catch (e) {
+    debugPrint('Error initializing OneSignal: $e');
+  }
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -37,7 +68,6 @@ void main() async {
         BlocProvider(create: (context) => ChatCubit()),
         BlocProvider(create: (context) => BookingCubit()),
         BlocProvider(create: (context) => NotificationCubit()),
-
       ],
       child: const MyApp(),
     ),

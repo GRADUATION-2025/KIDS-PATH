@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -27,12 +28,15 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   String? _selectedLocation;
   int? _minPrice;
   int? _maxPrice;
   String? _selectedAge;
   int? _minRating;
+  GeoPoint? _selectedGeoPoint;
+  double _searchRadius = 10.0; // Default 10km radius
 
   String normalizeAge(String? age) {
     if (age == null) return '';
@@ -59,6 +63,9 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   @override
   void dispose() {
     _searchController.dispose();
+    _locationController.dispose();
+    _minPriceController.dispose();
+    _maxPriceController.dispose();
     super.dispose();
   }
 
@@ -71,199 +78,280 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     }
   }
 
+  Future<GeoPoint?> _getSavedLocationFromFirestore() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return null;
+
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('parents')
+          .doc(uid)
+          .get();
+      final data = docSnapshot.data();
+      if (data == null || data['Coordinates'] == null) return null;
+
+      final coordinates = data['Coordinates'] as GeoPoint;
+      // Validate coordinates
+      if (coordinates.latitude == 0.0 && coordinates.longitude == 0.0) {
+        return null;
+      }
+      return coordinates;
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
+      return null;
+    }
+  }
+
+  double _calculateDistance(GeoPoint point1, GeoPoint point2) {
+    try {
+      // Validate coordinates before calculation
+      if (point1.latitude == 0.0 && point1.longitude == 0.0 ||
+          point2.latitude == 0.0 && point2.longitude == 0.0) {
+        return double.infinity; // Return infinity for invalid coordinates
+      }
+      
+      return Geolocator.distanceBetween(
+        point1.latitude,
+        point1.longitude,
+        point2.latitude,
+        point2.longitude,
+      );
+    } catch (e) {
+      debugPrint('Error calculating distance: $e');
+      return double.infinity;
+    }
+  }
+
+  // Add this method to validate coordinates
+  bool _isValidCoordinates(GeoPoint coordinates) {
+    return coordinates.latitude != 0.0 || coordinates.longitude != 0.0;
+  }
+
   void _showFilterDialog() {
     String? tempLocation = _selectedLocation;
     int? tempMinPrice = _minPrice;
     int? tempMaxPrice = _maxPrice;
     String? tempAge = _selectedAge;
     int tempMinRating = _minRating ?? 0;
+    GeoPoint? tempGeoPoint = _selectedGeoPoint;
+    double tempRadius = _searchRadius;
 
     showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                top: 24,
-                left: 16,
-                right: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        "Filter Options",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          foreground: Paint()
-                            ..shader = AppGradients.Projectgradient.createShader(
-                                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(25))),
+    builder: (context) {
+    return StatefulBuilder(
+    builder: (context, setModalState) {
+    return Padding(
+    padding: EdgeInsets.only(
+    top: 24,
+    left: 16,
+    right: 16,
+    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+    ),
+    child: SingleChildScrollView(
+    child: Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Center(
+    child: Text(
+    "Filter Options",
+    style: TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    foreground: Paint()
+    ..shader = AppGradients.Projectgradient.createShader(
+    const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+    ),
+    ),
+    ),
+    const SizedBox(height: 24),
 
-                    // Location input
-                    const Text("Location"),
-                    const SizedBox(height: 6),
-                    TextField(
-                      decoration: _inputDecoration("Enter location", ""),
-                      controller: TextEditingController(text: tempLocation),
-                      onChanged: (value) => setModalState(() => tempLocation = value),
-                    ),
-                    const SizedBox(height: 8),
+    // Location input
+    const Text("Location"),
+    const SizedBox(height: 6),
+    TextField(
+    decoration: _inputDecoration("Enter location", ""),
+    controller: _locationController..text = tempLocation ?? '',
+    onChanged: (value) => setModalState(() {
+    tempLocation = value;
+    tempGeoPoint = null;
+  }),
+    ),
+    const SizedBox(height: 8),
 
-                    // Detect Location Button
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.my_location),
-                      label: const Text("Detect Location"),
-                      onPressed: () async {},
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Age Dropdown - Fixed value and onChanged
-                    const Text("Child Age"),
-                    const SizedBox(height: 6),
-                    DropdownButtonFormField<String>(
-                      value: tempAge, // Use tempAge here
-                      decoration: _inputDecoration("Select age group", ""),
-                      items: const [
-                        DropdownMenuItem(value: "6-12 months", child: Text("6-12 months")),
-                        DropdownMenuItem(value: "1 year", child: Text("1 year")),
-                        DropdownMenuItem(value: "2 years", child: Text("2 years")),
-                        DropdownMenuItem(value: "3 years", child: Text("3 years")),
-                        DropdownMenuItem(value: "4 years", child: Text("4 years")),
-                      ],
-                      onChanged: (value) => setModalState(() => tempAge = value),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Price Range
-                    const Text("Price Range"),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            keyboardType: TextInputType.numberWithOptions(decimal: false),
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            decoration: _inputDecoration("Min Price", "K EGP"),
-                            controller: _minPriceController,
-                            onChanged: (value) {
-                              if (value.isEmpty) {
-                                setModalState(() => tempMinPrice = null);
-                                return;
-                              }
-                              final parsed = int.tryParse(value);
-                              setModalState(() => tempMinPrice = parsed);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            keyboardType: TextInputType.numberWithOptions(decimal: false),
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            decoration: _inputDecoration("Max Price", "K EGP"),
-                            controller: _maxPriceController,
-                            onChanged: (value) {
-                              if (value.isEmpty) {
-                                setModalState(() => tempMaxPrice = null);
-                                return;
-                              }
-                              final parsed = int.tryParse(value);
-                              setModalState(() => tempMaxPrice = parsed);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Rating Selector
-                    Center(
-                      child: Text(
-                        "Nursery Rating",
-                        style: GoogleFonts.inter(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Center(
-                        child: RatingBar.builder(
-                          initialRating: tempMinRating.toDouble(),
-                          minRating: 0,
-                          direction: Axis.horizontal,
-                          allowHalfRating: false,
-                          itemCount: 5,
-                          itemSize: 30,
-                          itemBuilder: (context, _) =>
-                          const Icon(Icons.star, color: Colors.amber),
-                          onRatingUpdate: (rating) =>
-                              setModalState(() => tempMinRating = rating.toInt()),
-                        )),
-
-                    const SizedBox(height: 30),
-
-                    // Apply Filters Button
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedLocation = tempLocation;
-                          _minPrice = tempMinPrice;
-                          _maxPrice = tempMaxPrice;
-                          _selectedAge = tempAge;
-                          _minRating = tempMinRating == 0 ? null : tempMinRating; // Convert 0 to null
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: AppGradients.Projectgradient,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "Apply Filters",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+    ElevatedButton.icon(
+    icon: const Icon(Icons.my_location),
+    label: const Text("Use Saved Location"),
+    onPressed: () async {
+    final geoPoint = await _getSavedLocationFromFirestore();
+    if (geoPoint != null) {
+    setModalState(() {
+    tempGeoPoint = geoPoint;
+    tempLocation = "My Location (${geoPoint.latitude.toStringAsFixed(4)}, ${geoPoint.longitude.toStringAsFixed(4)})";
+    _locationController.text = tempLocation!;
+  });
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("No saved location found")),
     );
   }
+  },
+    ),
 
-  InputDecoration _inputDecoration(String hint, String thousand) {
+    const SizedBox(height: 16),
+
+    // Search Radius Slider
+    const Text("Search Radius (km)"),
+    Slider(
+    value: tempRadius,
+    min: 1,
+    max: 50,
+    divisions: 49,
+    label: "${tempRadius.round()} km",
+    onChanged: (value) => setModalState(() => tempRadius = value),
+    ),
+
+    const SizedBox(height: 16),
+
+    // Age Dropdown
+    const Text("Child Age"),
+    const SizedBox(height: 6),
+    DropdownButtonFormField<String>(
+    value: tempAge,
+    decoration: _inputDecoration("Select age group", ""),
+    items: const [
+    DropdownMenuItem(value: "6-12 months", child: Text("6-12 months")),
+    DropdownMenuItem(value: "1 year", child: Text("1 year")),
+    DropdownMenuItem(value: "2 years", child: Text("2 years")),
+    DropdownMenuItem(value: "3 years", child: Text("3 years")),
+    DropdownMenuItem(value: "4 years", child: Text("4 years")),
+    ],
+    onChanged: (value) => setModalState(() => tempAge = value),
+    ),
+
+    const SizedBox(height: 16),
+
+    // Price Range
+    const Text("Price Range"),
+    const SizedBox(height: 6),
+    Row(
+    children: [
+    Expanded(
+    child: TextField(
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+    decoration: _inputDecoration("Min Price", "K EGP"),
+    controller: _minPriceController,
+    onChanged: (value) {
+    if (value.isEmpty) {
+    setModalState(() => tempMinPrice = null);
+    return;
+  }
+    final parsed = int.tryParse(value);
+    setModalState(() => tempMinPrice = parsed);
+  },
+    ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+    child: TextField(
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+    decoration: _inputDecoration("Max Price", "K EGP"),
+    controller: _maxPriceController,
+    onChanged: (value) {
+    if (value.isEmpty) {
+    setModalState(() => tempMaxPrice = null);
+    return;
+  }
+    final parsed = int.tryParse(value);
+    setModalState(() => tempMaxPrice = parsed);
+  },
+    ),
+    ),
+    ],
+    ),
+
+    const SizedBox(height: 20),
+
+    // Rating Selector
+    Center(
+    child: Text(
+    "Minimum Rating",
+    style: GoogleFonts.inter(
+    fontSize: 20, fontWeight: FontWeight.bold),
+    ),
+    ),
+    const SizedBox(height: 8),
+    Center(
+    child: RatingBar.builder(
+    initialRating: tempMinRating.toDouble(),
+    minRating: 0,
+    direction: Axis.horizontal,
+    allowHalfRating: false,
+    itemCount: 5,
+    itemSize: 30,
+    itemBuilder: (context, _) =>
+    const Icon(Icons.star, color: Colors.amber),
+    onRatingUpdate: (rating) =>
+    setModalState(() => tempMinRating = rating.toInt()),
+    )),
+
+    const SizedBox(height: 30),
+
+    // Apply Filters Button
+    GestureDetector(
+    onTap: () {
+    setState(() {
+    _selectedLocation = tempLocation;
+    _selectedGeoPoint = tempGeoPoint;
+    _minPrice = tempMinPrice;
+    _maxPrice = tempMaxPrice;
+    _selectedAge = tempAge;
+    _minRating = tempMinRating == 0 ? null : tempMinRating;
+    _searchRadius = tempRadius;
+  });
+    Navigator.pop(context);
+  },
+    child: Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(12),
+    gradient: AppGradients.Projectgradient,
+    ),
+    child: const Center(
+    child: Text(
+    "Apply Filters",
+    style: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    letterSpacing: 0.5,
+    ),
+    ),
+    ),
+    ),
+    ),
+    ],
+    ),
+    ),
+    );
+  },
+    );
+  },
+        );
+  }
+
+  InputDecoration _inputDecoration(String hint, String suffix) {
     return InputDecoration(
       hintText: hint,
-      suffixText: thousand,
+      suffixText: suffix,
       filled: true,
       fillColor: Colors.grey.shade100,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -317,17 +405,20 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              tooltip: 'Reset Search Field',
+              tooltip: 'Reset Filters',
               onPressed: () {
                 _searchController.clear();
                 _minPriceController.clear();
                 _maxPriceController.clear();
+                _locationController.clear();
                 setState(() {
                   _selectedLocation = null;
                   _minPrice = null;
                   _maxPrice = null;
                   _selectedAge = null;
                   _minRating = null;
+                  _selectedGeoPoint = null;
+                  _searchRadius = 10.0;
                 });
                 FocusScope.of(context).unfocus();
               },
@@ -385,20 +476,17 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   }
                   if (state is HomeLoaded) {
                     final nurseries = state.nurseries;
-                    final int? _minPrice = int.tryParse(_minPriceController.text);
-                    final int? _maxPrice = int.tryParse(_maxPriceController.text);
 
                     final filteredNurseries = nurseries.where((nursery) {
-                      ////Name Filter////
+                      // Name Filter
                       final nameMatch = nursery.name
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase());
-
                       if (_searchController.text.isNotEmpty && !nameMatch) {
                         return false;
                       }
 
-                      // Age filter - using normalized values
+                      // Age Filter
                       if (_selectedAge != null) {
                         final nurseryAge = normalizeAge(nursery.age);
                         final selectedAge = normalizeAge(_selectedAge);
@@ -406,14 +494,15 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           return false;
                         }
                       }
-                     /////////Ratings///////
+
+                      // Ratings Filter
                       if (_minRating != null) {
-                        if (nursery.rating == null || nursery.rating!.round() != _minRating!) {
+                        if (nursery.rating == null || nursery.rating!.round() < _minRating!) {
                           return false;
                         }
-
                       }
-                      // Price filter
+
+                      // Price Filter
                       final price = _parsePrice(nursery.price);
                       if (_minPrice != null && price < _minPrice!) {
                         return false;
@@ -422,14 +511,59 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         return false;
                       }
 
+                      // Location Filter
+                      if (_selectedGeoPoint != null) {
+                        // Skip if nursery has invalid coordinates
+                        if (!_isValidCoordinates(nursery.Coordinates)) {
+                          return false;
+                        }
+
+                        final distance = _calculateDistance(
+                            _selectedGeoPoint!,
+                            nursery.Coordinates
+                        );
+
+                        // Skip if distance calculation failed
+                        if (distance == double.infinity) {
+                          return false;
+                        }
+
+                        debugPrint('Distance to ${nursery.name}: ${(distance/1000).toStringAsFixed(2)} km');
+
+                        // Filter by search radius (convert km to meters)
+                        if (distance > (_searchRadius * 1000)) {
+                          return false;
+                        }
+                      }
+
                       return true;
                     }).toList();
 
                     if (filteredNurseries.isEmpty) {
                       return Center(
-                        child: Text(
-                            "No nurseries found matching the criteria.",
-                            style: GoogleFonts.inter(fontSize: 18)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search_off, size: 60, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            Text(
+                              "No nurseries found matching your criteria",
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_selectedGeoPoint != null)
+                              Text(
+                                "Try increasing your search radius",
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                          ],
+                        ),
                       );
                     }
 
@@ -439,7 +573,12 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                       itemCount: filteredNurseries.length,
                       itemBuilder: (context, index) {
                         final nursery = filteredNurseries[index];
-                        return TopRatedCard(nursery: nursery);
+                        return TopRatedCard(
+                          nursery: nursery,
+                          distance: _selectedGeoPoint != null
+                              ? _calculateDistance(_selectedGeoPoint!, nursery.Coordinates)
+                              : null,
+                        );
                       },
                     );
                   }

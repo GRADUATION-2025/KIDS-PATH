@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class NurseryProfile {
   final String uid;
@@ -21,6 +22,8 @@ class NurseryProfile {
   final double averageRating;
   final int totalRatings;
 
+  var ownerId;
+
 
   NurseryProfile({
     required this.uid,
@@ -42,16 +45,37 @@ class NurseryProfile {
     required this.averageRating,
     required this.totalRatings,
     this.profileImageUrl,
-    required ownerId,
+    required this.ownerId,
   });
 
+  // Add a getter for valid coordinates
+  bool get hasValidCoordinates => 
+      Coordinates.latitude != 0.0 || Coordinates.longitude != 0.0;
+
+  // Add a method to validate coordinates
+  bool isValidCoordinate(GeoPoint coordinate) {
+    return coordinate.latitude != 0.0 || coordinate.longitude != 0.0;
+  }
+
   factory NurseryProfile.fromMap(Map<String, dynamic> map) {
+    // Validate coordinates
+    GeoPoint coordinates;
+    if (map['Coordinates'] != null && map['Coordinates'] is GeoPoint) {
+      coordinates = map['Coordinates'] as GeoPoint;
+      // Validate that coordinates are not (0,0)
+      if (coordinates.latitude == 0.0 && coordinates.longitude == 0.0) {
+        coordinates = GeoPoint(0.0, 0.0); // Mark as invalid
+      }
+    } else {
+      coordinates = GeoPoint(0.0, 0.0); // Mark as invalid
+    }
+
     return NurseryProfile(
       uid: map['uid'] ?? '',
       email: map['email'] ?? '',
       role: map['role'] ?? '',
       name: map['name'] ?? 'Nursery Name',
-      phoneNumber: map['phoneNumber'] ?? '', // Added phone number
+      phoneNumber: map['phoneNumber'] ?? '',
       rating: (map['rating'] as num?)?.toDouble() ?? 0.0,
       description: map['description'] ?? 'Description',
       programs: List<String>.from(map['programs'] ?? []),
@@ -59,13 +83,14 @@ class NurseryProfile {
       calendar: map['calendar'] ?? '',
       hours: map['hours'] ?? '9 AM - 5 PM',
       age: map['age'] ?? '',
-      averageRating: map['averageRating'] ?? '',
-      totalRatings: map['totalRatings'] ?? '',
+      averageRating: (map['averageRating'] as num?)?.toDouble() ?? 0.0,
+      totalRatings: (map['totalRatings'] as num?)?.toInt() ?? 0,
       language: map['language'] ?? 'English',
-      Coordinates: map['Coordinates'] ?? GeoPoint(0, 0),
+      Coordinates: coordinates,
       price: map['price'] ?? '\$500/month',
       location: map['location'] ?? '',
-      profileImageUrl: map['profileImageUrl'], ownerId: null,
+      profileImageUrl: map['profileImageUrl'],
+      ownerId: map['ownerId'] ?? '',
     );
   }
 
@@ -90,7 +115,9 @@ class NurseryProfile {
       'location':location,
       'Coordinates':Coordinates,
       'profileImageUrl': profileImageUrl,
-
+      'ownerId': ownerId,
     };
   }
+  LatLng get latLng => LatLng(Coordinates.latitude, Coordinates.longitude);
+
 }

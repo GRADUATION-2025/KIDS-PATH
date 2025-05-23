@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,8 +9,12 @@ import '../../UI/Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 
 class TopRatedCard extends StatelessWidget {
   final NurseryProfile nursery;
+  final double? distance;
 
-  const TopRatedCard({required this.nursery});
+  const TopRatedCard({
+    required this.nursery,
+    this.distance,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +31,7 @@ class TopRatedCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _NurseryMainImage(profileImageUrl: nursery.profileImageUrl),
-              _NurseryInfo(nursery: nursery),
+              _NurseryInfo(nursery: nursery, distance: distance),
             ],
           ),
         ),
@@ -80,8 +83,23 @@ class _NurseryMainImage extends StatelessWidget {
 
 class _NurseryInfo extends StatelessWidget {
   final NurseryProfile nursery;
+  final double? distance;
 
-  const _NurseryInfo({required this.nursery});
+  const _NurseryInfo({
+    required this.nursery,
+    this.distance,
+  });
+
+  String _formatDistance(double? distanceInMeters) {
+    if (distanceInMeters == null) return 'Filter Will Show Distance';
+    if (distanceInMeters == double.infinity) return 'Location not available';
+    
+    if (distanceInMeters < 1000) {
+      return '${distanceInMeters.round()} m away';
+    } else {
+      return '${(distanceInMeters / 1000).toStringAsFixed(1)} km away';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +120,13 @@ class _NurseryInfo extends StatelessWidget {
             children: [
               const Icon(Icons.location_on, size: 16, color: Colors.grey),
               const SizedBox(width: 4),
-              const Text('0.48 mi away'),
+              Text(
+                _formatDistance(distance),
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 14,
+                ),
+              ),
               const Spacer(),
               Row(
                 children: [

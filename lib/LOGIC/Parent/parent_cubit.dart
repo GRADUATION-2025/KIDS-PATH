@@ -72,7 +72,9 @@ class ParentCubit extends Cubit<ParentState> {
         phoneNumber: userData['phoneNumber'] ?? '',
         paymentCards: [],
         location: 'Location',
-        Coordinates: GeoPoint(0, 0),
+        Coordinates: userData['Coordinates'] != null
+            ? userData['Coordinates'] as GeoPoint
+            : GeoPoint(0.0, 0.0),
         profileImageUrl: userData['profileImageUrl'],
       );
 
