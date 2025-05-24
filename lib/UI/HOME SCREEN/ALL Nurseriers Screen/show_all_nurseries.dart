@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -161,7 +162,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     child: Text(
     "Filter Options",
     style: TextStyle(
-    fontSize: 24,
+    fontSize: 24.sp,
     fontWeight: FontWeight.bold,
     foreground: Paint()
     ..shader = AppGradients.Projectgradient.createShader(
@@ -169,11 +170,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     ),
     ),
     ),
-    const SizedBox(height: 24),
+     SizedBox(height: 24.h),
 
     // Location input
     const Text("Location"),
-    const SizedBox(height: 6),
+     SizedBox(height: 6.h),
     TextField(
     decoration: _inputDecoration("Enter location", ""),
     controller: _locationController..text = tempLocation ?? '',
@@ -183,7 +184,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     tempGeoPoint = null;
   }),
     ),
-    const SizedBox(height: 8),
+     SizedBox(height: 8.h),
 
     ElevatedButton.icon(
     icon: const Icon(Icons.my_location),
@@ -204,7 +205,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   },
     ),
 
-    const SizedBox(height: 16),
+     SizedBox(height: 16.h),
 
     // Search Radius Slider
     const Text("Search Radius (km)"),
@@ -217,11 +218,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     onChanged: (value) => setModalState(() => tempRadius = value),
     ),
 
-    const SizedBox(height: 16),
+     SizedBox(height: 16.h),
 
     // Age Dropdown
     const Text("Child Age"),
-    const SizedBox(height: 6),
+     SizedBox(height: 6.h),
     DropdownButtonFormField<String>(
     value: tempAge,
     decoration: _inputDecoration("Select age group", ""),
@@ -235,11 +236,11 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     onChanged: (value) => setModalState(() => tempAge = value),
     ),
 
-    const SizedBox(height: 16),
+     SizedBox(height: 16.h),
 
     // Price Range
     const Text("Price Range"),
-    const SizedBox(height: 6),
+     SizedBox(height: 6.h),
     Row(
     children: [
     Expanded(
@@ -258,7 +259,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   },
     ),
     ),
-    const SizedBox(width: 12),
+     SizedBox(width: 12.w),
     Expanded(
     child: TextField(
     keyboardType: TextInputType.number,
@@ -278,17 +279,17 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     ],
     ),
 
-    const SizedBox(height: 20),
+     SizedBox(height: 20.h),
 
     // Rating Selector
     Center(
     child: Text(
     "Minimum Rating",
     style: GoogleFonts.inter(
-    fontSize: 20, fontWeight: FontWeight.bold),
+    fontSize: 20.sp, fontWeight: FontWeight.bold),
     ),
     ),
-    const SizedBox(height: 8),
+     SizedBox(height: 8.h),
     Center(
     child: RatingBar.builder(
     initialRating: tempMinRating.toDouble(),
@@ -303,7 +304,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     setModalState(() => tempMinRating = rating.toInt()),
     )),
 
-    const SizedBox(height: 30),
+     SizedBox(height: 30.h),
 
     // Apply Filters Button
     GestureDetector(
@@ -323,14 +324,14 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     width: double.infinity,
     padding: const EdgeInsets.symmetric(vertical: 14),
     decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(12.r),
     gradient: AppGradients.Projectgradient,
     ),
-    child: const Center(
+    child:  Center(
     child: Text(
     "Apply Filters",
     style: TextStyle(
-    fontSize: 18,
+    fontSize: 18.sp,
     fontWeight: FontWeight.bold,
     color: Colors.white,
     letterSpacing: 0.5,
@@ -357,15 +358,15 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
       fillColor: Colors.grey.shade100,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
       ),
     );
@@ -382,7 +383,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
           title: Text(
             "All Nurseries",
             style: GoogleFonts.inter(
-              fontSize: 25,
+              fontSize: 25.sp,
               foreground: Paint()
                 ..shader = AppGradients.Projectgradient.createShader(
                   const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
@@ -445,24 +446,24 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.black),
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(25.r),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.deepPurple),
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(25.r),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                   SizedBox(width: 8.w),
                   InkWell(
                     onTap: _showFilterDialog,
                     child: Container(
-                      height: 50,
-                      width: 50,
+                      height: 50.h,
+                      width: 50.w,
                       decoration: BoxDecoration(
                         color: Colors.deepPurple,
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(25.r),
                       ),
                       child: const Icon(Icons.filter_alt, color: Colors.white),
                     ),
@@ -548,20 +549,20 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.search_off, size: 60, color: Colors.grey[400]),
-                            const SizedBox(height: 16),
+                             SizedBox(height: 16.h),
                             Text(
                               "No nurseries found matching your criteria",
                               style: GoogleFonts.inter(
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 color: Colors.grey[600],
                               ),
                             ),
-                            const SizedBox(height: 8),
+                             SizedBox(height: 8.h),
                             if (_selectedGeoPoint != null)
                               Text(
                                 "Try increasing your search radius",
                                 style: GoogleFonts.inter(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   color: Colors.grey[500],
                                 ),
                               ),

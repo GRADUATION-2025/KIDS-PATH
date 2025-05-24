@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
@@ -156,9 +157,9 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               padding: const EdgeInsets.only(top: 50, bottom: 20, left: 16, right: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                borderRadius:  BorderRadius.only(
+                  bottomLeft: Radius.circular(20.r),
+                  bottomRight: Radius.circular(20.r),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -175,19 +176,19 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                   Row(
                     children: [
                       CircleAvatar(
-                        radius: 35,
+                        radius: 35.r,
                         backgroundImage: widget.nursery.profileImageUrl != null
                             ? NetworkImage(widget.nursery.profileImageUrl!)
                             : const AssetImage('assets/profile.jpg') as ImageProvider,
                       ),
-                      const SizedBox(width: 12),
+                       SizedBox(width: 12.w),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             widget.nursery.name,
-                            style: const TextStyle(
-                              fontSize: 18,
+                            style:  TextStyle(
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
@@ -231,7 +232,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                   SizedBox(height: 16.h),
                   Row(
                     children: [
                       Expanded(
@@ -239,7 +240,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                         Container(
                           decoration: BoxDecoration(
                             gradient: AppGradients.Projectgradient,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8.r),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.blue.withOpacity(0.3),
@@ -255,7 +256,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                               shadowColor: Colors.transparent,
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                               ),
                             ),
                             onPressed: () => Navigator.push(
@@ -277,7 +278,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                           ),
                         )
                       ),
-                      const SizedBox(width: 12),
+                       SizedBox(width: 12.w),
                       Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
@@ -325,9 +326,9 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.description,
-                style: const TextStyle(
+                style:  TextStyle(
                   color: Colors.black87,
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   height: 1.4,
                 ),
               ),
@@ -341,9 +342,9 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.age,
-                style: const TextStyle(
+                style:  TextStyle(
                   color: Colors.black87,
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   height: 1.4,
                 ),
               ),
@@ -358,13 +359,13 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               )).toList(),
 
             // Price Section
-            _sectionTitle("Pricing"),
+            _sectionTitle("Interview Price"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.price,
-                style: const TextStyle(
-                  fontSize: 16,
+                style:  TextStyle(
+                  fontSize: 16.sp,
                   color: Colors.black87,
                   height: 1.4,
                 ),
@@ -377,8 +378,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.hours,
-                style: const TextStyle(
-                  fontSize: 16,
+                style:  TextStyle(
+                  fontSize: 16.sp,
                   color: Colors.black87,
                   height: 1.4,
                 ),
@@ -424,14 +425,14 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                       SizedBox(height: 16.h),
                       ..._buildRatingBars(stats),
                     ],
                   );
                 },
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
           ],
         ),
       ),
@@ -453,8 +454,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     return GestureDetector(
       onTap: _isPickingImages ? null : _pickAndUploadImages,
       child: Container(
-        height: 100,
-        width: 100,
+        height: 100.h,
+        width: 100.w,
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -462,7 +463,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           boxShadow: [
             BoxShadow(
               color: Colors.blue.withOpacity(0.3),
@@ -491,7 +492,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         child: Row(
           children: [
           SizedBox(
-          width: 100,
+          width: 100.w,
           child: Text('${'⭐' }  $stars Stars', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold))),
           Expanded(
             child: Padding(
@@ -511,7 +512,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             width: 60,
             child: Text(
                 '${percentage.toStringAsFixed(1)}%',
-                style: const TextStyle(fontSize: 14)),
+                style:  TextStyle(fontSize: 14.sp)),
           ),
 
           ],
@@ -561,14 +562,14 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
                         item,
-                        width: 100,
-                        height: 100,
+                        width: 100.w,
+                        height: 100.h,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Container(
-                            width: 100,
-                            height: 100,
+                            width: 100.w,
+                            height: 100.h,
                             color: Colors.grey[200],
                             child: Center(
                               child: CircularProgressIndicator(
@@ -582,8 +583,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                         },
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            width: 100,
-                            height: 100,
+                            width: 100.w,
+                            height: 100.h,
                             color: Colors.grey[200],
                             child: const Icon(Icons.broken_image, color: Colors.grey),
                           );
@@ -625,8 +626,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 18,
+        style:  TextStyle(
+          fontSize: 18.sp,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),

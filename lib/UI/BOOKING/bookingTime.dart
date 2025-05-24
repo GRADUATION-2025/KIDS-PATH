@@ -33,7 +33,7 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
+        preferredSize:  Size.fromHeight(100.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -47,10 +47,10 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                     Rect.fromLTWH(0, 0, bounds.width, bounds.height),
                   );
                 },
-                child: const Text(
+                child:  Text(
                   'Interview Times',
                   style: TextStyle(
-                    fontSize: 40,
+                    fontSize: 40.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -60,7 +60,7 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                height: 2,
+                height: 2.h,
                 width: MediaQuery.of(context).size.width / 2,
                 decoration: const BoxDecoration(
                   gradient: AppGradients.Projectgradient,
@@ -127,7 +127,7 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.12),
@@ -141,15 +141,15 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
           child: Row(
             children: [
               Container(
-                width: 55,
-                height: 55,
+                width: 55.w,
+                height: 55.h,
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(width: 1.5, color: const Color(0xFF0D6EFD)),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(width: 1.5.w, color: const Color(0xFF0D6EFD)),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                   child: profileImage != null
                       ? Image.network(profileImage, fit: BoxFit.cover)
                       : Container(
@@ -162,15 +162,15 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       displayName,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style:  TextStyle(
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -178,29 +178,29 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                       Text(
                         'Child: ${booking.childName}',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           color: Colors.grey[600],
                         ),
                       ),
-                    const SizedBox(height: 4),
+                     SizedBox(height: 4.h),
                     Text(
                       DateFormat('EEEE, MMMM dd').format(booking.dateTime),
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style:  TextStyle(
+                        fontSize: 13.sp,
                         color: Colors.black87,
                       ),
                     ),
                     Text(
                       '${DateFormat('h:mm a').format(booking.dateTime)} - ${DateFormat('h:mm a').format(booking.dateTime.add(const Duration(hours: 4)))}',
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style:  TextStyle(
+                        fontSize: 13.sp,
                         color: Colors.black87,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+               SizedBox(width: 8.w),
               if (widget.isNursery)
                 _NurseryActions(booking: booking)
               else
@@ -259,14 +259,14 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: statusColors[status]!.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Text(
         status == 'rated' ? 'Rated' : status[0].toUpperCase() + status.substring(1),
         style: TextStyle(
           color: statusColors[status],
           fontWeight: FontWeight.w600,
-          fontSize: 12,
+          fontSize: 12.sp,
         ),
       ),
     );
@@ -295,7 +295,7 @@ class _NurseryActions extends StatelessWidget {
             onTap: () => context.read<BookingCubit>().updateBookingStatus(
                 booking.id, 'payment_pending'),
           ),
-          const SizedBox(height: 6),
+           SizedBox(height: 6.h),
           _GradientActionButton(
             label: 'Decline',
             icon: Icons.highlight_off_outlined,
@@ -495,14 +495,14 @@ Widget _buildStatusPill(String status) {
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
       color: color.withOpacity(0.15),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
     ),
     child: Text(
       status[0].toUpperCase() + status.substring(1),
       style: TextStyle(
         color: color,
         fontWeight: FontWeight.w600,
-        fontSize: 12,
+        fontSize: 12.sp,
       ),
     ),
   );
@@ -528,11 +528,11 @@ class _GradientActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 100,
+        width: 100.w,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradientColors),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
               color: gradientColors.last.withOpacity(0.3),
@@ -545,12 +545,12 @@ class _GradientActionButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 18),
-            const SizedBox(width: 6),
+             SizedBox(width: 6.w),
             Text(
               label,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: Colors.white,
               ),
             ),
@@ -579,7 +579,7 @@ class _GradientRateButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 123,
+        width: 123.w,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradientColors),
@@ -596,12 +596,12 @@ class _GradientRateButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 18),
-            const SizedBox(width: 6),
+             SizedBox(width: 6.w),
             Text(
               label,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: Colors.white,
               ),
             ),

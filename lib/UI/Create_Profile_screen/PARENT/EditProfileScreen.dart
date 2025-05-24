@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
@@ -39,6 +40,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   File? _imageFile;
   final ProfileService _profileService = ProfileService();
+  bool _agreeToTerms = true;
 
 
 
@@ -62,6 +64,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter valid details")),
+      );
+      return;
+    }
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please agree to the Terms of Service")),
       );
       return;
     }
@@ -123,7 +131,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Stack(
                     children: [
                       CircleAvatar(
-                        radius: 50,
+                        radius: 50.r,
                         backgroundColor: Colors.grey[300],
                         backgroundImage: _imageFile != null
                             ? FileImage(_imageFile!)
@@ -140,10 +148,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: GestureDetector(
                           onTap: _pickImage,
                           child: CircleAvatar(
-                            radius: 16,
+                            radius: 16.r,
                             backgroundColor: Colors.white,
                             child: CircleAvatar(
-                              radius: 14,
+                              radius: 14.r,
                               backgroundColor: Color(0xFF07C8F9),
                               child: Icon(Icons.add, color: Colors.white, size: 16),
                             ),
@@ -154,8 +162,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
-              Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              SizedBox(height: 20.h),
+              Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
               TextFormField(
                 controller: _nameController,
                 keyboardType: TextInputType.name,
@@ -166,15 +174,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Name' : null,
               ),
           
-              SizedBox(height: 20),
-              Text("Email", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              SizedBox(height: 20.h),
+              Text("Email", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
               TextFormField(
                 controller: TextEditingController(text: widget.parent.email),
                 decoration: InputDecoration(border: UnderlineInputBorder()),
                 readOnly: true,
               ),
-              SizedBox(height: 20),
-              Text("Phone number", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              SizedBox(height: 20.h),
+              Text("Phone number", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
               TextFormField(
                 controller: _phoneController,
                 keyboardType:TextInputType.number ,
@@ -185,22 +193,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: 015501478874",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Phone Number' : null,
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Row(
                 children: [
                   Checkbox(
-                    value: true,
-                    onChanged: (value) {},
+                    value: _agreeToTerms,
+                    onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
                     activeColor: Color(0xFF07C8F9),
                   ),
-                  Text("I agree to the ", style: TextStyle(fontSize: 14)),
+                  Text("I agree to the ", style: TextStyle(fontSize: 14.sp)),
                   Text(
                     "Terms of Service",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -216,7 +224,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           
               return SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 50.h,
                 child: ElevatedButton(
           onPressed: isLoading ? null : _saveProfile, // Disable when loading
           style: ElevatedButton.styleFrom(
@@ -231,19 +239,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             child: Container(
               width: double.infinity,
-              height: 50,
+              height: 50.h,
               alignment: Alignment.center,
               child: isLoading
                   ? SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: 24.w,
+                      height: 24.h,
                       child: CircularProgressIndicator(
                           color: Colors.white
                       ),
                     )
                   : Text(
                       "Save Profile",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: TextStyle(fontSize: 18.sp, color: Colors.white),
                     ),
             ),
           ),

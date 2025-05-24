@@ -129,6 +129,7 @@
   import 'dart:async';
   import 'package:firebase_auth/firebase_auth.dart';
   import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
   import 'package:shared_preferences/shared_preferences.dart';
   import 'package:kidspath/UI/PROFILE%20SELECT%20SCREEN/User_Selection.dart';
 
@@ -235,8 +236,8 @@
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(),
-              SizedBox(height: 20),
-              Text("Verified! Redirecting...", style: TextStyle(fontSize: 18)),
+              SizedBox(height: 20.h),
+              Text("Verified! Redirecting...", style: TextStyle(fontSize: 18.sp)),
             ],
           )
               : Column(
@@ -247,9 +248,9 @@
               Text(
                 "We've sent a verification link to your email.\nPlease verify and return.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18.sp),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
               ElevatedButton.icon(
                 onPressed: _canResend ? _sendVerificationEmail : null,
                 icon: Icon(Icons.refresh),

@@ -293,6 +293,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../LOGIC/UserRole/auth_cubit.dart';
@@ -454,7 +455,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         letter,
         key: ValueKey<int>(index),
         style: GoogleFonts.pacifico(
-          fontSize: 55,
+          fontSize: 55.sp,
           fontWeight: FontWeight.bold,
           color: Colors.white,
           letterSpacing: 1.8,

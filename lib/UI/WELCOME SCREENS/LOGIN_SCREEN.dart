@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             letterSpacing: 2.sp,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                         SizedBox(height: 30.h),
                         Form(
                           key: formKey,
                           child: Column(
@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pushReplacement(
+                                Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ForgotPasswordScreen(),
@@ -142,9 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           text: "Sign In",
                           isLoading: state is LoginLoadingState,
                         ),
-                        const SizedBox(height: 15),
+                         SizedBox(height: 15.h),
                         const Divider(color: Colors.white, thickness: 1),
-                        const SizedBox(height: 15),
+                         SizedBox(height: 15.h),
                         _buildSocialButton(
                           onPressed: () => context.read<LoginCubit>().signInWithGoogle(context),
                           text: "Continue with Google",

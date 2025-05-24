@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../DATA MODELS/chatModel/chatRoom.dart';
 import '../../DATA MODELS/chatModel/massage.dart';
@@ -21,7 +22,7 @@ class ChatListScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
+        preferredSize:  Size.fromHeight(100.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -36,10 +37,10 @@ class ChatListScreen extends StatelessWidget {
                     Rect.fromLTWH(0, 0, bounds.width, bounds.height),
                   );
                 },
-                child: const Text(
+                child:  Text(
                   'Chats',
                   style: TextStyle(
-                    fontSize:40,
+                    fontSize:40.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -49,7 +50,7 @@ class ChatListScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                height: 2,
+                height: 2.h,
                 width: MediaQuery.of(context).size.width / 2,
                 decoration: const BoxDecoration(
                   gradient: AppGradients.Projectgradient,
@@ -73,17 +74,17 @@ class ChatListScreen extends StatelessWidget {
           final chats = snapshot.data ?? [];
 
           if (chats.isEmpty) {
-            return const Center(
+            return  Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Text(
                     'No active chats yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    style: TextStyle(fontSize: 18.sp, color: Colors.grey),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text(
                     'Start chatting by visiting a nursery profile',
                     style: TextStyle(color: Colors.grey),
@@ -128,12 +129,12 @@ class _ChatListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Material(
         elevation: 2,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         color: Colors.white,
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: CircleAvatar(
-            radius: 28,
+            radius: 28.r,
             backgroundImage: chat.nurseryImageUrl != null
                 ? NetworkImage(chat.nurseryImageUrl!)
                 : null,
@@ -143,9 +144,9 @@ class _ChatListItem extends StatelessWidget {
           ),
           title: Text(
             chat.nurseryName,
-            style: const TextStyle(
+            style:  TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 16.sp,
             ),
           ),
           subtitle: StreamBuilder<QuerySnapshot>(
@@ -166,13 +167,13 @@ class _ChatListItem extends StatelessWidget {
                   style: TextStyle(
                     fontStyle: lastMessage.deleted ? FontStyle.italic : FontStyle.normal,
                     color: lastMessage.deleted ? Colors.grey : Colors.black87,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                   ),
                 );
               }
-              return const Text(
+              return  Text(
                 'No messages yet',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 14.sp, color: Colors.grey),
               );
             },
           ),
@@ -188,13 +189,13 @@ class _ChatListItem extends StatelessWidget {
               final unreadCount = snapshot.data?.size ?? 0;
               if (unreadCount > 0) {
                 return CircleAvatar(
-                  radius: 12,
+                  radius: 12.r,
                   backgroundColor: Colors.blueAccent,
                   child: Text(
                     unreadCount.toString(),
-                    style: const TextStyle(
+                    style:  TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -43,11 +43,11 @@ class HomeScreen extends StatelessWidget {
               return Row(
                 children: [
                   _UserAvatar(profileImageUrl: profileImageUrl),
-                  const SizedBox(width: 10),
+                   SizedBox(width: 10.w),
                   Text(
                     "Hi, $userName",
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style:  TextStyle(
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
@@ -82,8 +82,8 @@ class _UserAvatar extends StatelessWidget {
       child: ClipOval(
         child: CachedNetworkImage(
           imageUrl: profileImageUrl ?? '',
-          width: 40,
-          height: 40,
+          width: 40.w,
+          height: 40.h,
           fit: BoxFit.cover,
           placeholder: (context, url) => const Icon(Icons.person, color: Colors.grey),
           errorWidget: (context, url, error) => const Icon(Icons.person, color: Colors.grey),
@@ -155,11 +155,11 @@ class _HomeContentView extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             _BannerImage(),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             _PopularNurseriesSection(nurseries: popularNurseries),
-            const SizedBox(height: 20),
+             SizedBox(height: 5.h),
             _TopRatedSection(nurseries: topRatedNurseries),
           ],
         ),
@@ -189,7 +189,7 @@ class _SearchBar extends StatelessWidget {
           child: Row(
             children: [
               Icon(Icons.search, ),
-              SizedBox(width: 15),
+              SizedBox(width: 15.w),
               Expanded(
                 child: Text(
                   'Tap to Search...',
@@ -228,11 +228,11 @@ class _BannerImage extends StatelessWidget {
       child: Image.asset(
         'assets/IMAGES/children.jpg',
         width: double.infinity,
-        height: 150,
+        height: 120.h,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Container(
           color: Colors.grey.shade200,
-          height: 150,
+          height: 150.h,
           child: const Icon(Icons.error),
         ),
       ),
@@ -266,9 +266,9 @@ class _PopularNurseriesSection extends StatelessWidget {
 
           ],
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 10.h),
         SizedBox(
-          height: 120,
+          height: 120.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 4,
@@ -292,15 +292,15 @@ class _PopularNurseryCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _navigateToProfile(context, nursery),
       child: Container(
-        width: 80,
+        width: 70.w,
         margin: const EdgeInsets.only(right: 18),
         child: Column(
           children: [
             _NurseryAvatar(profileImageUrl: nursery.profileImageUrl),
-            const SizedBox(height: 8),
+             SizedBox(height: 8.h),
             Text(
               nursery.name,
-              style: const TextStyle(fontSize: 12),
+              style:  TextStyle(fontSize: 12.sp),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -331,13 +331,13 @@ class _NurseryAvatar extends StatelessWidget {
     return Hero(
       tag: 'nursery-avatar-$profileImageUrl',
       child: CircleAvatar(
-        radius: 30,
+        radius: 30.r,
         backgroundColor: Colors.grey.shade300,
         child: ClipOval(
           child: CachedNetworkImage(
             imageUrl: profileImageUrl ?? '',
-            width: 60,
-            height: 60,
+            width: 60.w,
+            height: 60.h,
             fit: BoxFit.cover,
             placeholder: (context, url) => const Icon(Icons.photo, color: Colors.grey),
             errorWidget: (context, url, error) => const Icon(Icons.photo, color: Colors.grey),
@@ -361,11 +361,11 @@ class _TopRatedSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+         Text(
           'Top Rated',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 10),
+         SizedBox(height: 10.h),
         if (topRatedNurseries.isEmpty)
           const Text(
             'No 5-star nurseries yet.',
@@ -398,7 +398,7 @@ class _TopRatedCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         child: Card(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
           elevation: 2,
           child: Column(
@@ -437,16 +437,16 @@ class _NurseryMainImage extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: profileImageUrl ?? 'https://via.placeholder.com/400x200',
           width: double.infinity,
-          height: 150,
+          height: 150.h,
           fit: BoxFit.cover,
           placeholder: (context, url) => Container(
             color: Colors.grey.shade200,
-            height: 150,
+            height: 150.h,
             child: const Center(child: CircularProgressIndicator()),
           ),
           errorWidget: (context, url, error) => Container(
             color: Colors.grey.shade200,
-            height: 150,
+            height: 150.h,
             child: const Icon(Icons.error),
           ),
         ),
@@ -454,6 +454,7 @@ class _NurseryMainImage extends StatelessWidget {
     );
   }
 }
+
 double _calculateAverageRating(Map<int, int> starCounts) {
   int total = starCounts.values.fold(0, (a, b) => a + b);
   if (total == 0) return 0.0;
@@ -465,6 +466,8 @@ double _calculateAverageRating(Map<int, int> starCounts) {
 
   return sum / total;
 }
+
+
 class _NurseryInfo extends StatelessWidget {
   final NurseryProfile nursery;
 
@@ -479,22 +482,22 @@ class _NurseryInfo extends StatelessWidget {
         children: [
           Text(
             nursery.name,
-            style: const TextStyle(
-              fontSize: 16,
+            style:  TextStyle(
+              fontSize: 16.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+           SizedBox(height: 4.h),
           Row(
             children: [
               const Icon(Icons.location_on, size: 16, color: Colors.grey),
-              const SizedBox(width: 4),
+               SizedBox(width: 4.w),
               const Text('Filter will show Distance'),
               const Spacer(),
               Row(
                 children: [
                   const Icon(LucideIcons.star, size: 16, color: Colors.amber),
-                  const SizedBox(width: 4),
+                   SizedBox(width: 4.w),
                   StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('ratings')
@@ -506,7 +509,7 @@ class _NurseryInfo extends StatelessWidget {
                           '...',
                           style: TextStyle(
                             color: Colors.grey.shade700,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                           ),
                         );
                       }
@@ -516,7 +519,7 @@ class _NurseryInfo extends StatelessWidget {
                           '?',
                           style: TextStyle(
                             color: Colors.grey.shade700,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                           ),
                         );
                       }
@@ -529,7 +532,7 @@ class _NurseryInfo extends StatelessWidget {
                         averageRating.toStringAsFixed(1),
                         style: TextStyle(
                           color: Colors.grey.shade700,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                         ),
                       );
                     },
@@ -556,12 +559,12 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.red),
-          const SizedBox(height: 16),
+           SizedBox(height: 16.h),
           Text(
             'Error loading nurseries',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 8),
+           SizedBox(height: 8.h),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
@@ -569,7 +572,7 @@ class _ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 16),
+           SizedBox(height: 16.h),
           ElevatedButton(
             onPressed: () => context.read<HomeCubit>().refreshData(),
             child: const Text('Retry'),
@@ -592,12 +595,12 @@ class _EmptyView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.search_off, size: 48, color: Colors.grey),
-          const SizedBox(height: 16),
+           SizedBox(height: 16.h),
           Text(
             message,
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
+            style:  TextStyle(fontSize: 16.sp, color: Colors.grey),
           ),
-          const SizedBox(height: 16),
+           SizedBox(height: 16.h),
           ElevatedButton(
             onPressed: () => context.read<HomeCubit>().refreshData(),
             child: const Text('Refresh'),

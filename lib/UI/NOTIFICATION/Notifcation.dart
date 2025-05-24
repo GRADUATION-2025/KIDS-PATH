@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../DATA MODELS/Notification/Notification.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../logic/notification/notification_cubit.dart';
@@ -70,8 +71,8 @@ class _NotificationItem extends StatelessWidget {
       onDismissed: (_) => context.read<NotificationCubit>().deleteNotification(notification.id),
       child: ListTile(
         leading: Container(
-          width: 40,
-          height: 40,
+          width: 40.w,
+          height: 40.h,
           decoration: BoxDecoration(
             gradient: AppGradients.Projectgradient,
             borderRadius: BorderRadius.circular(8),
@@ -96,7 +97,7 @@ class _NotificationItem extends StatelessWidget {
                   'Child: ${notification.childName!}',
                   style: TextStyle(
                     color: Colors.grey[600],
-                    fontSize: 12,
+                    fontSize: 12.sp,
                   ),
                 ),
               ),
@@ -106,7 +107,7 @@ class _NotificationItem extends StatelessWidget {
           _formatDate(notification.timestamp),
           style: TextStyle(
             color: Colors.grey[600],
-            fontSize: 12,
+            fontSize: 12.sp,
           ),
         ),
       ),
@@ -139,9 +140,9 @@ class _GradientTitle extends StatelessWidget {
       shaderCallback: (bounds) => AppGradients.Projectgradient.createShader(bounds),
       child: Text(
         text,
-        style: const TextStyle(
+        style:  TextStyle(
           color: Colors.white,
-          fontSize: 24,
+          fontSize: 24.sp,
           fontWeight: FontWeight.bold,
         ),
       ),

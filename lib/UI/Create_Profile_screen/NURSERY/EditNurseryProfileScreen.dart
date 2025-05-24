@@ -2,6 +2,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kidspath/LOGIC/Nursery/nursery_state.dart';
@@ -173,12 +174,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                 children: [
                   Text(
                     "Edit Profile",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold),
                   ),
                   Stack(
                     children: [
                       CircleAvatar(
-                        radius: 50,
+                        radius: 50.r,
                         backgroundColor: Colors.grey[300],
                         backgroundImage: _getProfileImage(),
                         child: _imageFile == null && widget.nursery.profileImageUrl == null
@@ -191,10 +192,10 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                         child: GestureDetector(
                           onTap: _pickImage,
                           child: CircleAvatar(
-                            radius: 16,
+                            radius: 16.r,
                             backgroundColor: Colors.white,
                             child: CircleAvatar(
-                              radius: 14,
+                              radius: 14.r,
                               backgroundColor: Color(0xFF07C8F9),
                               child: Icon(Icons.add, color: Colors.white, size: 16),
                             ),
@@ -205,7 +206,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 20.h),
               _buildFormField("Name", _nameController,"Your Nursery Name",maxlength: 18,
                   inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],keyboardtype: TextInputType.name,
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Name' : null,),
@@ -235,7 +236,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
               _buildAgeGroupSelector(),
 
               // Programs Section - Added this part
-              SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Text("Programs", style: TextStyle(color: Colors.grey, fontSize: 16)),
               ..._buildProgramFields(),
               Align(
@@ -249,7 +250,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                 ),
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Row(
                 children: [
                   Checkbox(
@@ -257,17 +258,17 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                     onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
                     activeColor: Color(0xFF07C8F9),
                   ),
-                  Text("I agree to the ", style: TextStyle(fontSize: 14)),
+                  Text("I agree to the ", style: TextStyle(fontSize: 14.sp)),
                   Text(
                     "Terms of Service",
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 50.h,
                   child: ElevatedButton(
                       onPressed: _saveProfile,
                       style: ElevatedButton.styleFrom(
@@ -280,7 +281,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
 
                             return SizedBox(
                               width: double.infinity,
-                              height: 50,
+                              height: 50.h,
                               child: ElevatedButton(
                                 onPressed: isLoading ? null : _saveProfile,
                                 // Disable when loading
@@ -297,12 +298,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                                   ),
                                   child: Container(
                                     width: double.infinity,
-                                    height: 50,
+                                    height: 50.h,
                                     alignment: Alignment.center,
                                     child: isLoading
                                         ? SizedBox(
-                                      width: 24,
-                                      height: 24,
+                                      width: 24.w,
+                                      height: 24.h,
                                       child: CircularProgressIndicator(
                                           color: Colors.white
                                       ),
@@ -310,7 +311,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                                         : Text(
                                       "Save Profile",
                                       style: TextStyle(
-                                          fontSize: 18, color: Colors.white),
+                                          fontSize: 18.sp, color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -373,7 +374,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: Colors.grey, fontSize: 16)),
+        Text(label, style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
         TextFormField(
           controller: controller,
           maxLines: maxLines,
@@ -404,7 +405,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Age Group", style: TextStyle(color: Colors.grey, fontSize: 16)),
+         Text("Age Group", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
         Column(
           children: ageGroups.entries.map((entry) {
             return RadioListTile<String>(

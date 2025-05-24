@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../LOGIC/forget password/cubit.dart';
 import '../../LOGIC/forget password/state.dart';
 import '../WELCOME SCREENS/LOGIN_SCREEN.dart'; // Import the login screen
@@ -20,10 +21,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0.5,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginScreen())),
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: Colors.black),
+        //   onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginScreen())),
+        // ),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -51,12 +52,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 30),
+                SizedBox(height: 30.h),
                 Text(
                   "Enter your email and we will send you instructions on how to reset it",
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16.sp),
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 30.h),
                 Text("Email", style: TextStyle(color: Colors.grey)),
                 TextField(
                   controller: emailController,
@@ -70,12 +71,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 40.h),
                 state is ForgotPasswordLoading
                     ? Center(child: CircularProgressIndicator())
                     : SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 50.h,
                   child: ElevatedButton(
                     onPressed: () {
                       final email = emailController.text.trim();
@@ -92,7 +93,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         gradient: LinearGradient(
                           colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)],
                         ),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Container(
                         alignment: Alignment.center,

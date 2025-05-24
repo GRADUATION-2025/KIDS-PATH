@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../LOGIC/booking/cubit.dart';
 import '../../LOGIC/booking/state.dart';
@@ -54,7 +55,7 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
+        preferredSize:  Size.fromHeight(50.h),
         child: AppBar(
           automaticallyImplyLeading: false,
           leading: IconButton(
@@ -73,8 +74,8 @@ class _BookingScreenState extends State<BookingScreen> {
           centerTitle: true,
           title: Text(
             'Book ${widget.nurseryName}',
-            style: const TextStyle(
-              fontSize: 22,
+            style:  TextStyle(
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -123,10 +124,10 @@ class _BookingScreenState extends State<BookingScreen> {
                           _focusedDate = focusedDay;
                         });
                       },
-                      headerStyle: const HeaderStyle(
+                      headerStyle:  HeaderStyle(
                         formatButtonVisible: false,
                         titleCentered: true,
-                        titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
                       ),
                       calendarStyle: CalendarStyle(
                         todayDecoration: BoxDecoration(
@@ -143,11 +144,11 @@ class _BookingScreenState extends State<BookingScreen> {
                         weekdayStyle: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                     SizedBox(height: 20.h),
 
                     // Time Picker
-                    const Text('Select Time', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
+                     Text('Select Time', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                     SizedBox(height: 10.h),
                     Row(
                       children: [
                         Expanded(
@@ -165,14 +166,14 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                   child: Text(
                                     _selectedTime.format(context),
-                                    style: const TextStyle(fontSize: 16),
+                                    style:  TextStyle(fontSize: 16.sp),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 10),
+                         SizedBox(width: 10.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +190,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                     hour: (_selectedTime.hour + 4) % 24,
                                     minute: _selectedTime.minute,
                                   ).format(context),
-                                  style: const TextStyle(fontSize: 16),
+                                  style:  TextStyle(fontSize: 16.sp),
                                 ),
                               ),
                             ],
@@ -197,11 +198,11 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                     SizedBox(height: 20.h),
 
                     // Child Selection
-                    const Text('Select Child', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
+                     Text('Select Child', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                     SizedBox(height: 10.h),
                     BlocBuilder<ChildCubit, ChildState>(
                       builder: (context, state) {
                         if (state is ChildLoaded) {
@@ -230,7 +231,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             ),
                             iconEnabledColor: Colors.blue,
                             dropdownColor: Colors.white,
-                            style: const TextStyle(color: Colors.black, fontSize: 16),
+                            style:  TextStyle(color: Colors.black, fontSize: 16.sp),
                           );
                         } else if (state is ChildError) {
                           return Text(state.message);
@@ -238,7 +239,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         return const Center(child: CircularProgressIndicator());
                       },
                     ),
-                    const SizedBox(height: 30),
+                     SizedBox(height: 30.h),
 
 BlocBuilder<BookingCubit, BookingState>(
   builder: (context, state) {
@@ -281,18 +282,18 @@ BlocBuilder<BookingCubit, BookingState>(
             : AppGradients.buttonGradient,
         alignment: Alignment.center,
         child: isLoading
-            ? const SizedBox(
-          height: 24,
-          width: 24,
+            ?  SizedBox(
+          height: 24.h,
+          width: 24.w,
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             strokeWidth: 2.5,
           ),
         )
-            : const Text(
+            :  Text(
           'Done',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 18.sp,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),

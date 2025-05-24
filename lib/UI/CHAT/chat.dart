@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:photo_view/photo_view.dart';
@@ -71,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ? Text(widget.nurseryName.substring(0, 1).toUpperCase())
                       : null,
                 ),
-                const SizedBox(width: 10),
+                 SizedBox(width: 10.w),
                 Text(widget.nurseryName),
               ],
             ),
@@ -137,8 +138,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(value: _uploadProgress),
-                  const SizedBox(height: 16),
-                  Text('${(_uploadProgress * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white, fontSize: 18)),
+                   SizedBox(height: 16.h),
+                  Text('${(_uploadProgress * 100).toStringAsFixed(0)}%',
+                      style:  TextStyle(color: Colors.white, fontSize: 18.sp)),
                 ],
               ),
             ),
@@ -161,13 +163,13 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: AppGradients.Projectgradient,
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(25.r),
                 ),
                 padding: const EdgeInsets.all(2),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(25.r),
                   ),
                   child: TextField(
                     controller: _messageController,
@@ -181,7 +183,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+             SizedBox(width: 8.w),
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -388,8 +390,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ? null
                 : Colors.grey[300],
             borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(16),
-              topRight: const Radius.circular(16),
+              topLeft:  Radius.circular(16.r),
+              topRight:  Radius.circular(16.r),
               bottomLeft: Radius.circular(isMe ? 16 : 0),
               bottomRight: Radius.circular(isMe ? 0 : 16),
             ),
@@ -401,7 +403,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Row(
                   children: [
                     CircleAvatar(
-                      radius: 16,
+                      radius: 16.r,
                       backgroundImage: message.senderImageUrl != null
                           ? NetworkImage(message.senderImageUrl!)
                           : null,
@@ -411,12 +413,12 @@ class _ChatScreenState extends State<ChatScreen> {
                           : '?')
                           : null,
                     ),
-                    const SizedBox(width: 8),
+                     SizedBox(width: 8.w),
                     Text(
                       message.senderName,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        fontSize: 13.sp,
                       ),
                     ),
                   ],
@@ -435,16 +437,16 @@ class _ChatScreenState extends State<ChatScreen> {
                       ? Colors.white
                       : Colors.black,
                   fontStyle: message.deleted ? FontStyle.italic : null,
-                  fontSize: 15,
+                  fontSize: 15.sp,
                 ),
               ),
-              const SizedBox(height: 4),
+               SizedBox(height: 4.h),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Text(
                   _formatTime(message.timestamp),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: message.deleted
                         ? Colors.grey[500]
                         : isMe
@@ -583,8 +585,8 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  width: 90,
-                  height: 90,
+                  width: 90.w,
+                  height: 90.h,
                   child: CircularProgressIndicator(
                     value: _progress,
                     strokeWidth: 8,
@@ -598,15 +600,15 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+             SizedBox(height: 24.h),
             Text(
               'Uploading...',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent[700]),
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.blueAccent[700]),
             ),
-            const SizedBox(height: 12),
+             SizedBox(height: 12.h),
             Text(
               '${(_progress * 100).toStringAsFixed(0)}%',
-              style: const TextStyle(fontSize: 18, color: Colors.black87),
+              style:  TextStyle(fontSize: 18.sp, color: Colors.black87),
             ),
           ],
         ),
