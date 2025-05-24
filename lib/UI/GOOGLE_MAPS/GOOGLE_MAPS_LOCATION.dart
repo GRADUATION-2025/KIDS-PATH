@@ -93,6 +93,7 @@
                       height: 40.h,
                       child: TextFormField(
                         controller: _addressController,
+                        keyboardType: TextInputType.none,
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                               Icons.search, size: 20.r, color: Colors.grey),

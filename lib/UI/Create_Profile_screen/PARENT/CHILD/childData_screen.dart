@@ -91,8 +91,9 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
+                    keyboardType: TextInputType.name,
                     maxLength: 42,
-                    inputFormatters: [FilteringTextInputFormatter.singleLineFormatter],
+                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.person),
                       labelText: 'Child Name',

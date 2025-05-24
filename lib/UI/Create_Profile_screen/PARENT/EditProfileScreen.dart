@@ -153,11 +153,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16)),
             TextField(
               controller: _nameController,
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.name,
               maxLength: 17,
-              inputFormatters: [
-                FilteringTextInputFormatter.singleLineFormatter
-              ],
+                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
 
               decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: John Mark",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
             ),

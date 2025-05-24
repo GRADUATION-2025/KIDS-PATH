@@ -177,6 +177,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     TextField(
     decoration: _inputDecoration("Enter location", ""),
     controller: _locationController..text = tempLocation ?? '',
+    keyboardType: TextInputType.none,
     onChanged: (value) => setModalState(() {
     tempLocation = value;
     tempGeoPoint = null;
@@ -434,6 +435,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
+                      keyboardType: TextInputType.name,
+                        inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey.shade100,

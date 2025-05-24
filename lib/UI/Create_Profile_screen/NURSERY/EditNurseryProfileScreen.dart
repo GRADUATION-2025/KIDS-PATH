@@ -1,5 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -215,19 +216,25 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
               ],
             ),
             SizedBox(height: 20),
-            _buildFormField("Name", _nameController,"Your Nursery Name"),
+            _buildFormField("Name", _nameController,"Your Nursery Name",maxlength: 18,
+                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],keyboardtype: TextInputType.name),
             SizedBox(height: 20),
-            _buildFormField("Email", _emailController,"Email", readOnly: true),
+            _buildFormField("Email", _emailController,"Email", readOnly: true,),
             SizedBox(height: 20),
-            _buildFormField("Phone number", _phoneController,"Phone Number"),
+            _buildFormField("Phone number", _phoneController,"Phone Number",maxlength: 11,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype: TextInputType.phone),
             SizedBox(height: 20),
-            _buildFormField("Description", _descriptionController,"Describe your nursery", maxLines: 3),
+            _buildFormField("Description", _descriptionController,"Describe your nursery", maxLines: 3,maxlength: 100),
             SizedBox(height: 20),
-            _buildFormField("Price", _priceController,"Price per Month",),
+            _buildFormField("Interview Price", _priceController,"Interview Price",maxlength: 5,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype:TextInputType.number ),
             SizedBox(height: 20),
-            _buildFormField("Operating Hours", _hoursController,"Operating Hours"),
+            _buildFormField("Operating Hours", _hoursController,"Operating Hours",maxlength: 10,keyboardtype: TextInputType.text,
+              inputFormatters: [
+                FilteringTextInputFormatter.deny(RegExp(r'[a-zA-Z\s]'))],),
             SizedBox(height: 20),
-            _buildFormField("Language", _languageController,"Language"),
+            _buildFormField("Language", _languageController,"Language",maxlength: 50,keyboardtype: TextInputType.text,
+                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))]),
             SizedBox(height: 20),
             _buildAgeGroupSelector(),
 
@@ -334,6 +341,9 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
             Expanded(
               child: TextField(
                 controller: _programControllers[index],
+            inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
+                keyboardType: TextInputType.name,
                 decoration: InputDecoration(
                   hintText: "Enter program name",
                   border: UnderlineInputBorder(),
@@ -361,7 +371,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   }
 
   Widget _buildFormField(String label, TextEditingController controller, String hint,
-      {bool readOnly = false, int maxLines = 1}) {
+      {bool readOnly = false, int maxLines = 1, maxlength, inputFormatters,keyboardtype}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -369,7 +379,10 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
         TextField(
           controller: controller,
           maxLines: maxLines,
+          maxLength: maxlength,
           readOnly: readOnly,
+          inputFormatters: inputFormatters,
+          keyboardType: keyboardtype,
           decoration: InputDecoration(
             border: UnderlineInputBorder(),
             hintText: hint
