@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
-
-
 
 import '../../../../DATA MODELS/Child Model/Child Model.dart';
 import '../../../../LOGIC/child/child_cubit.dart';
@@ -21,13 +20,14 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
-  final TextEditingController genderController = TextEditingController();
+  String? selectedGender;
+
+  final List<String> genderOptions = ['Male', 'Female'];
 
   @override
   void dispose() {
     nameController.dispose();
     ageController.dispose();
-    genderController.dispose();
     super.dispose();
   }
 
@@ -38,75 +38,139 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
     if (user != null) {
       context.read<ChildCubit>().fetchChildren(user.uid);
     }
+    selectedGender = null; // start with no selection
   }
 
-  // Function to show the edit form with pre-populated data
-  void _showEditForm(Child child) {
-    nameController.text = child.name;
-    ageController.text = child.age.toString();
-    genderController.text = child.gender;
+  void _showChildForm({Child? child}) {
+    final isEditing = child != null;
+
+    if (isEditing) {
+      nameController.text = child.name;
+      ageController.text = child.age.toString();
+      selectedGender = child?.gender; // set from existing child or null
+    } else {
+      nameController.clear();
+      ageController.clear();
+      selectedGender = null;
+    }
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Child Data', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          titlePadding: const EdgeInsets.all(0),
+          title: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                // Name Field
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Child Name',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  ),
-                  style: const TextStyle(fontSize: 18),
-                  validator: (value) =>
-                  value == null || value.isEmpty ? 'Enter name' : null,
+                Icon(isEditing ? Icons.edit : Icons.person_add, color: Colors.white),
+                const SizedBox(width: 10),
+                Text(
+                  isEditing ? 'Edit Child' : 'Add New Child',
+                  style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-                const Divider(),
-                const SizedBox(height: 16),
-                // Age Field
-                TextFormField(
-                  controller: ageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Child Age',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  ),
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(fontSize: 18),
-                  validator: (value) =>
-                  value == null || value.isEmpty ? 'Enter age' : null,
-                ),
-                const Divider(),
-                const SizedBox(height: 16),
-                // Gender Field
-                TextFormField(
-                  controller: genderController,
-                  decoration: const InputDecoration(
-                    labelText: 'Gender',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  ),
-                  style: const TextStyle(fontSize: 18),
-                  validator: (value) =>
-                  value == null || value.isEmpty ? 'Enter gender' : null,
-                ),
-                const Divider(),
               ],
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: nameController,
+                    maxLength: 42,
+                    inputFormatters: [FilteringTextInputFormatter.singleLineFormatter],
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.person),
+                      labelText: 'Child Name',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    validator: (value) => value == null || value.isEmpty ? 'Enter name' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: ageController,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.cake),
+                      labelText: 'Child Age',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    keyboardType: TextInputType.number,
+                    maxLength: 1,
+                    validator: (value) => value == null || value.isEmpty ? 'Enter age' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedGender,
+                    isExpanded: true,
+                    hint: Text(
+                      'Select Gender',
+                      style: GoogleFonts.inter(color: Colors.black),
+                    ),
+                    items: genderOptions.map((gender) {
+                      return DropdownMenuItem<String>(
+                        value: gender,
+                        child: Text(
+                          gender,
+                          style: GoogleFonts.poppins(fontSize: 16),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedGender = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Gender',
+                      prefixIcon: const Icon(Icons.wc),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.arrow_drop_down),
+                    dropdownColor: Colors.white,
+                    style: GoogleFonts.poppins(color: Colors.black),
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(12),
+                    validator: (value) => value == null || value.isEmpty ? 'Select gender' : null,
+                  )
+                ],
+              ),
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D41E1),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   final user = FirebaseAuth.instance.currentUser;
@@ -119,132 +183,27 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                     return;
                   }
 
-                  Child updatedChild = Child(
-                    id: child.id,
+                  final childData = Child(
+                    id: isEditing ? child!.id : '',
                     name: nameController.text,
                     age: int.tryParse(ageController.text) ?? 0,
-                    gender: genderController.text,
+                    gender: selectedGender!,
                   );
 
-                  await context.read<ChildCubit>().updateChild(parentId, updatedChild);
+                  if (isEditing) {
+                    await context.read<ChildCubit>().updateChild(parentId, childData);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Child updated!')));
+                  } else {
+                    await context.read<ChildCubit>().addChild(parentId, childData);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Child added!')));
+                  }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Child info updated!')),
-                  );
-
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
                 }
               },
-              child: const Text('Save'),
+              child: Text(isEditing ? 'Save' : 'Add',style: GoogleFonts.inter(color: Colors.white,fontWeight: FontWeight.bold),),
             ),
           ],
-        );
-      },
-    );
-  }
-
-  // Function to show the add new child form
-  void _showAddChildForm() {
-    nameController.clear();
-    ageController.clear();
-    genderController.clear();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            child: AlertDialog(
-              title: Text('Add New Child', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-              content: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Name Field
-                    TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Child Name',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      ),
-                      style: const TextStyle(fontSize: 18),
-                      validator: (value) =>
-                      value == null || value.isEmpty ? 'Enter name' : null,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 16),
-                    // Age Field
-                    TextFormField(
-                      controller: ageController,
-                      decoration: const InputDecoration(
-                        labelText: 'Child Age',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      ),
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(fontSize: 18),
-                      validator: (value) =>
-                      value == null || value.isEmpty ? 'Enter age' : null,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 16),
-                    // Gender Field
-                    TextFormField(
-                      controller: genderController,
-                      decoration: const InputDecoration(
-                        labelText: 'Gender',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      ),
-                      style: const TextStyle(fontSize: 18),
-                      validator: (value) =>
-                      value == null || value.isEmpty ? 'Enter gender' : null,
-                    ),
-                    const Divider(),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final user = FirebaseAuth.instance.currentUser;
-                      final parentId = user?.uid;
-            
-                      if (parentId == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('User not logged in')),
-                        );
-                        return;
-                      }
-            
-                      Child newChild = Child(
-                        id: '',
-                        name: nameController.text,
-                        age: int.tryParse(ageController.text) ?? 0,
-                        gender: genderController.text,
-                      );
-            
-                      await context.read<ChildCubit>().addChild(parentId, newChild);
-            
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Child info added!')),
-                      );
-            
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text('Add'),
-                ),
-              ],
-            ),
-          ),
         );
       },
     );
@@ -256,18 +215,11 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
-          decoration:  BoxDecoration(
-            gradient: AppGradients.Projectgradient
-
-          ),
+          decoration: BoxDecoration(gradient: AppGradients.Projectgradient),
           child: AppBar(
             title: Text(
               "Child Data",
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
             ),
             centerTitle: true,
             backgroundColor: Colors.transparent,
@@ -279,9 +231,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
       body: BlocConsumer<ChildCubit, ChildState>(
         listener: (context, state) {
           if (state is ChildError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -296,12 +246,10 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                         (child) => Card(
                       elevation: 5,
                       margin: const EdgeInsets.symmetric(vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -330,9 +278,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.edit, color: Colors.white),
-                                onPressed: () {
-                                  _showEditForm(child);
-                                },
+                                onPressed: () => _showChildForm(child: child),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.white),
@@ -357,13 +303,12 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: const Color(0xFF07C8F9), // Text color
+                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF07C8F9),
                     padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
                   ),
-                  onPressed: _showAddChildForm,
+                  onPressed: () => _showChildForm(),
                   child: const Text(
                     "Add New Child",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

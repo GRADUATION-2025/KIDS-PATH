@@ -174,7 +174,7 @@ class ParentAccountScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => BottombarParentScreen(initialIndex: 3,)),
                   (route) => false,
             ),),
-            accountOption(Icons.privacy_tip, "Privacy Settings"),
+            accountOption(Icons.privacy_tip, "Privacy and Policy"),
             accountOption(
               Icons.logout,
               "Sign Out",
