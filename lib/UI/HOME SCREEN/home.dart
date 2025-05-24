@@ -489,7 +489,7 @@ class _NurseryInfo extends StatelessWidget {
             children: [
               const Icon(Icons.location_on, size: 16, color: Colors.grey),
               const SizedBox(width: 4),
-              const Text('0.48 mi away'),
+              const Text('Filter will show Distance'),
               const Spacer(),
               Row(
                 children: [
