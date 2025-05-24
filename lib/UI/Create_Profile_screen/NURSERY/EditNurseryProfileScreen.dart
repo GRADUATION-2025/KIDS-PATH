@@ -32,6 +32,7 @@ class EditNurseryProfileScreen extends StatefulWidget {
 }
 
 class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -94,24 +95,11 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-
-    final newName = _nameController.text.trim();
-    final newPhone = _phoneController.text.trim();
-    final newDescription = _descriptionController.text.trim();
-    final newPrice = _priceController.text.trim();
-    final newHours = _hoursController.text.trim();
-    final newLanguage = _languageController.text.trim();
-    final newPrograms = _programControllers;
-    final newAge = _selectedAge;
-
-    if (newName.isEmpty || newPhone.isEmpty|| newDescription.isEmpty|| newPrice.isEmpty|| newHours.isEmpty|| newPrograms.isEmpty|| newLanguage.isEmpty || newAge.isEmpty ) {
+    if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter valid details")),
-      );
-
-      return;
+      );      return;
     }
-
 
     try {
       String? imageUrl;
@@ -175,158 +163,167 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Edit Profile",
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                ),
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[300],
-                      backgroundImage: _getProfileImage(),
-                      child: _imageFile == null && widget.nursery.profileImageUrl == null
-                          ? Icon(Icons.business, size: 50, color: Colors.white)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.white,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Edit Profile",
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: _getProfileImage(),
+                        child: _imageFile == null && widget.nursery.profileImageUrl == null
+                            ? Icon(Icons.business, size: 50, color: Colors.white)
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _pickImage,
                           child: CircleAvatar(
-                            radius: 14,
-                            backgroundColor: Color(0xFF07C8F9),
-                            child: Icon(Icons.add, color: Colors.white, size: 16),
+                            radius: 16,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: Color(0xFF07C8F9),
+                              child: Icon(Icons.add, color: Colors.white, size: 16),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            _buildFormField("Name", _nameController,"Your Nursery Name",maxlength: 18,
-                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],keyboardtype: TextInputType.name),
-            SizedBox(height: 20),
-            _buildFormField("Email", _emailController,"Email", readOnly: true,),
-            SizedBox(height: 20),
-            _buildFormField("Phone number", _phoneController,"Phone Number",maxlength: 11,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype: TextInputType.phone),
-            SizedBox(height: 20),
-            _buildFormField("Description", _descriptionController,"Describe your nursery", maxLines: 3,maxlength: 100),
-            SizedBox(height: 20),
-            _buildFormField("Interview Price", _priceController,"Interview Price",maxlength: 5,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype:TextInputType.number ),
-            SizedBox(height: 20),
-            _buildFormField("Operating Hours", _hoursController,"Operating Hours",maxlength: 10,keyboardtype: TextInputType.text,
-              inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp(r'[a-zA-Z\s]'))],),
-            SizedBox(height: 20),
-            _buildFormField("Language", _languageController,"Language",maxlength: 50,keyboardtype: TextInputType.text,
-                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))]),
-            SizedBox(height: 20),
-            _buildAgeGroupSelector(),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              _buildFormField("Name", _nameController,"Your Nursery Name",maxlength: 18,
+                  inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],keyboardtype: TextInputType.name,
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Name' : null,),
+              SizedBox(height: 20),
+              _buildFormField("Email", _emailController,"Email", readOnly: true,),
+              SizedBox(height: 20),
+              _buildFormField("Phone number", _phoneController,"Phone Number",maxlength: 11,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype: TextInputType.phone,
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Phone Number' : null,),
+              SizedBox(height: 20),
+              _buildFormField("Description", _descriptionController,"Describe your nursery", maxLines: 3,maxlength: 100,
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Description' : null,),
+              SizedBox(height: 20),
+              _buildFormField("Interview Price", _priceController,"Interview Price",maxlength: 5,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype:TextInputType.number,
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Interview Price' : null,),
+              SizedBox(height: 20),
+              _buildFormField("Operating Hours", _hoursController,"Operating Hours",maxlength: 10,keyboardtype: TextInputType.text,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'[a-zA-Z\s]'))],
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Hours' : null,),
+              SizedBox(height: 20),
+              _buildFormField("Language", _languageController,"Language",maxlength: 50,keyboardtype: TextInputType.text,
+                  inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Languages' : null,),
+              SizedBox(height: 20),
+              _buildAgeGroupSelector(),
 
-            // Programs Section - Added this part
-            SizedBox(height: 20),
-            Text("Programs", style: TextStyle(color: Colors.grey, fontSize: 16)),
-            ..._buildProgramFields(),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: _addProgramField,
-                child: Text(
-                  "+ Add Program",
-                  style: TextStyle(color: Colors.blue),
+              // Programs Section - Added this part
+              SizedBox(height: 20),
+              Text("Programs", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              ..._buildProgramFields(),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _addProgramField,
+                  child: Text(
+                    "+ Add Program",
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ),
-            ),
 
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Checkbox(
-                  value: _agreeToTerms,
-                  onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
-                  activeColor: Color(0xFF07C8F9),
-                ),
-                Text("I agree to the ", style: TextStyle(fontSize: 14)),
-                Text(
-                  "Terms of Service",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-                child: ElevatedButton(
-                    onPressed: _saveProfile,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: BlocBuilder<NurseryCubit, NurseryState>(
-                        builder: (context, state) {
-                          final isLoading = state is NurseryLoading;
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _agreeToTerms,
+                    onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
+                    activeColor: Color(0xFF07C8F9),
+                  ),
+                  Text("I agree to the ", style: TextStyle(fontSize: 14)),
+                  Text(
+                    "Terms of Service",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                  child: ElevatedButton(
+                      onPressed: _saveProfile,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: BlocBuilder<NurseryCubit, NurseryState>(
+                          builder: (context, state) {
+                            final isLoading = state is NurseryLoading;
 
-                          return SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: isLoading ? null : _saveProfile,
-                              // Disable when loading
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                              child: Ink(
-                                decoration: BoxDecoration(
-                                  gradient: AppGradients.Projectgradient
-                                  ,
-                                  borderRadius: BorderRadius.circular(10),
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : _saveProfile,
+                                // Disable when loading
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
                                 ),
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 50,
-                                  alignment: Alignment.center,
-                                  child: isLoading
-                                      ? SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                        color: Colors.white
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                    gradient: AppGradients.Projectgradient
+                                    ,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 50,
+                                    alignment: Alignment.center,
+                                    child: isLoading
+                                        ? SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white
+                                      ),
+                                    )
+                                        : Text(
+                                      "Save Profile",
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.white),
                                     ),
-                                  )
-                                      : Text(
-                                    "Save Profile",
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.white),
                                   ),
                                 ),
+
                               ),
 
-                            ),
-
-                          );
-                        }
-                        )
-                )
-            )
-          ],
+                            );
+                          }
+                          )
+                  )
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -339,11 +336,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
         child: Row(
           children: [
             Expanded(
-              child: TextField(
+              child: TextFormField(
                 controller: _programControllers[index],
             inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
                 keyboardType: TextInputType.name,
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Programs' : null,
                 decoration: InputDecoration(
                   hintText: "Enter program name",
                   border: UnderlineInputBorder(),
@@ -371,18 +369,19 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   }
 
   Widget _buildFormField(String label, TextEditingController controller, String hint,
-      {bool readOnly = false, int maxLines = 1, maxlength, inputFormatters,keyboardtype}) {
+      {bool readOnly = false, int maxLines = 1, maxlength, inputFormatters,keyboardtype,validator}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(color: Colors.grey, fontSize: 16)),
-        TextField(
+        TextFormField(
           controller: controller,
           maxLines: maxLines,
           maxLength: maxlength,
           readOnly: readOnly,
           inputFormatters: inputFormatters,
           keyboardType: keyboardtype,
+          validator: validator,
           decoration: InputDecoration(
             border: UnderlineInputBorder(),
             hintText: hint

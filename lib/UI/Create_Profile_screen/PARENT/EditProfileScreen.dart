@@ -34,6 +34,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   File? _imageFile;
@@ -58,14 +59,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    final newName = _nameController.text.trim();
-    final newPhone = _phoneController.text.trim();
-    if (newName.isEmpty || newPhone.isEmpty) {
+    if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter valid details")),
       );
       return;
     }
+
+    final newName = _nameController.text.trim();
+    final newPhone = _phoneController.text.trim();
+
     try {
       String? imageUrl;
       if (_imageFile != null) {
@@ -105,148 +108,154 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Edit Profile",
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                ),
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[300],
-                      backgroundImage: _imageFile != null
-                          ? FileImage(_imageFile!)
-                          : widget.parent.profileImageUrl != null
-                          ? NetworkImage(widget.parent.profileImageUrl!)
-                          : null,
-                      child: _imageFile == null && widget.parent.profileImageUrl == null
-                          ? Icon(Icons.person, size: 50, color: Colors.white)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.white,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Edit Profile",
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: _imageFile != null
+                            ? FileImage(_imageFile!)
+                            : widget.parent.profileImageUrl != null
+                            ? NetworkImage(widget.parent.profileImageUrl!)
+                            : null,
+                        child: _imageFile == null && widget.parent.profileImageUrl == null
+                            ? Icon(Icons.person, size: 50, color: Colors.white)
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _pickImage,
                           child: CircleAvatar(
-                            radius: 14,
-                            backgroundColor: Color(0xFF07C8F9),
-                            child: Icon(Icons.add, color: Colors.white, size: 16),
+                            radius: 16,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: Color(0xFF07C8F9),
+                              child: Icon(Icons.add, color: Colors.white, size: 16),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              TextFormField(
+                controller: _nameController,
+                keyboardType: TextInputType.name,
+                maxLength: 17,
+                  inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
+          
+                decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: John Mark",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Name' : null,
+              ),
+          
+              SizedBox(height: 20),
+              Text("Email", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              TextFormField(
+                controller: TextEditingController(text: widget.parent.email),
+                decoration: InputDecoration(border: UnderlineInputBorder()),
+                readOnly: true,
+              ),
+              SizedBox(height: 20),
+              Text("Phone number", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              TextFormField(
+                controller: _phoneController,
+                keyboardType:TextInputType.number ,
+                maxLength: 11,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: 015501478874",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
+                validator: (value) => value == null || value.trim().isEmpty ? 'Enter Phone Number' : null,
+              ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Checkbox(
+                    value: true,
+                    onChanged: (value) {},
+                    activeColor: Color(0xFF07C8F9),
+                  ),
+                  Text("I agree to the ", style: TextStyle(fontSize: 14)),
+                  Text(
+                    "Terms of Service",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+          child: BlocBuilder<ParentCubit, ParentState>(
+            builder: (context, state) {
+              final isLoading = state is ParentLoading;
+          
+              return SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+          onPressed: isLoading ? null : _saveProfile, // Disable when loading
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: AppGradients.Projectgradient
+              ,
+              borderRadius: BorderRadius.circular(10),
             ),
-            SizedBox(height: 20),
-            Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16)),
-            TextField(
-              controller: _nameController,
-              keyboardType: TextInputType.name,
-              maxLength: 17,
-                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
-
-              decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: John Mark",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
-            ),
-            SizedBox(height: 20),
-            Text("Email", style: TextStyle(color: Colors.grey, fontSize: 16)),
-            TextField(
-              controller: TextEditingController(text: widget.parent.email),
-              decoration: InputDecoration(border: UnderlineInputBorder()),
-              readOnly: true,
-            ),
-            SizedBox(height: 20),
-            Text("Phone number", style: TextStyle(color: Colors.grey, fontSize: 16)),
-            TextField(
-              controller: _phoneController,
-              keyboardType:TextInputType.number ,
-              maxLength: 11,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: 015501478874",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Checkbox(
-                  value: true,
-                  onChanged: (value) {},
-                  activeColor: Color(0xFF07C8F9),
-                ),
-                Text("I agree to the ", style: TextStyle(fontSize: 14)),
-                Text(
-                  "Terms of Service",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
-            SizedBox(
+            child: Container(
               width: double.infinity,
               height: 50,
-              child: ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-child: BlocBuilder<ParentCubit, ParentState>(
-  builder: (context, state) {
-    final isLoading = state is ParentLoading;
-
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _saveProfile, // Disable when loading
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: AppGradients.Projectgradient
-            ,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            width: double.infinity,
-            height: 50,
-            alignment: Alignment.center,
-            child: isLoading
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                        color: Colors.white
+              alignment: Alignment.center,
+              child: isLoading
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                          color: Colors.white
+                      ),
+                    )
+                  : Text(
+                      "Save Profile",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                  )
-                : Text(
-                    "Save Profile",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
+            ),
           ),
-        ),
-      ),
-    );
-  },
-),
-
-    )
-            )
-          ]
+                ),
+              );
+            },
+          ),
+          
+              )
+              )
+            ]
+          ),
         )
       )
     );
