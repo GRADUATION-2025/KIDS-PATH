@@ -545,7 +545,7 @@ class _GradientRateButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 123.w,
+        width: 130.w,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradientColors),
