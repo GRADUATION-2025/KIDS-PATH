@@ -127,48 +127,54 @@ class ParentAccountScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.h),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChildDataScreen()),
-                );
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[850] : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ChildDataScreen()),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          Icons.child_care,
-                          color: isDark ? Colors.blue[400] : Colors.blue,
-                          size: 24.sp,
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.child_care,
+                              color: Colors.blue,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              "View Child Data",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: isDark ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 16.w),
-                        Text(
-                          "View Child Data",
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: isDark ? Colors.white : Colors.black87,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        SizedBox(width: 5.w,),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.grey,
+                          size: 16,
                         ),
                       ],
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: isDark ? Colors.grey[400] : Colors.grey,
-                      size: 16.sp,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+
+              ],
+
             ),
             Divider(
               height: 20.h,
