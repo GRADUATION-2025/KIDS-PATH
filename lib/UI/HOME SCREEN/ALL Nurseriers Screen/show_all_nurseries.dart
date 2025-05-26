@@ -551,16 +551,16 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                             Text(
                               "No nurseries found matching your criteria",
                               style: GoogleFonts.inter(
-                                fontSize: 18.sp,
+                                fontSize: 16.sp,
                                 color: Colors.grey[600],
                               ),
                             ),
-                             SizedBox(height: 8.h),
+                             SizedBox(height: 10.h),
                             if (_selectedGeoPoint != null)
                               Text(
                                 "Try increasing your search radius",
                                 style: GoogleFonts.inter(
-                                  fontSize: 14.sp,
+                                  fontSize: 13.sp,
                                   color: Colors.grey[500],
                                 ),
                               ),
