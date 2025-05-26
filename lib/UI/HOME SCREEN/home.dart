@@ -23,10 +23,10 @@ class HomeScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => HomeCubit(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           title: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
               final userName = state is HomeLoaded
@@ -49,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                     style:  TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                 ],
@@ -78,15 +78,15 @@ class _UserAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 20,
-      backgroundColor: Colors.grey.shade300,
+      backgroundColor: Theme.of(context).cardColor,
       child: ClipOval(
         child: CachedNetworkImage(
           imageUrl: profileImageUrl ?? '',
           width: 40.w,
           height: 40.h,
           fit: BoxFit.cover,
-          placeholder: (context, url) => const Icon(Icons.person, color: Colors.grey),
-          errorWidget: (context, url, error) => const Icon(Icons.person, color: Colors.grey),
+          placeholder: (context, url) => Icon(Icons.person, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+          errorWidget: (context, url, error) => Icon(Icons.person, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
         ),
       ),
     );
@@ -175,48 +175,29 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-
-
-      GestureDetector(onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.black),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.search, ),
-              SizedBox(width: 15.w),
-              Expanded(
-                child: Text(
-                  'Tap to Search...',
-                  style: GoogleFonts.inter(fontSize: 15.sp),
-                ),
-              ),
-            ],
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
-      );
-
-
-
-
-    //   TextField(
-    //   onTap: onTap,
-    //   decoration: InputDecoration(
-    //     hintText: 'Type what you want to search...',
-    //     prefixIcon: const Icon(Icons.search),
-    //     border: OutlineInputBorder(
-    //       borderRadius: BorderRadius.circular(10),
-    //       borderSide: BorderSide(color: Colors.grey.shade300),
-    //     ),
-    //     filled: true,
-    //     fillColor: Colors.grey.shade100,
-    //   ),
-    // );
+        child: Row(
+          children: [
+            Icon(Icons.search, color: Theme.of(context).iconTheme.color),
+            SizedBox(width: 15.w),
+            Expanded(
+              child: Text(
+                'Tap to Search...',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15.sp),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -231,9 +212,9 @@ class _BannerImage extends StatelessWidget {
         height: 120.h,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Container(
-          color: Colors.grey.shade200,
+          color: Theme.of(context).cardColor,
           height: 150.h,
-          child: const Icon(Icons.error),
+          child: Icon(Icons.error, color: Theme.of(context).iconTheme.color),
         ),
       ),
     );
@@ -254,7 +235,7 @@ class _PopularNurseriesSection extends StatelessWidget {
           children: [
             Text(
               'Popular Nursery',
-              style: GoogleFonts.inter(fontSize: 18.sp,fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
             // SizedBox(width: 140,),
             // GestureDetector(onTap: (){
@@ -300,7 +281,7 @@ class _PopularNurseryCard extends StatelessWidget {
              SizedBox(height: 8.h),
             Text(
               nursery.name,
-              style:  TextStyle(fontSize: 12.sp),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12.sp),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -332,15 +313,15 @@ class _NurseryAvatar extends StatelessWidget {
       tag: 'nursery-avatar-$profileImageUrl',
       child: CircleAvatar(
         radius: 30.r,
-        backgroundColor: Colors.grey.shade300,
+        backgroundColor: Theme.of(context).cardColor,
         child: ClipOval(
           child: CachedNetworkImage(
             imageUrl: profileImageUrl ?? '',
             width: 60.w,
             height: 60.h,
             fit: BoxFit.cover,
-            placeholder: (context, url) => const Icon(Icons.photo, color: Colors.grey),
-            errorWidget: (context, url, error) => const Icon(Icons.photo, color: Colors.grey),
+            placeholder: (context, url) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+            errorWidget: (context, url, error) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
           ),
         ),
       ),
@@ -363,13 +344,13 @@ class _TopRatedSection extends StatelessWidget {
       children: [
          Text(
           'Top Rated',
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
          SizedBox(height: 10.h),
         if (topRatedNurseries.isEmpty)
-          const Text(
+          Text(
             'No 5-star nurseries yet.',
-            style: TextStyle(color: Colors.grey),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
           )
         else
           ListView.builder(
@@ -440,14 +421,14 @@ class _NurseryMainImage extends StatelessWidget {
           height: 150.h,
           fit: BoxFit.cover,
           placeholder: (context, url) => Container(
-            color: Colors.grey.shade200,
+            color: Theme.of(context).cardColor,
             height: 150.h,
             child: const Center(child: CircularProgressIndicator()),
           ),
           errorWidget: (context, url, error) => Container(
-            color: Colors.grey.shade200,
+            color: Theme.of(context).cardColor,
             height: 150.h,
-            child: const Icon(Icons.error),
+            child: Icon(Icons.error, color: Theme.of(context).iconTheme.color),
           ),
         ),
       ),
@@ -482,17 +463,14 @@ class _NurseryInfo extends StatelessWidget {
         children: [
           Text(
             nursery.name,
-            style:  TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
            SizedBox(height: 4.h),
           Row(
             children: [
-              const Icon(Icons.location_on, size: 16, color: Colors.grey),
+              Icon(Icons.location_on, size: 16, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
                SizedBox(width: 4.w),
-              const Text('Filter will show Distance'),
+              Text('Filter will show Distance', style: Theme.of(context).textTheme.bodyMedium),
               const Spacer(),
               Row(
                 children: [
@@ -507,20 +485,14 @@ class _NurseryInfo extends StatelessWidget {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Text(
                           '...',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 14.sp,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp),
                         );
                       }
 
                       if (snapshot.hasError) {
                         return Text(
                           '?',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 14.sp,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp),
                         );
                       }
 
@@ -530,10 +502,7 @@ class _NurseryInfo extends StatelessWidget {
 
                       return Text(
                         averageRating.toStringAsFixed(1),
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 14.sp,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp),
                       );
                     },
                   ),
@@ -558,19 +527,11 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+          Icon(Icons.search_off, size: 48, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
            SizedBox(height: 16.h),
           Text(
-            'Error loading nurseries',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-           SizedBox(height: 8.h),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            message,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp),
           ),
            SizedBox(height: 16.h),
           ElevatedButton(
@@ -594,11 +555,11 @@ class _EmptyView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.search_off, size: 48, color: Colors.grey),
+          Icon(Icons.search_off, size: 48, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
            SizedBox(height: 16.h),
           Text(
             message,
-            style:  TextStyle(fontSize: 16.sp, color: Colors.grey),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp),
           ),
            SizedBox(height: 16.h),
           ElevatedButton(

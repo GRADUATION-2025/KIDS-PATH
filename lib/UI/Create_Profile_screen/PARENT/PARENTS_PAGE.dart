@@ -3,25 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
-import 'package:kidspath/UI/PRIVACY%20AND%20POLICY/privacy_policy.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
+import 'package:provider/provider.dart';
 import '../../../LOGIC/Parent/parent_cubit.dart';
 import '../../../LOGIC/Parent/parent_state.dart';
 import '../../../LOGIC/delete account/account_deletion_handler.dart';
+import '../../../THEME/theme_provider.dart';
 import 'CHILD/childData_screen.dart';
 import '../../forget_change_password/forgetscreen.dart';
 import 'EditProfileScreen.dart';
 
-class ParentAccountScreen extends StatefulWidget {
-
+class ParentAccountScreen extends StatelessWidget {
   const ParentAccountScreen({super.key});
-
-  @override
-  State<ParentAccountScreen> createState() => _ParentAccountScreenState();
-}
-
-class _ParentAccountScreenState extends State<ParentAccountScreen> {
-  bool isOptionEnabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +24,7 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
     }
 
     return BlocProvider(
-      create: (context) =>
-      ParentCubit()
-        ..fetchParentData(user.uid),
+      create: (context) => ParentCubit()..fetchParentData(user.uid),
       child: BlocConsumer<ParentCubit, ParentState>(
         listener: (context, state) {
           if (state is ParentError) {
@@ -43,11 +34,14 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
           }
         },
         builder: (context, state) {
+          final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
           return Scaffold(
-
+            backgroundColor: isDark ? Colors.grey[900] : Colors.white,
             body: Padding(
               padding: EdgeInsets.only(top: 40.w),
-              child: _buildBody(context, state, user.uid),
+              child: Builder(
+                builder: (context) => _buildBody(context, state, user.uid),
+              ),
             ),
           );
         },
@@ -56,6 +50,8 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
   }
 
   Widget _buildBody(BuildContext context, ParentState state, String userId) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    
     if (state is ParentLoaded) {
       final parent = state.parent;
       return SingleChildScrollView(
@@ -68,22 +64,19 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        BlocProvider.value(
-                          value: BlocProvider.of<ParentCubit>(context),
-                          child: EditProfileScreen(
-                            parent: parent,
-                            role: "Parent",
-                            onProfileComplete: () {
-                              context.read<ParentCubit>().fetchParentData(
-                                  userId);
-                            },
-                            fromRegistration: false,
-                          ),
-                        ),
+                    builder: (context) => BlocProvider.value(
+                      value: BlocProvider.of<ParentCubit>(context),
+                      child: EditProfileScreen(
+                        parent: parent,
+                        role: "Parent",
+                        onProfileComplete: () {
+                          context.read<ParentCubit>().fetchParentData(userId);
+                        },
+                        fromRegistration: false,
+                      ),
+                    ),
                   ),
                 ).then((_) {
-                  // Refresh when returning from edit screen
                   context.read<ParentCubit>().fetchParentData(userId);
                 });
               },
@@ -102,9 +95,8 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
                         right: 0,
                         child: CircleAvatar(
                           radius: 12.r,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                              Icons.edit, size: 16.sp, color: Colors.blue),
+                          backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+                          child: Icon(Icons.edit, size: 16.sp, color: isDark ? Colors.blue[400] : Colors.blue),
                         ),
                       ),
                     ],
@@ -116,11 +108,17 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
                       Text(
                         parent.name,
                         style: TextStyle(
-                            fontSize: 20.sp, fontWeight: FontWeight.bold),
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
                       ),
                       Text(
                         parent.email,
-                        style: TextStyle(fontSize: 13.sp, color: Colors.grey),
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -128,145 +126,207 @@ class _ParentAccountScreenState extends State<ParentAccountScreen> {
               ),
             ),
             SizedBox(height: 20.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ChildDataScreen()),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChildDataScreen()),
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[850] : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.child_care,
-                              color: Colors.blue,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              "View Child Data",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.child_care,
+                          color: isDark ? Colors.blue[400] : Colors.blue,
+                          size: 24.sp,
                         ),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.grey,
-                          size: 16,
+                        SizedBox(width: 16.w),
+                        Text(
+                          "View Child Data",
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: isDark ? Colors.grey[400] : Colors.grey,
+                      size: 16.sp,
+                    ),
+                  ],
                 ),
-
-              ],
-
+              ),
             ),
-            Divider(height: 20.h),
-            sectionTitle("Account"),
+            Divider(
+              height: 20.h,
+              color: isDark ? Colors.grey[700] : Colors.grey[300],
+            ),
+            sectionTitle(context, "Account"),
             accountOption(
+              context,
               Icons.lock,
               "Change Password",
-              onTap: () =>
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ForgotPasswordScreen()),
-                  ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+              ),
             ),
-            accountOption(Icons.notifications, "Notifications", onTap: () =>
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) =>
-                      BottombarParentScreen(initialIndex: 3,)),
-                      (route) => false,
-                ),),
-            accountOption(Icons.privacy_tip, "Privacy and Policy", onTap: () =>
-                Navigator.push(context,
-                    MaterialPageRoute(
-                      builder: (context) => PrivacyPolicyScreen(),))),
             accountOption(
+              context,
+              Icons.notifications,
+              "Notifications",
+              onTap: () => Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => BottombarParentScreen(initialIndex: 3,)),
+                (route) => false,
+              ),
+            ),
+            accountOption(context, Icons.privacy_tip, "Privacy and Policy"),
+            accountOption(
+              context,
               Icons.logout,
               "Sign Out",
               onTap: () => AccountActionsHandler.signOut(context),
             ),
             accountOption(
+              context,
               Icons.delete,
               "Delete Account",
-              onTap: () => AccountActionsHandler.showDeleteDialog(
-                  context, userId, "Parent"),
+              onTap: () => AccountActionsHandler.showDeleteDialog(context, userId, "Parent"),
+              isDelete: true,
             ),
-            Divider(height: 20.h),
-            sectionTitle("More Options"),
-            toggleOption("Dark Mode", isOptionEnabled),
-            // toggleOption("Text Messages", false),
-            currencyOption("Currency", "EGP"),
-            currencyOption("Languages", "English"),
-            currencyOption("Location", "Alexandria", onTap: () =>
-                Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(
-                    builder: (context) => GoogleMapsLocationx(),), (
-                      route) => false,)),
+            Divider(
+              height: 20.h,
+              color: isDark ? Colors.grey[700] : Colors.grey[300],
+            ),
+            sectionTitle(context, "More Options"),
+            toggleOption("Dark Mode", true),
+            currencyOption(context, "Currency", "EGP"),
+            currencyOption(context, "Languages", "English"),
+            currencyOption(
+              context,
+              "Location",
+              "Alexandria",
+              onTap: () => Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => GoogleMapsLocationx()),
+                (route) => false,
+              ),
+            ),
           ],
         ),
       );
     } else if (state is ParentError) {
-      return Center(child: Text(state.message));
+      return Center(
+        child: Text(
+          state.message,
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+      );
     } else {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+        child: CircularProgressIndicator(
+          color: isDark ? Colors.blue[400] : Colors.blue,
+        ),
+      );
     }
   }
 
-  Widget sectionTitle(String title) {
+  Widget sectionTitle(BuildContext context, String title) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Text(title,
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18.sp,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
     );
   }
 
-  Widget accountOption(IconData icon, String title, {VoidCallback? onTap}) {
+  Widget accountOption(BuildContext context, IconData icon, String title, {VoidCallback? onTap, bool isDelete = false}) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return ListTile(
-      leading: Icon(icon, color: Colors.blue, size: 28.sp),
-      title: Text(title, style: TextStyle(fontSize: 16.sp)),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16.sp, color: Colors.grey),
+      leading: Icon(
+        icon,
+        color: isDelete
+            ? (isDark ? Colors.blue[400] : Colors.blue)
+            : (isDark ? Colors.blue[400] : Colors.blue),
+        size: 28.sp,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: 16.sp,
+        color: isDark ? Colors.grey[400] : Colors.grey,
+      ),
       onTap: onTap ?? () {},
     );
   }
 
   Widget toggleOption(String title, bool isActive) {
-    return ListTile(
-      title: Text(title, style: TextStyle(fontSize: 16.sp)),
-      trailing: Switch(
-        value: isActive,
-        activeColor: const Color(0xFF0D41E1),
-        onChanged: (value) {
-          setState(() {
-            isOptionEnabled = value;
-          });
-        },
-      ),
+    return Builder(
+      builder: (context) {
+        final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+        return ListTile(
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          trailing: Switch(
+            value: context.watch<ThemeProvider>().isDarkMode,
+            activeColor: Color(0xFF0D41E1),
+            onChanged: (value) => context.read<ThemeProvider>().toggleTheme(),
+          ),
+        );
+      },
     );
   }
 
-  Widget currencyOption(String title, String value, {VoidCallback? onTap}) {
-    return ListTile(onTap: onTap,
-      title: Text(title, style: TextStyle(fontSize: 16.sp)),
-      trailing: Text(value, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+  Widget currencyOption(BuildContext context, String title, String value, {VoidCallback? onTap}) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    return ListTile(
+      onTap: onTap,
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
+      trailing: Text(
+        value,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: isDark ? Colors.grey[400] : Colors.grey,
+        ),
+      ),
     );
   }
 }

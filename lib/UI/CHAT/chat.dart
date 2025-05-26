@@ -8,11 +8,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../../DATA MODELS/chatModel/massage.dart';
 import '../../LOGIC/chat/cubit.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
+import '../../THEME/theme_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
@@ -55,13 +57,19 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final userName = FirebaseAuth.instance.currentUser!.displayName ?? 'User';
     final userImage = FirebaseAuth.instance.currentUser!.photoURL;
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Stack(
       children: [
         Scaffold(
+          backgroundColor: isDark ? Colors.grey[900] : Colors.white,
           appBar: AppBar(
             elevation: 1,
             titleSpacing: 0,
+            backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+            iconTheme: IconThemeData(
+              color: isDark ? Colors.white : Colors.black,
+            ),
             title: Row(
               children: [
                 CircleAvatar(
@@ -69,61 +77,78 @@ class _ChatScreenState extends State<ChatScreen> {
                       ? NetworkImage(widget.nurseryImageUrl!)
                       : null,
                   child: widget.nurseryImageUrl == null
-                      ? Text(widget.nurseryName.substring(0, 1).toUpperCase())
+                      ? Text(
+                          widget.nurseryName.substring(0, 1).toUpperCase(),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        )
                       : null,
                 ),
-                 SizedBox(width: 10.w),
-                Text(widget.nurseryName),
+                SizedBox(width: 10.w),
+                Text(
+                  widget.nurseryName,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
               ],
             ),
           ),
           body: Column(
             children: [
               Expanded(
-                child: FutureBuilder<bool>(
-                  future: _isNurseryFuture,
-                  builder: (context, isNurserySnapshot) {
-                    return StreamBuilder<List<Message>>(
-                      stream: context.read<ChatCubit>().getMessages(widget.chatRoomId),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData || !isNurserySnapshot.hasData) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-
-                        final isNursery = isNurserySnapshot.data!;
-                        final messages = snapshot.data!;
-
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (_scrollController.hasClients && messages.isNotEmpty) {
-                            _scrollController.animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut,
+                child: Container(
+                  color: isDark ? Colors.grey[900] : Colors.white,
+                  child: FutureBuilder<bool>(
+                    future: _isNurseryFuture,
+                    builder: (context, isNurserySnapshot) {
+                      return StreamBuilder<List<Message>>(
+                        stream: context.read<ChatCubit>().getMessages(widget.chatRoomId),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData || !isNurserySnapshot.hasData) {
+                            return Center(
+                              child: CircularProgressIndicator(
+                                color: isDark ? Colors.blue[400] : Colors.blue,
+                              ),
                             );
                           }
-                        });
 
-                        return ListView.builder(
-                          controller: _scrollController,
-                          reverse: true,
-                          itemCount: messages.length,
-                          itemBuilder: (context, index) {
-                            final message = messages[index];
-                            final isMe = message.senderId == widget.userId;
+                          final isNursery = isNurserySnapshot.data!;
+                          final messages = snapshot.data!;
 
-                            return GestureDetector(
-                              onLongPress: () {
-                                if (message.canDelete(widget.userId, isNursery)) {
-                                  _showDeleteDialog(context, message);
-                                }
-                              },
-                              child: _buildMessageBubble(message, isMe),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_scrollController.hasClients && messages.isNotEmpty) {
+                              _scrollController.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                              );
+                            }
+                          });
+
+                          return ListView.builder(
+                            controller: _scrollController,
+                            reverse: true,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = messages[index];
+                              final isMe = message.senderId == widget.userId;
+
+                              return GestureDetector(
+                                onLongPress: () {
+                                  if (message.canDelete(widget.userId, isNursery)) {
+                                    _showDeleteDialog(context, message);
+                                  }
+                                },
+                                child: _buildMessageBubble(message, isMe),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
               _buildMessageInput(userName, widget.userImage),
@@ -137,10 +162,18 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(value: _uploadProgress),
-                   SizedBox(height: 16.h),
-                  Text('${(_uploadProgress * 100).toStringAsFixed(0)}%',
-                      style:  TextStyle(color: Colors.white, fontSize: 18.sp)),
+                  CircularProgressIndicator(
+                    value: _uploadProgress,
+                    color: isDark ? Colors.blue[400] : Colors.blue,
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    '${(_uploadProgress * 100).toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -150,13 +183,20 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageInput(String userName, String? userImage) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    
     return SafeArea(
       child: Container(
+        color: isDark ? Colors.grey[850] : Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.add_circle, color: Colors.blue, size: 32),
+              icon: Icon(
+                Icons.add_circle,
+                color: isDark ? Colors.blue[400] : Colors.blue,
+                size: 32,
+              ),
               onPressed: _showMediaPickerOptions,
             ),
             Expanded(
@@ -168,22 +208,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 padding: const EdgeInsets.all(2),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.grey[800] : Colors.white,
                     borderRadius: BorderRadius.circular(25.r),
                   ),
                   child: TextField(
                     controller: _messageController,
-                    decoration: const InputDecoration(
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    decoration: InputDecoration(
                       hintText: 'Write a comment',
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
                     onSubmitted: (_) => _sendMessage(context, userName, userImage),
                   ),
                 ),
               ),
             ),
-             SizedBox(width: 8.w),
+            SizedBox(width: 8.w),
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -201,22 +247,41 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showMediaPickerOptions() {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDark ? Colors.grey[850] : Colors.white,
       builder: (context) => SafeArea(
         child: Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.image, color: Colors.blue),
-              title: const Text('Upload Image'),
+              leading: Icon(
+                Icons.image,
+                color: isDark ? Colors.blue[400] : Colors.blue,
+              ),
+              title: Text(
+                'Upload Image',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.videocam, color: Colors.blue),
-              title: const Text('Upload Video'),
+              leading: Icon(
+                Icons.videocam,
+                color: isDark ? Colors.blue[400] : Colors.blue,
+              ),
+              title: Text(
+                'Upload Video',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickVideo();
@@ -297,15 +362,33 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showDeleteDialog(BuildContext context, Message message) {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Message'),
-        content: const Text('Are you sure you want to delete this message?'),
+        backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+        title: Text(
+          'Delete Message',
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete this message?',
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -318,7 +401,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 isCurrentUserNursery: isNursery,
               );
             },
-            child: const Text('Delete'),
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: isDark ? Colors.red[400] : Colors.red,
+              ),
+            ),
           ),
         ],
       ),
@@ -365,6 +453,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageBubble(Message message, bool isMe) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    
     return GestureDetector(
       onTap: () {
         if (!message.deleted && message.mediaUrl != null) {
@@ -385,13 +475,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 ? AppGradients.Projectgradient
                 : null,
             color: message.deleted
-                ? Colors.grey[200]
+                ? isDark ? Colors.grey[800] : Colors.grey[200]
                 : isMe
                 ? null
-                : Colors.grey[300],
+                : isDark ? Colors.grey[800] : Colors.grey[300],
             borderRadius: BorderRadius.only(
-              topLeft:  Radius.circular(16.r),
-              topRight:  Radius.circular(16.r),
+              topLeft: Radius.circular(16.r),
+              topRight: Radius.circular(16.r),
               bottomLeft: Radius.circular(isMe ? 16 : 0),
               bottomRight: Radius.circular(isMe ? 0 : 16),
             ),
@@ -408,17 +498,23 @@ class _ChatScreenState extends State<ChatScreen> {
                           ? NetworkImage(message.senderImageUrl!)
                           : null,
                       child: message.senderImageUrl == null
-                          ? Text(message.senderName.isNotEmpty
-                          ? message.senderName.substring(0, 1).toUpperCase()
-                          : '?')
+                          ? Text(
+                              message.senderName.isNotEmpty
+                                  ? message.senderName.substring(0, 1).toUpperCase()
+                                  : '?',
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            )
                           : null,
                     ),
-                     SizedBox(width: 8.w),
+                    SizedBox(width: 8.w),
                     Text(
                       message.senderName,
-                      style:  TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                   ],
@@ -432,15 +528,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     : message.content,
                 style: TextStyle(
                   color: message.deleted
-                      ? Colors.grey[600]
+                      ? isDark ? Colors.grey[400] : Colors.grey[600]
                       : isMe
                       ? Colors.white
-                      : Colors.black,
+                      : isDark ? Colors.white : Colors.black,
                   fontStyle: message.deleted ? FontStyle.italic : null,
                   fontSize: 15.sp,
                 ),
               ),
-               SizedBox(height: 4.h),
+              SizedBox(height: 4.h),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Text(
@@ -448,10 +544,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: message.deleted
-                        ? Colors.grey[500]
+                        ? isDark ? Colors.grey[400] : Colors.grey[500]
                         : isMe
                         ? Colors.white70
-                        : Colors.grey[700],
+                        : isDark ? Colors.grey[400] : Colors.grey[700],
                   ),
                 ),
               ),
@@ -519,8 +615,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+      appBar: AppBar(
+        backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+        iconTheme: IconThemeData(
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
       body: Chewie(controller: _chewieController),
     );
   }
@@ -572,10 +676,12 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 16,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Colors.grey[850] : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
@@ -590,25 +696,19 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
                   child: CircularProgressIndicator(
                     value: _progress,
                     strokeWidth: 8,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                    backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(isDark ? Colors.blue[400]! : Colors.blueAccent),
                   ),
                 ),
                 ScaleTransition(
                   scale: Tween(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
-                  child: Icon(Icons.cloud_upload_rounded, color: Colors.blueAccent, size: 40),
+                  child: Icon(
+                    Icons.cloud_upload_rounded,
+                    color: isDark ? Colors.blue[400] : Colors.blueAccent,
+                    size: 40,
+                  ),
                 ),
               ],
-            ),
-             SizedBox(height: 24.h),
-            Text(
-              'Uploading...',
-              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.blueAccent[700]),
-            ),
-             SizedBox(height: 12.h),
-            Text(
-              '${(_progress * 100).toStringAsFixed(0)}%',
-              style:  TextStyle(fontSize: 18.sp, color: Colors.black87),
             ),
           ],
         ),

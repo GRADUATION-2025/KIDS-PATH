@@ -161,7 +161,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
         child: Form(
@@ -174,16 +174,16 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                 children: [
                   Text(
                     "Edit Profile",
-                    style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 32.sp, fontWeight: FontWeight.bold),
                   ),
                   Stack(
                     children: [
                       CircleAvatar(
                         radius: 50.r,
-                        backgroundColor: Colors.grey[300],
+                        backgroundColor: Theme.of(context).cardColor,
                         backgroundImage: _getProfileImage(),
                         child: _imageFile == null && widget.nursery.profileImageUrl == null
-                            ? Icon(Icons.business, size: 50, color: Colors.white)
+                            ? Icon(Icons.business, size: 50, color: Theme.of(context).iconTheme.color?.withOpacity(0.5))
                             : null,
                       ),
                       Positioned(
@@ -193,7 +193,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                           onTap: _pickImage,
                           child: CircleAvatar(
                             radius: 16.r,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).cardColor,
                             child: CircleAvatar(
                               radius: 14.r,
                               backgroundColor: Color(0xFF07C8F9),
@@ -237,7 +237,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
 
               // Programs Section - Added this part
               SizedBox(height: 20.h),
-              Text("Programs", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              Text("Programs", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16)),
               ..._buildProgramFields(),
               Align(
                 alignment: Alignment.centerRight,
@@ -245,7 +245,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                   onPressed: _addProgramField,
                   child: Text(
                     "+ Add Program",
-                    style: TextStyle(color: Colors.blue),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -258,10 +258,10 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                     onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
                     activeColor: Color(0xFF07C8F9),
                   ),
-                  Text("I agree to the ", style: TextStyle(fontSize: 14.sp)),
+                  Text("I agree to the ", style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp)),
                   Text(
                     "Terms of Service",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -339,13 +339,24 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
             Expanded(
               child: TextFormField(
                 controller: _programControllers[index],
-            inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                ],
                 keyboardType: TextInputType.name,
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Programs' : null,
+                style: Theme.of(context).textTheme.bodyLarge,
                 decoration: InputDecoration(
                   hintText: "Enter program name",
-                  border: UnderlineInputBorder(),
+                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                  ),
                 ),
               ),
             ),
@@ -374,7 +385,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
+        Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)),
         TextFormField(
           controller: controller,
           maxLines: maxLines,
@@ -383,9 +394,19 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
           inputFormatters: inputFormatters,
           keyboardType: keyboardtype,
           validator: validator,
+          style: Theme.of(context).textTheme.bodyLarge,
           decoration: InputDecoration(
-            border: UnderlineInputBorder(),
-            hintText: hint
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+            ),
+            hintText: hint,
+            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
           ),
         ),
       ],
@@ -405,12 +426,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text("Age Group", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
+         Text("Age Group", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)),
         Column(
           children: ageGroups.entries.map((entry) {
             return RadioListTile<String>(
 
-              title: Text(entry.value,style: GoogleFonts.inter(fontSize: 15,fontWeight: FontWeight.bold),),
+              title: Text(entry.value,style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 15.sp,fontWeight: FontWeight.bold),),
               value: entry.key,
               groupValue: _selectedAge,
               onChanged: (value) {

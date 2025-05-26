@@ -1,3 +1,4 @@
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,11 +9,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
+
+import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../../LOGIC/Home/home_cubit.dart';
 import '../../../LOGIC/Home/home_state.dart';
 import '../../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_PARENT.dart';
 import '../../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../../WIDGETS/SeeAllNurseriesCard/AllNurseriesCArd.dart';
+import '../../../THEME/theme_provider.dart';
 
 class ShowAllNurseries extends StatefulWidget {
   const ShowAllNurseries({super.key});
@@ -126,6 +131,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   }
 
   void _showFilterDialog() {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     String? tempLocation = _selectedLocation;
     int? tempMinPrice = _minPrice;
     int? tempMaxPrice = _maxPrice;
@@ -137,7 +143,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(25))),
     builder: (context) {
@@ -348,124 +354,155 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
   }
 
   InputDecoration _inputDecoration(String hint, String suffix) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return InputDecoration(
       hintText: hint,
       suffixText: suffix,
       filled: true,
-      fillColor: Colors.grey.shade100,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
+      hintStyle: TextStyle(
+        color: isDark ? Colors.grey[400] : Colors.grey[600],
+      ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.r),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.r),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.r),
-        borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+        borderRadius: BorderRadius.circular(12.r),
+        borderSide: BorderSide(
+          color: isDark ? Colors.blue[400]! : Colors.blue,
+          width: 2,
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+    
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text(
-            "All Nurseries",
-            style: GoogleFonts.inter(
-              fontSize: 25.sp,
-              foreground: Paint()
-                ..shader = AppGradients.Projectgradient.createShader(
-                  const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(100.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // AppBar(
+              //   backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+              //   elevation: 0,
+              //   centerTitle: true,
+              //   automaticallyImplyLeading: false,
+              //   title: ShaderMask(
+              //     shaderCallback: (Rect bounds) {
+              //       return AppGradients.Projectgradient.createShader(
+              //         Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+              //       );
+              //     },
+              //     child: Text(
+              //       'All Nurseries',
+              //       style: TextStyle(
+              //         fontSize: 28.sp,
+              //         fontWeight: FontWeight.bold,
+              //         color: Colors.white,
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              AppBar(
+                backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+                elevation: 0,
+                centerTitle: true,
+                automaticallyImplyLeading: false,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  color: isDark ? Colors.white : Colors.black,
+                  onPressed: () =>  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => BottombarParentScreen()),
+                        (route) => false,
+                  )
                 ),
-            ),
+                title: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return AppGradients.Projectgradient.createShader(
+                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                    );
+                  },
+                  child: Text(
+                    'All Nurseries',
+                    style: TextStyle(
+                      fontSize: 28.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  height: 3.h,
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  margin: EdgeInsets.only(top: 4.h),
+                  decoration: const BoxDecoration(
+                    gradient: AppGradients.Projectgradient,
+                  ),
+                ),
+              ),
+            ],
           ),
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InkWell(
-              onTap: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => BottombarParentScreen()),
-                      (route) => false,
-                );
-              },
-              child: const Icon(Icons.arrow_back, size: 30),
-            ),
-          ),
-          leadingWidth: 35,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Reset Filters',
-              onPressed: () {
-                _searchController.clear();
-                _minPriceController.clear();
-                _maxPriceController.clear();
-                _locationController.clear();
-                setState(() {
-                  _selectedLocation = null;
-                  _minPrice = null;
-                  _maxPrice = null;
-                  _selectedAge = null;
-                  _minRating = null;
-                  _selectedGeoPoint = null;
-                  _searchRadius = 10.0;
-                });
-                FocusScope.of(context).unfocus();
-              },
-            ),
-          ],
         ),
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      keyboardType: TextInputType.name,
-                        inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        hintText: 'Search Nursery by Name',
-                        hintStyle: const TextStyle(color: Colors.black),
-                        prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.black),
-                          borderRadius: BorderRadius.circular(25.r),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.deepPurple),
-                          borderRadius: BorderRadius.circular(25.r),
-                        ),
-                      ),
+              padding: EdgeInsets.all(16.sp),
+              child: TextField(
+                controller: _searchController,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Search nurseries...',
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                    onPressed: _showFilterDialog,
+                  ),
+                  filled: true,
+                  fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: isDark ? Colors.blue[400]! : Colors.blue,
+                      width: 2,
                     ),
                   ),
-                   SizedBox(width: 8.w),
-                  InkWell(
-                    onTap: _showFilterDialog,
-                    child: Container(
-                      height: 50.h,
-                      width: 50.w,
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple,
-                        borderRadius: BorderRadius.circular(25.r),
-                      ),
-                      child: const Icon(Icons.filter_alt, color: Colors.white),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
 
@@ -498,8 +535,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
 
                       // Ratings Filter
                       if (_minRating != null) {
-                        if (nursery.rating == null ||
-                            nursery.rating!.round() != _minRating!) {
+                        if (nursery.rating == null || nursery.rating!.round() < _minRating!) {
                           return false;
                         }
                       }
@@ -551,16 +587,16 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                             Text(
                               "No nurseries found matching your criteria",
                               style: GoogleFonts.inter(
-                                fontSize: 16.sp,
+                                fontSize: 18.sp,
                                 color: Colors.grey[600],
                               ),
                             ),
-                             SizedBox(height: 10.h),
+                             SizedBox(height: 8.h),
                             if (_selectedGeoPoint != null)
                               Text(
                                 "Try increasing your search radius",
                                 style: GoogleFonts.inter(
-                                  fontSize: 13.sp,
+                                  fontSize: 14.sp,
                                   color: Colors.grey[500],
                                 ),
                               ),

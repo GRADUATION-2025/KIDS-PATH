@@ -15,9 +15,9 @@ class NotificationScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => NotificationCubit(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
           title: const _GradientTitle('Notifications'),
         ),
@@ -27,14 +27,14 @@ class NotificationScreen extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (state is NotificationError) {
-              return Center(child: Text(state.message));
+              return Center(child: Text(state.message, style: Theme.of(context).textTheme.bodyLarge));
             }
             if (state is NotificationsLoaded) {
               if (state.notifications.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
                     'No notifications available',
-                    style: TextStyle(color: Colors.grey),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
                   ),
                 );
               }

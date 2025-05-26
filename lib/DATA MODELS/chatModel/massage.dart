@@ -34,13 +34,24 @@ class Message {
   });
 
   factory Message.fromMap(Map<String, dynamic> map) {
+    final timestampData = map['timestamp'];
+    final DateTime messageTimestamp;
+    
+    if (timestampData == null) {
+      messageTimestamp = DateTime.now(); // Default to current time if null
+    } else if (timestampData is Timestamp) {
+      messageTimestamp = timestampData.toDate();
+    } else {
+      messageTimestamp = DateTime.now(); // Fallback for unexpected types
+    }
+
     return Message(
       id: map['id'] ?? '',
       senderId: map['senderId'] ?? '',
       senderName: map['senderName'] ?? '',
       senderImageUrl: map['senderImageUrl'],
       content: map['content'] ?? '',
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
+      timestamp: messageTimestamp,
       isRead: map['isRead'] ?? false,
       deleted: map['deleted'] ?? false,
       senderType: map['senderType'] ?? 'parent',
@@ -71,9 +82,11 @@ class Message {
     };
   }
 
-  // Helper to check if message can be deleted by current user
-  bool canDelete(String currentUserId, bool isCurrentUserNursery) {
-    if (deleted) return false;
-    return isCurrentUserNursery || senderId == currentUserId;
+  bool canDelete(String userId, bool isNursery) {
+    // Nurseries can delete any message in their chat
+    if (isNursery) return true;
+    
+    // Users can only delete their own messages
+    return senderId == userId;
   }
 }

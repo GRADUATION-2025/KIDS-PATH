@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 
 import '../../../../DATA MODELS/Child Model/Child Model.dart';
 import '../../../../LOGIC/child/child_cubit.dart';
 import '../../../../LOGIC/child/child_state.dart';
+import '../../../../THEME/theme_provider.dart';
 
 class ChildDataScreen extends StatefulWidget {
   const ChildDataScreen({super.key});
@@ -44,11 +46,12 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
 
   void _showChildForm({Child? child}) {
     final isEditing = child != null;
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
 
     if (isEditing) {
       nameController.text = child.name;
       ageController.text = child.age.toString();
-      selectedGender = child?.gender; // set from existing child or null
+      selectedGender = child?.gender;
     } else {
       nameController.clear();
       ageController.clear();
@@ -59,7 +62,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: isDark ? Colors.grey[850] : Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           titlePadding: const EdgeInsets.all(0),
           title: Container(
@@ -75,7 +78,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
             child: Row(
               children: [
                 Icon(isEditing ? Icons.edit : Icons.person_add, color: Colors.white),
-                 SizedBox(width: 10.w),
+                SizedBox(width: 10.w),
                 Text(
                   isEditing ? 'Edit Child' : 'Add New Child',
                   style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.sp),
@@ -89,46 +92,73 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   SizedBox(height: 10.h),
+                  SizedBox(height: 10.h),
                   TextFormField(
                     controller: nameController,
                     keyboardType: TextInputType.name,
                     maxLength: 42,
-                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
+                    inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black),
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.person),
+                      prefixIcon: Icon(Icons.person, color: isDark ? Colors.grey[400] : Colors.grey[600]),
                       labelText: 'Child Name',
+                      labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: isDark ? Colors.blue[400]! : Colors.blue),
+                      ),
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[800] : Colors.grey[50],
                     ),
                     validator: (value) => value == null || value.isEmpty ? 'Enter name' : null,
                   ),
-                   SizedBox(height: 16.h),
+                  SizedBox(height: 16.h),
                   TextFormField(
                     controller: ageController,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black),
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.cake),
+                      prefixIcon: Icon(Icons.cake, color: isDark ? Colors.grey[400] : Colors.grey[600]),
                       labelText: 'Child Age',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: isDark ? Colors.blue[400]! : Colors.blue),
+                      ),
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[800] : Colors.grey[50],
                     ),
                     keyboardType: TextInputType.number,
                     maxLength: 1,
                     validator: (value) => value == null || value.isEmpty ? 'Enter age' : null,
                   ),
-                   SizedBox(height: 16.h),
+                  SizedBox(height: 16.h),
                   DropdownButtonFormField<String>(
                     value: selectedGender,
                     isExpanded: true,
                     hint: Text(
                       'Select Gender',
-                      style: GoogleFonts.inter(color: Colors.black),
+                      style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
                     ),
                     items: genderOptions.map((gender) {
                       return DropdownMenuItem<String>(
                         value: gender,
                         child: Text(
                           gender,
-                          style: GoogleFonts.poppins(fontSize: 16.sp),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16.sp,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -139,22 +169,25 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                     },
                     decoration: InputDecoration(
                       labelText: 'Gender',
-                      prefixIcon: const Icon(Icons.wc),
+                      labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                      prefixIcon: Icon(Icons.wc, color: isDark ? Colors.grey[400] : Colors.grey[600]),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: const BorderSide(),
+                        borderSide: BorderSide(color: isDark ? Colors.blue[400]! : Colors.blue),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: const BorderSide(),
+                        borderSide: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                       ),
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[800] : Colors.grey[50],
                     ),
-                    icon: const Icon(Icons.arrow_drop_down),
-                    dropdownColor: Colors.white,
-                    style: GoogleFonts.poppins(color: Colors.black),
+                    icon: Icon(Icons.arrow_drop_down, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                    dropdownColor: isDark ? Colors.grey[850] : Colors.white,
+                    style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black),
                     elevation: 4,
                     borderRadius: BorderRadius.circular(12.r),
                     validator: (value) => value == null || value.isEmpty ? 'Select gender' : null,
@@ -166,7 +199,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600])),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -203,7 +236,10 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                   Navigator.pop(context);
                 }
               },
-              child: Text(isEditing ? 'Save' : 'Add',style: GoogleFonts.inter(color: Colors.white,fontWeight: FontWeight.bold),),
+              child: Text(
+                isEditing ? 'Save' : 'Add',
+                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -213,7 +249,10 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    
     return Scaffold(
+      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
@@ -242,10 +281,12 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
             child: ListView(
               children: [
                 if (state is ChildLoading)
-                  const Center(child: CircularProgressIndicator()),
+                  Center(child: CircularProgressIndicator(
+                    color: isDark ? Colors.blue[400] : Colors.blue,
+                  )),
                 if (state is ChildLoaded)
                   ...state.children.map(
-                        (child) => Card(
+                    (child) => Card(
                       elevation: 5,
                       margin: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -302,7 +343,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                       ),
                     ),
                   ),
-                 SizedBox(height: 20.h),
+                SizedBox(height: 20.h),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -311,7 +352,7 @@ class _ChildDataScreenState extends State<ChildDataScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
                   ),
                   onPressed: () => _showChildForm(),
-                  child:  Text(
+                  child: Text(
                     "Add New Child",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
                   ),

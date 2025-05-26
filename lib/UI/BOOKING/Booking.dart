@@ -39,65 +39,150 @@ class _BookingScreenState extends State<BookingScreen> {
     if (parentId.isNotEmpty) {
       context.read<ChildCubit>().fetchChildren(parentId);
     }
+    if (!_isValidDate(_selectedDate)) {
+      _selectedDate = _selectedDate.add(const Duration(days: 1));
+      _focusedDate = _selectedDate;
+    }
+  }
+
+  bool _isValidTime(TimeOfDay time) {
+    // Nursery operating hours: 8 AM to 4 PM
+    return time.hour >= 8 && time.hour <= 16;
   }
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              hourMinuteTextColor: Theme.of(context).textTheme.bodyLarge?.color,
+              dayPeriodTextColor: Theme.of(context).textTheme.bodyLarge?.color,
+              dialHandColor: Theme.of(context).colorScheme.primary,
+              dialBackgroundColor: Theme.of(context).cardColor,
+              dialTextColor: Theme.of(context).textTheme.bodyLarge?.color,
+              entryModeIconColor: Theme.of(context).iconTheme.color,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (picked != null) {
-      setState(() => _selectedTime = picked);
+      if (_isValidTime(picked)) {
+        setState(() => _selectedTime = picked);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a time between 8 AM and 4 PM')),
+          );
+        }
+      }
     }
+  }
+
+  bool _isValidDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedDate = DateTime(date.year, date.month, date.day);
+    
+    // Check if it's a weekend
+    bool isWeekend = date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    
+    return !isWeekend && (selectedDate.isAfter(today) || selectedDate.isAtSameMomentAs(today));
+  }
+
+  String _getFormattedTimeRange(TimeOfDay start) {
+    final end = TimeOfDay(
+      hour: (start.hour + 4) % 24,
+      minute: start.minute,
+    );
+    return '${start.format(context)} - ${end.format(context)}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
-        preferredSize:  Size.fromHeight(50.h),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: AppGradients.Projectgradient,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+        preferredSize: Size.fromHeight(100.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 0,
+              centerTitle: true,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              title: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return AppGradients.Projectgradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  );
+                },
+                child: Column(
+                  children: [
+                    Text(
+                      'Book Interview',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 32.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      widget.nurseryName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 16.sp,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          centerTitle: true,
-          title: Text(
-            'Book ${widget.nurseryName}',
-            style:  TextStyle(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                height: 2.h,
+                width: MediaQuery.of(context).size.width / 2,
+                decoration: const BoxDecoration(
+                  gradient: AppGradients.Projectgradient,
+                ),
+              ),
             ),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
+          ],
         ),
       ),
-
       body: MultiBlocListener(
         listeners: [
           BlocListener<BookingCubit, BookingState>(
             listener: (context, state) {
               if (state is BookingCreated) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Booking request sent!')),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Booking request sent!')),
+                  );
+                }
               } else if (state is BookingError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                }
               }
             },
           ),
@@ -110,200 +195,276 @@ class _BookingScreenState extends State<BookingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Calendar
                     TableCalendar(
                       focusedDay: _focusedDate,
-                      firstDay: DateTime.utc(2020, 1, 1),
-                      lastDay: DateTime.utc(2100, 12, 31),
+                      firstDay: DateTime.now(),
+                      lastDay: DateTime.now().add(const Duration(days: 30)),
                       calendarFormat: CalendarFormat.month,
                       startingDayOfWeek: StartingDayOfWeek.sunday,
                       selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
+                      enabledDayPredicate: (day) => _isValidDate(day),
                       onDaySelected: (selectedDay, focusedDay) {
-                        setState(() {
-                          _selectedDate = selectedDay;
-                          _focusedDate = focusedDay;
-                        });
+                        if (_isValidDate(selectedDay)) {
+                          setState(() {
+                            _selectedDate = selectedDay;
+                            _focusedDate = focusedDay;
+                          });
+                        } else {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Cannot select weekends or past dates'),
+                              ),
+                            );
+                          }
+                        }
                       },
-                      headerStyle:  HeaderStyle(
+                      headerStyle: HeaderStyle(
                         formatButtonVisible: false,
                         titleCentered: true,
-                        titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+                        titleTextStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        leftChevronIcon: Icon(
+                          Icons.chevron_left,
+                          color: Theme.of(context).iconTheme.color,
+                        ),
+                        rightChevronIcon: Icon(
+                          Icons.chevron_right,
+                          color: Theme.of(context).iconTheme.color,
+                        ),
                       ),
                       calendarStyle: CalendarStyle(
+                        defaultTextStyle: Theme.of(context).textTheme.bodyMedium!,
+                        weekendTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                        ),
+                        outsideTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                        ),
+                        disabledTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).disabledColor,
+                          decoration: TextDecoration.lineThrough,
+                        ),
                         todayDecoration: BoxDecoration(
-                          color: Colors.blue.shade100,
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
-                        selectedDecoration: const BoxDecoration(
-                          color: Colors.blue,
+                        selectedDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
-                        selectedTextStyle: const TextStyle(color: Colors.white),
+                        selectedTextStyle: TextStyle(color: Colors.white),
+                        todayTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      daysOfWeekStyle: const DaysOfWeekStyle(
-                        weekdayStyle: TextStyle(fontWeight: FontWeight.bold),
+                      daysOfWeekStyle: DaysOfWeekStyle(
+                        weekdayStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        weekendStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                        ),
                       ),
                     ),
-                     SizedBox(height: 20.h),
-
-                    // Time Picker
-                     Text('Select Time', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
-                     SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Start'),
-                              GestureDetector(
-                                onTap: () => _selectTime(context),
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade300),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    _selectedTime.format(context),
-                                    style:  TextStyle(fontSize: 16.sp),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                         SizedBox(width: 10.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('End'),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  TimeOfDay(
-                                    hour: (_selectedTime.hour + 4) % 24,
-                                    minute: _selectedTime.minute,
-                                  ).format(context),
-                                  style:  TextStyle(fontSize: 16.sp),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 20.h),
+                    Text(
+                      'Select Time',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                     SizedBox(height: 20.h),
-
-                    // Child Selection
-                     Text('Select Child', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
-                     SizedBox(height: 10.h),
+                    SizedBox(height: 10.h),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Theme.of(context).dividerColor),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Interview Duration: 4 hours',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          InkWell(
+                            onTap: () => _selectTime(context),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _getFormattedTimeRange(_selectedTime),
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.access_time,
+                                  color: Theme.of(context).iconTheme.color,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                    Text(
+                      'Select Child',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
                     BlocBuilder<ChildCubit, ChildState>(
                       builder: (context, state) {
-                        if (state is ChildLoaded) {
-                          return DropdownButtonFormField<Child>(
-                            value: _selectedChild,
-                            items: state.children.map((child) {
-                              return DropdownMenuItem<Child>(
-                                value: child,
-                                child: Text(child.name),
+                        if (state is  ChildLoaded) {
+                          return Column(
+                            children: state.children.map((child) {
+                              final isSelected = _selectedChild?.id == child.id;
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 10.h),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                                      : Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context).dividerColor,
+                                  ),
+                                ),
+                                child: ListTile(
+                                  onTap: () => setState(() => _selectedChild = child),
+                                  title: Text(
+                                    child.name,
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    '${child.age} years old - ${child.gender}',
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                  trailing: isSelected
+                                      ? Icon(
+                                          Icons.check_circle,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        )
+                                      : null,
+                                ),
                               );
                             }).toList(),
-                            onChanged: (child) => setState(() => _selectedChild = child),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.blue.shade50,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue.shade300),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue.shade300),
-                              ),
-                              labelText: 'Choose a child',
-                              labelStyle: const TextStyle(color: Colors.blue),
-                            ),
-                            iconEnabledColor: Colors.blue,
-                            dropdownColor: Colors.white,
-                            style:  TextStyle(color: Colors.black, fontSize: 16.sp),
                           );
                         } else if (state is ChildError) {
-                          return Text(state.message);
+                          return Text(
+                            state.message,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          );
                         }
                         return const Center(child: CircularProgressIndicator());
                       },
                     ),
-                     SizedBox(height: 30.h),
-
-BlocBuilder<BookingCubit, BookingState>(
-  builder: (context, state) {
-    final isLoading = state is BookingLoading;
-
-    return GestureDetector(
-      onTap: isLoading
-          ? null
-          : () {
-        if (_selectedChild == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please select a child')),
-          );
-          return;
-        }
-
-        final dateTime = DateTime(
-          _selectedDate.year,
-          _selectedDate.month,
-          _selectedDate.day,
-          _selectedTime.hour,
-          _selectedTime.minute,
-        );
-
-        context.read<BookingCubit>().createBooking(
-          dateTime: dateTime,
-          nurseryId: widget.nurseryId,
-          nurseryName: widget.nurseryName,
-          child: _selectedChild!,
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: isLoading
-            ? BoxDecoration(
-          color: Colors.grey.shade400,
-          borderRadius: BorderRadius.circular(12),
-        )
-            : AppGradients.buttonGradient,
-        alignment: Alignment.center,
-        child: isLoading
-            ?  SizedBox(
-          height: 24.h,
-          width: 24.w,
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            strokeWidth: 2.5,
-          ),
-        )
-            :  Text(
-          'Done',
-          style: TextStyle(
-            fontSize: 18.sp,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }),
-              ]),
+                  ],
+                ),
+              ),
             ),
-            )],
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: BlocBuilder<BookingCubit, BookingState>(
+                builder: (context, state) {
+                  final isLoading = state is BookingLoading;
+                  return Container(
+                    width: double.infinity,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      gradient: isLoading ? null : AppGradients.Projectgradient,
+                      color: isLoading ? Theme.of(context).disabledColor : null,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: isLoading
+                            ? null
+                            : () {
+                                if (_selectedChild == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please select a child')),
+                                  );
+                                  return;
+                                }
+
+                                if (!_isValidDate(_selectedDate)) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please select a valid date')),
+                                  );
+                                  return;
+                                }
+
+                                if (!_isValidTime(_selectedTime)) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please select a time between 8 AM and 4 PM')),
+                                  );
+                                  return;
+                                }
+
+                                final dateTime = DateTime(
+                                  _selectedDate.year,
+                                  _selectedDate.month,
+                                  _selectedDate.day,
+                                  _selectedTime.hour,
+                                  _selectedTime.minute,
+                                );
+
+                                context.read<BookingCubit>().createBooking(
+                                  dateTime: dateTime,
+                                  nurseryId: widget.nurseryId,
+                                  nurseryName: widget.nurseryName,
+                                  child: _selectedChild!,
+                                );
+                              },
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: Center(
+                          child: isLoading
+                              ? SizedBox(
+                                  height: 24.h,
+                                  width: 24.w,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  'Done',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontSize: 18.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

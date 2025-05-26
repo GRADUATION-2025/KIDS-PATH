@@ -36,41 +36,10 @@ class NotificationCubit extends Cubit<NotificationState> {
           .map((doc) => NotificationModel.fromFirestore(doc))
           .toList();
 
-      if (notifications.isNotEmpty) {
-        final latest = notifications.first;
-        if (!latest.isRead) {
-          await _sendPushNotification(
-            title: latest.title,
-            message: latest.message,
-            data: {
-              'type': latest.type,
-              'childName': latest.childName,
-              'bookingId': latest.bookingId,
-            },
-          );
-        }
-      }
-
       emit(NotificationsLoaded(notifications));
     }, onError: (error) {
       emit(NotificationError('Failed to load notifications: $error'));
     });
-  }
-
-  Future<void> _sendPushNotification({
-    required String title,
-    required String message,
-    Map<String, dynamic>? data,
-  }) async {
-    try {
-      await _oneSignalService.sendTestNotification(
-        title: title,
-        message: message,
-        data: data,
-      );
-    } catch (e) {
-      print('Error sending notification: $e');
-    }
   }
 
   Future<void> markAsRead(String notificationId) async {

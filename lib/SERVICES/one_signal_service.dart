@@ -1,3 +1,400 @@
+// // import 'package:firebase_auth/firebase_auth.dart';
+// // import 'package:onesignal_flutter/onesignal_flutter.dart';
+// // import 'package:flutter/material.dart';
+// // import 'package:cloud_firestore/cloud_firestore.dart';
+// // import 'package:http/http.dart' as http;
+// // import 'dart:convert';
+// //
+// // import 'package:shared_preferences/shared_preferences.dart';
+// //
+// // class OneSignalService {
+// //   static const String _appId = '6445d2e4-c795-47ef-8810-80ee242dc83c';
+// //   static const String _restApiKey = 'os_v2_app_mrc5fzghsvd67caqqdxciloihr5hcdpracluuj5akx56mt63senrrjcyer4r6kpzew66ypfroradaft5ybongjqqdd2m4jyb5t57piy';
+// //   static final OneSignalService _instance = OneSignalService._internal();
+// //
+// //   factory OneSignalService() => _instance;
+// //
+// //   OneSignalService._internal();
+// //
+// //   Future<void> initialize() async {
+// //     try {
+// //       // Initialize OneSignal
+// //       OneSignal.initialize(_appId);
+// //
+// //       // Enable notifications
+// //       await OneSignal.Notifications.requestPermission(true);
+// //
+// //       // Set up notification handlers
+// //       OneSignal.Notifications.clearAll();
+// //
+// //       OneSignal.Notifications.addPermissionObserver((state) {
+// //         debugPrint('Permission state changed: ${state.hasPrompted} ${state.status}');
+// //       });
+// //
+// //       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+// //         debugPrint('Foreground notification received: ${event.notification.title}');
+// //         debugPrint('Notification data: ${event.notification.additionalData}');
+// //         event.notification.display();
+// //       });
+// //
+// //       // Set up notification opened handler
+// //       OneSignal.Notifications.addClickListener((event) {
+// //         debugPrint('Notification clicked with data: ${event.notification.additionalData}');
+// //       });
+// //
+// //       // Get and store the player ID
+// //       final deviceState = await OneSignal.User.pushSubscription;
+// //       if (deviceState.id != null) {
+// //         await _storePlayerId(deviceState.id!);
+// //         debugPrint('Device state: ${deviceState.id}, ${deviceState.optedIn}');
+// //       } else {
+// //         debugPrint('No device token available during initialization');
+// //       }
+// //
+// //       // Set external user ID if user is logged in
+// //       final currentUser = FirebaseAuth.instance.currentUser;
+// //       if (currentUser != null) {
+// //         await setExternalUserId(currentUser.uid);
+// //       }
+// //
+// //       debugPrint('OneSignal initialized successfully');
+// //     } catch (e) {
+// //       debugPrint('Error initializing OneSignal: $e');
+// //       rethrow;
+// //     }
+// //   }
+// //
+// //   Future<void> _storePlayerId(String playerId) async {
+// //     try {
+// //       final user = FirebaseAuth.instance.currentUser;
+// //       if (user != null) {
+// //         await FirebaseFirestore.instance
+// //             .collection('users')
+// //             .doc(user.uid)
+// //             .set({
+// //           'oneSignalPlayerId': playerId,
+// //           'lastUpdated': FieldValue.serverTimestamp()
+// //         }, SetOptions(merge: true));
+// //         debugPrint('OneSignal player ID stored in Firestore for user: ${user.uid}');
+// //       }
+// //     } catch (e) {
+// //       debugPrint('Error storing player ID: $e');
+// //     }
+// //   }
+// //
+// //   Future<void> setExternalUserId(String? userId) async {
+// //     try {
+// //       if (userId != null) {
+// //         await OneSignal.login(userId);
+// //         debugPrint('OneSignal external user ID set: $userId');
+// //
+// //         // Get and store the player ID
+// //         final deviceState = await OneSignal.User.pushSubscription;
+// //         if (deviceState.id != null) {
+// //           await _storePlayerId(deviceState.id!);
+// //         }
+// //       } else {
+// //         await OneSignal.logout();
+// //         debugPrint('OneSignal external user ID cleared');
+// //       }
+// //     } catch (e) {
+// //       debugPrint('Error setting OneSignal external user ID: $e');
+// //       rethrow;
+// //     }
+// //   }
+// //
+// //   Future<void> setUserRole(String role) async {
+// //     try {
+// //       await OneSignal.User.addTags({'role': role});
+// //       debugPrint('OneSignal user role set: $role');
+// //     } catch (e) {
+// //       debugPrint('Error setting OneSignal user role: $e');
+// //       rethrow;
+// //     }
+// //   }
+// //
+// //   Future<void> sendNotificationToUser({
+// //     required String userId,
+// //     required String title,
+// //     required String message,
+// //     Map<String, dynamic>? data,
+// //   }) async {
+// //     try {
+// //       // Get the user's OneSignal player ID from Firestore
+// //       final userDoc = await FirebaseFirestore.instance
+// //           .collection('users')
+// //           .doc(userId)
+// //           .get();
+// //
+// //       if (!userDoc.exists) {
+// //         debugPrint('User document not found');
+// //         return;
+// //       }
+// //
+// //       final oneSignalPlayerId = userDoc.data()?['oneSignalPlayerId'];
+// //       if (oneSignalPlayerId == null) {
+// //         debugPrint('User does not have a OneSignal player ID');
+// //         return;
+// //       }
+// //
+// //       final response = await http.post(
+// //         Uri.parse('https://onesignal.com/api/v1/notifications'),
+// //         headers: {
+// //           'Content-Type': 'application/json',
+// //           'Authorization': 'Basic $_restApiKey',
+// //         },
+// //         body: jsonEncode({
+// //           'app_id': _appId,
+// //           'include_player_ids': [oneSignalPlayerId],
+// //           'contents': {'en': message},
+// //           'headings': {'en': title},
+// //           'data': data,
+// //         }),
+// //       );
+// //
+// //       if (response.statusCode == 200) {
+// //         debugPrint('Notification sent successfully to user: $userId');
+// //       } else {
+// //         throw Exception('Failed to send notification: ${response.body}');
+// //       }
+// //     } catch (e) {
+// //       debugPrint('Error sending notification to user: $e');
+// //       rethrow;
+// //     }
+// //   }
+// //
+// //   Future<String?> getDevicePushToken() async {
+// //     try {
+// //       final deviceState = await OneSignal.User.pushSubscription;
+// //       debugPrint('Push token: ${deviceState.id}');
+// //       debugPrint('Notifications enabled: ${deviceState.optedIn}');
+// //       return deviceState.id;
+// //     } catch (e) {
+// //       debugPrint('Error getting device push token: $e');
+// //       return null;
+// //     }
+// //   }
+// //
+// //   Future<bool> areNotificationsEnabled() async {
+// //     try {
+// //       final deviceState = await OneSignal.User.pushSubscription;
+// //       debugPrint('Notifications enabled: ${deviceState.optedIn}');
+// //       return deviceState.optedIn ?? false;
+// //     } catch (e) {
+// //       debugPrint('Error checking notifications status: $e');
+// //       return false;
+// //     }
+// //   }
+// // }
+// //
+// // extension on bool {
+// //   get status => null;
+// //
+// //   get hasPrompted => null;
+// // }
+//
+//
+//
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:onesignal_flutter/onesignal_flutter.dart';
+// import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+//
+// class OneSignalService {
+//   static const String _appId = '6445d2e4-c795-47ef-8810-80ee242dc83c';
+//   static final OneSignalService _instance = OneSignalService._internal();
+//
+//   factory OneSignalService() => _instance;
+//
+//   OneSignalService._internal();
+//
+//   Future<void> initialize() async {
+//     try {
+//       // Initialize OneSignal
+//       OneSignal.initialize(_appId);
+//
+//       // Request notification permission
+//       OneSignal.Notifications.requestPermission(true);
+//
+//       // Listen for subscription changes
+//       OneSignal.User.pushSubscription.addObserver((state) {
+//         debugPrint('Push subscription state changed: ${state.toString()}');
+//         final pushToken = OneSignal.User.pushSubscription.id;
+//         if (pushToken != null) {
+//           _storePlayerId(pushToken);
+//         }
+//       });
+//
+//       // Set up foreground notification handler
+//       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+//         debugPrint('Foreground notification received: ${event.notification.title}');
+//         debugPrint('Notification data: ${event.notification.additionalData}');
+//
+//         // Check if the notification is for the current user
+//         final currentUser = FirebaseAuth.instance.currentUser;
+//         if (currentUser != null) {
+//           final notificationUserId = event.notification.additionalData?['userId'];
+//           if (notificationUserId != null && notificationUserId != currentUser.uid) {
+//             // Prevent notification from showing if it's not for the current user
+//             event.preventDefault();
+//             debugPrint('Prevented notification for different user');
+//             return;
+//           }
+//         }
+//       });
+//
+//       // Set up notification opened handler
+//       OneSignal.Notifications.addClickListener((event) {
+//         debugPrint('Notification clicked with data: ${event.notification.additionalData}');
+//         // Handle notification click here
+//       });
+//
+//       // Check if notifications are enabled and store player ID
+//       final pushToken = OneSignal.User.pushSubscription.id;
+//       debugPrint('Notifications enabled: ${OneSignal.User.pushSubscription.optedIn}');
+//       if (pushToken != null) {
+//         await _storePlayerId(pushToken);
+//       }
+//
+//       // Set external user ID if user is logged in
+//       final currentUser = FirebaseAuth.instance.currentUser;
+//       if (currentUser != null) {
+//         await setExternalUserId(currentUser.uid);
+//       }
+//     } catch (e) {
+//       debugPrint('Error initializing OneSignal: $e');
+//       rethrow;
+//     }
+//   }
+//
+//   Future<void> _storePlayerId(String playerId) async {
+//     try {
+//       final user = FirebaseAuth.instance.currentUser;
+//       if (user != null) {
+//         await FirebaseFirestore.instance
+//             .collection('users')
+//             .doc(user.uid)
+//             .update({
+//           'oneSignalPlayerId': playerId,
+//           'lastUpdated': FieldValue.serverTimestamp()
+//         });
+//         debugPrint('OneSignal player ID stored in Firestore for user: ${user.uid}');
+//       }
+//     } catch (e) {
+//       debugPrint('Error storing player ID: $e');
+//     }
+//   }
+//
+//   Future<void> setExternalUserId(String? userId) async {
+//     try {
+//       if (userId != null) {
+//         // First logout to clear any existing user
+//         await OneSignal.logout();
+//
+//         // Wait a bit to ensure logout is complete
+//         await Future.delayed(const Duration(milliseconds: 2000));
+//
+//         // Then login with the new user ID
+//         await OneSignal.login(userId);
+//         debugPrint('OneSignal external user ID set: $userId');
+//
+//         // Get and store the player ID
+//         final pushToken = OneSignal.User.pushSubscription.id;
+//         if (pushToken != null) {
+//           await _storePlayerId(pushToken);
+//         }
+//       } else {
+//         await OneSignal.logout();
+//         debugPrint('OneSignal external user ID cleared');
+//       }
+//     } catch (e) {
+//       debugPrint('Error setting OneSignal external user ID: $e');
+//       rethrow;
+//     }
+//   }
+//
+//   Future<void> setUserRole(String role) async {
+//     try {
+//       await OneSignal.User.addTags({'role': role});
+//       debugPrint('OneSignal user role set: $role');
+//
+//       // Verify the tag was set
+//       final tags = await OneSignal.User.getTags();
+//       debugPrint('Current tags: $tags');
+//     } catch (e) {
+//       debugPrint('Error setting OneSignal user role: $e');
+//       rethrow;
+//     }
+//   }
+//
+//   Future<void> sendTestNotification({
+//     required String title,
+//     required String message,
+//     Map<String, dynamic>? data,
+//   }) async {
+//     try {
+//       // Create notification content
+//       final notificationContent = {
+//         'contents': {'en': message},
+//         'headings': {'en': title},
+//         'data': data ?? {},
+//       };
+//
+//       // Send notification using the REST API
+//       final tags = {
+//         'last_notification_title': title,
+//         'last_notification_message': message,
+//       };
+//
+//       await OneSignal.User.addTags(tags);
+//       debugPrint('Test notification sent successfully');
+//     } catch (e) {
+//       debugPrint('Error sending test notification: $e');
+//       rethrow;
+//     }
+//   }
+//
+//   // Method to get the device push token
+//   String? getDevicePushToken() {
+//     try {
+//       final pushToken = OneSignal.User.pushSubscription.id;
+//       debugPrint('Push token: $pushToken');
+//       debugPrint('Notifications enabled: ${OneSignal.User.pushSubscription.optedIn}');
+//       return pushToken;
+//     } catch (e) {
+//       debugPrint('Error getting device push token: $e');
+//       return null;
+//     }
+//   }
+//
+//   // Method to check if notifications are enabled
+//   bool areNotificationsEnabled() {
+//     try {
+//       debugPrint('Notifications enabled: ${OneSignal.User.pushSubscription.optedIn}');
+//       debugPrint('Push token: ${OneSignal.User.pushSubscription.id}');
+//       return OneSignal.User.pushSubscription.optedIn ?? false;
+//     } catch (e) {
+//       debugPrint('Error checking notification status: $e');
+//       return false;
+//     }
+//   }
+//
+//   // Method to retry requesting notification permission
+//   Future<bool> retryNotificationPermission() async {
+//     try {
+//       final permission = await OneSignal.Notifications.requestPermission(true);
+//       debugPrint('Notification permission status: $permission');
+//       return permission;
+//     } catch (e) {
+//       debugPrint('Error requesting notification permission: $e');
+//       return false;
+//     }
+//   }
+// }
+
+
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:flutter/material.dart';
@@ -13,20 +410,20 @@ class OneSignalService {
 
   Future<void> initialize() async {
     try {
-      // Set log level to verbose for debugging
-      OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-
       // Initialize OneSignal
       OneSignal.initialize(_appId);
 
-      // Set notification display settings
-      OneSignal.Notifications.setDisplayType(OSNotificationDisplayType.notification);
+      // Request notification permission
+      OneSignal.Notifications.requestPermission(true);
 
-      // Request notification permission with retry logic
-      bool permissionGranted = await _requestNotificationPermission();
-      if (!permissionGranted) {
-        debugPrint('Initial notification permission request failed, will retry later');
-      }
+      // Listen for subscription changes
+      OneSignal.User.pushSubscription.addObserver((state) {
+        debugPrint('Push subscription state changed: ${state.toString()}');
+        final pushToken = OneSignal.User.pushSubscription.id;
+        if (pushToken != null) {
+          _storePlayerId(pushToken);
+        }
+      });
 
       // Set up foreground notification handler
       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
@@ -44,19 +441,20 @@ class OneSignalService {
             return;
           }
         }
-
-        // Or you can modify the notification:
-        event.notification.displayType = OSNotificationDisplayType.notification;
       });
 
       // Set up notification opened handler
       OneSignal.Notifications.addClickListener((event) {
         debugPrint('Notification clicked with data: ${event.notification.additionalData}');
+        // Handle notification click here
       });
 
       // Check if notifications are enabled and store player ID
-      final deviceState = await OneSignal.User.pushSubscription;
-      debugPrint('Notifications enabled: ${deviceState.optedIn}');
+      final pushToken = OneSignal.User.pushSubscription.id;
+      debugPrint('Notifications enabled: ${OneSignal.User.pushSubscription.optedIn}');
+      if (pushToken != null) {
+        await _storePlayerId(pushToken);
+      }
 
       // Set external user ID if user is logged in
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -66,17 +464,6 @@ class OneSignalService {
     } catch (e) {
       debugPrint('Error initializing OneSignal: $e');
       rethrow;
-    }
-  }
-
-  Future<bool> _requestNotificationPermission() async {
-    try {
-      final permission = await OneSignal.Notifications.requestPermission(true);
-      debugPrint('Notification permission status: $permission');
-      return permission;
-    } catch (e) {
-      debugPrint('Error requesting notification permission: $e');
-      return false;
     }
   }
 
@@ -101,13 +488,20 @@ class OneSignalService {
   Future<void> setExternalUserId(String? userId) async {
     try {
       if (userId != null) {
+        // First logout to clear any existing user
+        await OneSignal.logout();
+
+        // Wait a bit to ensure logout is complete
+        await Future.delayed(const Duration(milliseconds: 2000));
+
+        // Then login with the new user ID
         await OneSignal.login(userId);
         debugPrint('OneSignal external user ID set: $userId');
 
         // Get and store the player ID
-        final deviceState = await OneSignal.User.pushSubscription;
-        if (deviceState.id != null) {
-          await _storePlayerId(deviceState.id!);
+        final pushToken = OneSignal.User.pushSubscription.id;
+        if (pushToken != null) {
+          await _storePlayerId(pushToken);
         }
       } else {
         await OneSignal.logout();
@@ -153,7 +547,6 @@ class OneSignalService {
       };
 
       await OneSignal.User.addTags(tags);
-
       debugPrint('Test notification sent successfully');
     } catch (e) {
       debugPrint('Error sending test notification: $e');
@@ -162,13 +555,12 @@ class OneSignalService {
   }
 
   // Method to get the device push token
-  Future<String?> getDevicePushToken() async {
+  String? getDevicePushToken() {
     try {
-      final deviceState = await OneSignal.User.pushSubscription;
-      debugPrint('Push token: ${deviceState.id}');
-      debugPrint('Notifications enabled: ${deviceState.optedIn}');
-      debugPrint('External user ID: ${deviceState.externalUserId}');
-      return deviceState.id;
+      final pushToken = OneSignal.User.pushSubscription.id;
+      debugPrint('Push token: $pushToken');
+      debugPrint('Notifications enabled: ${OneSignal.User.pushSubscription.optedIn}');
+      return pushToken;
     } catch (e) {
       debugPrint('Error getting device push token: $e');
       return null;
@@ -176,13 +568,11 @@ class OneSignalService {
   }
 
   // Method to check if notifications are enabled
-  Future<bool> areNotificationsEnabled() async {
+  bool areNotificationsEnabled() {
     try {
-      final deviceState = await OneSignal.User.pushSubscription;
-      debugPrint('Notifications enabled: ${deviceState.optedIn}');
-      debugPrint('Push token: ${deviceState.id}');
-      debugPrint('External user ID: ${deviceState.externalUserId}');
-      return deviceState.optedIn ?? false;
+      debugPrint('Notifications enabled: ${OneSignal.User.pushSubscription.optedIn}');
+      debugPrint('Push token: ${OneSignal.User.pushSubscription.id}');
+      return OneSignal.User.pushSubscription.optedIn ?? false;
     } catch (e) {
       debugPrint('Error checking notification status: $e');
       return false;
@@ -191,18 +581,13 @@ class OneSignalService {
 
   // Method to retry requesting notification permission
   Future<bool> retryNotificationPermission() async {
-    return await _requestNotificationPermission();
+    try {
+      final permission = await OneSignal.Notifications.requestPermission(true);
+      debugPrint('Notification permission status: $permission');
+      return permission;
+    } catch (e) {
+      debugPrint('Error requesting notification permission: $e');
+      return false;
+    }
   }
 }
-
-extension on OneSignalNotifications {
-  void setDisplayType(OSNotificationDisplayType notification) {}
-}
-
-extension on OSNotification {
-  set displayType(OSNotificationDisplayType displayType) {}
-}
-
-extension on OneSignalPushSubscription {
-  get externalUserId => null;
-}   

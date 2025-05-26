@@ -197,22 +197,43 @@ class _LoginScreenState extends State<LoginScreen> {
         bool obscureText = false,
         String? Function(String?)? validator,
       }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      style: const TextStyle(color: Colors.black),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.black),
-        prefixIcon: Icon(icon, color: Color(0xFF08203E)),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide.none,
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color?.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        validator: validator,
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+          fontSize: 16.sp,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            fontSize: 14.sp,
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: Theme.of(context).iconTheme.color?.withOpacity(0.7),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.blue, width: 2),
+          ),
         ),
       ),
-      validator: validator,
     );
   }
 
@@ -220,14 +241,14 @@ class _LoginScreenState extends State<LoginScreen> {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: Theme.of(context).cardTheme.color,
+        foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: isLoading
           ? const CircularProgressIndicator(color: Colors.blue)
-          : Text(text, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+          : Text(text, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.bold)),
     );
   }
 

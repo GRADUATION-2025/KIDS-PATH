@@ -32,12 +32,14 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
-        preferredSize:  Size.fromHeight(100.h),
+        preferredSize: Size.fromHeight(100.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               elevation: 0,
               centerTitle: true,
               automaticallyImplyLeading: false,
@@ -47,9 +49,9 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                     Rect.fromLTWH(0, 0, bounds.width, bounds.height),
                   );
                 },
-                child:  Text(
+                child: Text(
                   'Interview Times',
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontSize: 40.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -93,19 +95,21 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
   Widget _buildBookingsList(BuildContext context, List<Booking> bookings) {
     if (bookings.isEmpty) {
       return Center(
-          child: Text('No Bookings Found',
-              style: GoogleFonts.inter(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold
-              )
-          )
+        child: Text(
+          'No Bookings Found',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       );
     }
 
     return RefreshIndicator(
       onRefresh: () async {
         context.read<BookingCubit>().initBookingsStream(
-            isNursery: widget.isNursery);
+          isNursery: widget.isNursery,
+        );
       },
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -126,11 +130,11 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.12),
+              color: Theme.of(context).shadowColor.withOpacity(0.12),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -153,58 +157,54 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                   child: profileImage != null
                       ? Image.network(profileImage, fit: BoxFit.cover)
                       : Container(
-                    color: Colors.grey[300],
+                    color: Theme.of(context).cardColor,
                     alignment: Alignment.center,
                     child: Text(
                       displayName.isNotEmpty ? displayName[0] : '?',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
               ),
-               SizedBox(width: 12.w),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       displayName,
-                      style:  TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.bold),
                     ),
                     if (!widget.isNursery)
                       Text(
                         'Child: ${booking.childName}',
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          color: Colors.grey[600],
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 13.sp),
                       ),
-                     SizedBox(height: 4.h),
+                    SizedBox(height: 4.h),
                     Text(
                       DateFormat('EEEE, MMMM dd').format(booking.dateTime),
-                      style:  TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.black87,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 13.sp),
                     ),
                     Text(
                       '${DateFormat('h:mm a').format(booking.dateTime)} - ${DateFormat('h:mm a').format(booking.dateTime.add(const Duration(hours: 4)))}',
-                      style:  TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.black87,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 13.sp),
                     ),
                   ],
                 ),
               ),
-               SizedBox(width: 8.w),
+              SizedBox(width: 8.w),
               if (widget.isNursery)
-                _NurseryActions(booking: booking)
+                _NurseryActions(
+                  booking: booking,
+                  onShowChildDetails: () => _showChildDetails(context, booking),
+                  onBuildStatusPill: (status) => _buildStatusPill(status),
+                )
               else
-                _ParentActions(booking: booking),
+                _ParentActions(
+                  booking: booking,
+                  onShowRatingDialog: () => _showRatingDialog(context, booking),
+                  onBuildStatusPill: (status) => _buildStatusPill(status),
+                ),
             ],
           ),
         ),
@@ -275,8 +275,14 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
 
 class _NurseryActions extends StatelessWidget {
   final Booking booking;
+  final VoidCallback onShowChildDetails;
+  final Widget Function(String) onBuildStatusPill;
 
-  const _NurseryActions({required this.booking});
+  const _NurseryActions({
+    required this.booking,
+    required this.onShowChildDetails,
+    required this.onBuildStatusPill,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +291,7 @@ class _NurseryActions extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.info_outline),
-          onPressed: () => _showChildDetails(context, booking),
+          onPressed: onShowChildDetails,
         ),
         if (booking.status == 'pending') ...[
           _GradientActionButton(
@@ -295,7 +301,7 @@ class _NurseryActions extends StatelessWidget {
             onTap: () => context.read<BookingCubit>().updateBookingStatus(
                 booking.id, 'payment_pending'),
           ),
-           SizedBox(height: 6.h),
+          SizedBox(height: 6.h),
           _GradientActionButton(
             label: 'Decline',
             icon: Icons.highlight_off_outlined,
@@ -304,7 +310,7 @@ class _NurseryActions extends StatelessWidget {
                 booking.id, 'cancelled'),
           ),
         ] else
-          _buildStatusPill(booking.status),
+          onBuildStatusPill(booking.status),
       ],
     );
   }
@@ -312,8 +318,14 @@ class _NurseryActions extends StatelessWidget {
 
 class _ParentActions extends StatelessWidget {
   final Booking booking;
+  final VoidCallback onShowRatingDialog;
+  final Widget Function(String) onBuildStatusPill;
 
-  const _ParentActions({required this.booking});
+  const _ParentActions({
+    required this.booking,
+    required this.onShowRatingDialog,
+    required this.onBuildStatusPill,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -332,11 +344,11 @@ class _ParentActions extends StatelessWidget {
             label: 'Rate Nursery',
             icon: Icons.star_outline,
             gradientColors: AppGradients.Projectgradient.colors,
-            onTap: () => _showRatingDialog(context, booking),
+            onTap: onShowRatingDialog,
           ),
         if (booking.status != 'payment_pending' &&
             !(booking.status == 'confirmed' && !booking.rated))
-          _buildStatusPill(booking.status),
+          onBuildStatusPill(booking.status),
       ],
     );
   }
@@ -376,12 +388,7 @@ class _ParentActions extends StatelessWidget {
     }
   }
 }
-void _showRatingDialog(BuildContext context, Booking booking) {
-  showDialog(
-    context: context,
-    builder: (context) => RatingDialog(nurseryId: booking.nurseryId, bookingId: booking.id,),
-  );
-}
+
 class RatingDialog extends StatefulWidget {
   final String nurseryId;
   final String bookingId;
@@ -402,7 +409,11 @@ class _RatingDialogState extends State<RatingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Rate Nursery'),
+      backgroundColor: Theme.of(context).dialogBackgroundColor,
+      title: Text(
+        'Rate Nursery',
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -420,9 +431,17 @@ class _RatingDialogState extends State<RatingDialog> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _commentController,
-            decoration: const InputDecoration(
+            style: Theme.of(context).textTheme.bodyMedium,
+            decoration: InputDecoration(
               labelText: 'Comment (optional)',
+              labelStyle: Theme.of(context).textTheme.bodyMedium,
               border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+              ),
             ),
             maxLines: 3,
           ),
@@ -431,11 +450,14 @@ class _RatingDialogState extends State<RatingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,
           ),
           onPressed: _rating > 0 ? () {
@@ -453,62 +475,6 @@ class _RatingDialogState extends State<RatingDialog> {
     );
   }
 }
-void _showChildDetails(BuildContext context, Booking booking) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Child Details'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Name: ${booking.childName}'),
-          Text('Age: ${booking.childAge}'),
-          Text('Gender: ${booking.childGender}'),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildStatusPill(String status) {
-  // Define all possible statuses with their colors
-  final statusColors = {
-    'confirmed': const Color(0xFF0D6EFD),
-    'cancelled': Colors.grey,
-    'pending': Colors.orange,
-    'payment_pending': Colors.purple,
-    'rated': Colors.green,
-    // Add any other possible statuses here
-  };
-
-  // Get the color for the status, default to grey if not found
-  final color = statusColors[status] ?? Colors.grey;
-
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.15),
-      borderRadius: BorderRadius.circular(20.r),
-    ),
-    child: Text(
-      status[0].toUpperCase() + status.substring(1),
-      style: TextStyle(
-        color: color,
-        fontWeight: FontWeight.w600,
-        fontSize: 12.sp,
-      ),
-    ),
-  );
-}
-
-
 
 class _GradientActionButton extends StatelessWidget {
   final String label;
@@ -548,7 +514,7 @@ class _GradientActionButton extends StatelessWidget {
              SizedBox(width: 6.w),
             Text(
               label,
-              style:  TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 13.sp,
                 color: Colors.white,
@@ -559,8 +525,8 @@ class _GradientActionButton extends StatelessWidget {
       ),
     );
   }
-
 }
+
 class _GradientRateButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -579,7 +545,7 @@ class _GradientRateButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 130.w,
+        width: 123.w,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradientColors),
@@ -599,7 +565,7 @@ class _GradientRateButton extends StatelessWidget {
              SizedBox(width: 6.w),
             Text(
               label,
-              style:  TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 13.sp,
                 color: Colors.white,

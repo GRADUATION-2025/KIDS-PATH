@@ -5,10 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/UI/Create_Profile_screen/NURSERY/NURSERY_PAGE.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import '../../LOGIC/booking/cubit.dart';
+import '../../UI/BOOKING/Booking.dart';
+
 import '../../UI/BOOKING/bookingTime.dart';
 import '../../UI/CHAT/chatList.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
-
+import '../../UI/CHAT/chat.dart';
 
 class BottombarNurseryScreen extends StatefulWidget {
   final int initialIndex;

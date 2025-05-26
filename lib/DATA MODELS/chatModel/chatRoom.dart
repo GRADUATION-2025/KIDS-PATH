@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatRoom {
@@ -21,14 +20,19 @@ class ChatRoom {
   });
 
   factory ChatRoom.fromMap(Map<String, dynamic> map, String id) {
+    final now = DateTime.now();
     return ChatRoom(
       id: id,
       nurseryId: map['nurseryId'] ?? '',
       nurseryName: map['nurseryName'] ?? 'Nursery',
       nurseryImageUrl: map['nurseryImageUrl'],
       participantIds: List<String>.from(map['participantIds'] ?? []),
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      lastUpdated: (map['lastUpdated'] as Timestamp).toDate(),
+      createdAt: map['createdAt'] != null 
+          ? (map['createdAt'] as Timestamp).toDate() 
+          : now,
+      lastUpdated: map['lastUpdated'] != null 
+          ? (map['lastUpdated'] as Timestamp).toDate() 
+          : now,
     );
   }
 

@@ -2,26 +2,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:kidspath/UI/PRIVACY%20AND%20POLICY/privacy_policy.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import '../../../LOGIC/Nursery/nursery_cubit.dart';
 import '../../../LOGIC/Nursery/nursery_state.dart';
 import '../../../LOGIC/delete account/account_deletion_handler.dart';
+import '../../../THEME/theme_provider.dart';
 import '../../GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 import '../../forget_change_password/forgetscreen.dart';
 import 'EditNurseryProfileScreen.dart';
 import 'NurseryProfileScreen.dart';
 
-class NurseryAccountScreen extends StatefulWidget {
+class NurseryAccountScreen extends StatelessWidget {
   const NurseryAccountScreen({super.key});
-
-  @override
-  State<NurseryAccountScreen> createState() => _NurseryAccountScreenState();
-}
-
-class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
-  bool isOptionEnabled = false;
-
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +25,7 @@ class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
     return BlocProvider(
       create: (context) => NurseryCubit()..fetchNurseryData(user.uid),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         // // appBar: AppBar(
         // //   elevation: 0,
         // //   backgroundColor: Colors.white,
@@ -90,7 +82,7 @@ class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
                                 right: 0,
                                 child: CircleAvatar(
                                   radius: 12.r,
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: Theme.of(context).cardColor,
                                   child: Icon(Icons.edit, size: 16.sp, color: Colors.blue),
                                 ),
                               ),
@@ -102,11 +94,11 @@ class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
                             children: [
                               Text(
                                 nursery.name,
-                                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 nursery.email,
-                                style: TextStyle(fontSize: 13.sp, color: Colors.grey),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 13.sp),
                               ),
                             ],
                           ),
@@ -141,9 +133,7 @@ class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
                       MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
                           (route) => false,
                     ),),
-                    accountOption(Icons.privacy_tip, "Privacy and Policy",
-                    onTap: ()=> Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
+                    accountOption(Icons.privacy_tip, "Privacy Settings"),
                     accountOption(
                       Icons.logout,
                       "Sign Out",
@@ -156,7 +146,7 @@ class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
                     ),
                     Divider(height: 20.h),
                     sectionTitle("More Options"),
-                    toggleOption("Dark Mode", isOptionEnabled),
+                    toggleOption("Dark Mode", true),
                     // toggleOption("Text Messages", false),
                     currencyOption("Currency", "EGP"),
                     currencyOption("Languages", "English"),
@@ -179,38 +169,59 @@ class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
   Widget sectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Text(title, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+      child: Builder(
+        builder: (context) => Text(
+          title, 
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold)
+        ),
+      ),
     );
   }
 
   Widget accountOption(IconData icon, String title, {VoidCallback? onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blue, size: 28.sp),
-      title: Text(title, style: TextStyle(fontSize: 16.sp)),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16.sp, color: Colors.grey),
-      onTap: onTap ?? () {},
+    return Builder(
+      builder: (context) => ListTile(
+        leading: Icon(icon, color: Colors.blue, size: 28.sp),
+        title: Text(
+          title, 
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios, 
+          size: 16.sp, 
+          color: Theme.of(context).iconTheme.color?.withOpacity(0.5)
+        ),
+        onTap: onTap ?? () {},
+      ),
     );
   }
 
   Widget toggleOption(String title, bool isActive) {
-    return ListTile(
-      title: Text(title, style: TextStyle(fontSize: 16.sp)),
-      trailing: Switch(
-        value: isActive,
-        activeColor: const Color(0xFF0D41E1),
-        onChanged: (value) {
-          setState(() {
-            isOptionEnabled = value;
-          });
-        },
+    return Builder(
+      builder: (context) => ListTile(
+        title: Text(title, style: TextStyle(fontSize: 16.sp)),
+        trailing: Switch(
+          value: context.watch<ThemeProvider>().isDarkMode,
+          activeColor: Color(0xFF0D41E1),
+          onChanged: (value) => context.read<ThemeProvider>().toggleTheme(),
+        ),
       ),
     );
   }
 
   Widget currencyOption(String title, String value,{VoidCallback? onTap}) {
-    return ListTile(onTap: onTap,
-      title: Text(title, style: TextStyle(fontSize: 16.sp)),
-      trailing: Text(value, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+    return Builder(
+      builder: (context) => ListTile(
+        onTap: onTap,
+        title: Text(
+          title, 
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)
+        ),
+        trailing: Text(
+          value, 
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp)
+        ),
+      ),
     );
   }
 }
