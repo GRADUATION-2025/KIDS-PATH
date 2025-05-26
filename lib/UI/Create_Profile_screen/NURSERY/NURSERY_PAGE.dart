@@ -12,8 +12,16 @@ import '../../forget_change_password/forgetscreen.dart';
 import 'EditNurseryProfileScreen.dart';
 import 'NurseryProfileScreen.dart';
 
-class NurseryAccountScreen extends StatelessWidget {
+class NurseryAccountScreen extends StatefulWidget {
   const NurseryAccountScreen({super.key});
+
+  @override
+  State<NurseryAccountScreen> createState() => _NurseryAccountScreenState();
+}
+
+class _NurseryAccountScreenState extends State<NurseryAccountScreen> {
+  bool isOptionEnabled = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +156,7 @@ class NurseryAccountScreen extends StatelessWidget {
                     ),
                     Divider(height: 20.h),
                     sectionTitle("More Options"),
-                    toggleOption("Dark Mode", true),
+                    toggleOption("Dark Mode", isOptionEnabled),
                     // toggleOption("Text Messages", false),
                     currencyOption("Currency", "EGP"),
                     currencyOption("Languages", "English"),
@@ -189,8 +197,12 @@ class NurseryAccountScreen extends StatelessWidget {
       title: Text(title, style: TextStyle(fontSize: 16.sp)),
       trailing: Switch(
         value: isActive,
-        activeColor: Color(0xFF0D41E1),
-        onChanged: (value) {},
+        activeColor: const Color(0xFF0D41E1),
+        onChanged: (value) {
+          setState(() {
+            isOptionEnabled = value;
+          });
+        },
       ),
     );
   }

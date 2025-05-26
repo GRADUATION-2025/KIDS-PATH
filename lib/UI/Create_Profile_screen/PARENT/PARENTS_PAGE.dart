@@ -12,8 +12,16 @@ import 'CHILD/childData_screen.dart';
 import '../../forget_change_password/forgetscreen.dart';
 import 'EditProfileScreen.dart';
 
-class ParentAccountScreen extends StatelessWidget {
+class ParentAccountScreen extends StatefulWidget {
+
   const ParentAccountScreen({super.key});
+
+  @override
+  State<ParentAccountScreen> createState() => _ParentAccountScreenState();
+}
+
+class _ParentAccountScreenState extends State<ParentAccountScreen> {
+  bool isOptionEnabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +31,9 @@ class ParentAccountScreen extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (context) => ParentCubit()..fetchParentData(user.uid),
+      create: (context) =>
+      ParentCubit()
+        ..fetchParentData(user.uid),
       child: BlocConsumer<ParentCubit, ParentState>(
         listener: (context, state) {
           if (state is ParentError) {
@@ -34,9 +44,9 @@ class ParentAccountScreen extends StatelessWidget {
         },
         builder: (context, state) {
           return Scaffold(
-           
+
             body: Padding(
-              padding:  EdgeInsets.only(top: 40.w),
+              padding: EdgeInsets.only(top: 40.w),
               child: _buildBody(context, state, user.uid),
             ),
           );
@@ -58,17 +68,19 @@ class ParentAccountScreen extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: BlocProvider.of<ParentCubit>(context),
-                      child: EditProfileScreen(
-                        parent: parent,
-                        role: "Parent",
-                        onProfileComplete: () {
-                          context.read<ParentCubit>().fetchParentData(userId);
-                        },
-                        fromRegistration: false,
-                      ),
-                    ),
+                    builder: (context) =>
+                        BlocProvider.value(
+                          value: BlocProvider.of<ParentCubit>(context),
+                          child: EditProfileScreen(
+                            parent: parent,
+                            role: "Parent",
+                            onProfileComplete: () {
+                              context.read<ParentCubit>().fetchParentData(
+                                  userId);
+                            },
+                            fromRegistration: false,
+                          ),
+                        ),
                   ),
                 ).then((_) {
                   // Refresh when returning from edit screen
@@ -91,7 +103,8 @@ class ParentAccountScreen extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 12.r,
                           backgroundColor: Colors.white,
-                          child: Icon(Icons.edit, size: 16.sp, color: Colors.blue),
+                          child: Icon(
+                              Icons.edit, size: 16.sp, color: Colors.blue),
                         ),
                       ),
                     ],
@@ -102,7 +115,8 @@ class ParentAccountScreen extends StatelessWidget {
                     children: [
                       Text(
                         parent.name,
-                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20.sp, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         parent.email,
@@ -121,11 +135,13 @@ class ParentAccountScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const ChildDataScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const ChildDataScreen()),
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -165,18 +181,24 @@ class ParentAccountScreen extends StatelessWidget {
             accountOption(
               Icons.lock,
               "Change Password",
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
-              ),
+              onTap: () =>
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ForgotPasswordScreen()),
+                  ),
             ),
-            accountOption(Icons.notifications, "Notifications",onTap: () => Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => BottombarParentScreen(initialIndex: 3,)),
-                  (route) => false,
-            ),),
-            accountOption(Icons.privacy_tip, "Privacy and Policy",onTap:() =>Navigator.push(context,
-                MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
+            accountOption(Icons.notifications, "Notifications", onTap: () =>
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) =>
+                      BottombarParentScreen(initialIndex: 3,)),
+                      (route) => false,
+                ),),
+            accountOption(Icons.privacy_tip, "Privacy and Policy", onTap: () =>
+                Navigator.push(context,
+                    MaterialPageRoute(
+                      builder: (context) => PrivacyPolicyScreen(),))),
             accountOption(
               Icons.logout,
               "Sign Out",
@@ -185,16 +207,20 @@ class ParentAccountScreen extends StatelessWidget {
             accountOption(
               Icons.delete,
               "Delete Account",
-              onTap: () => AccountActionsHandler.showDeleteDialog(context, userId, "Parent"),
+              onTap: () => AccountActionsHandler.showDeleteDialog(
+                  context, userId, "Parent"),
             ),
             Divider(height: 20.h),
             sectionTitle("More Options"),
-            toggleOption("Dark Mode", true),
+            toggleOption("Dark Mode", isOptionEnabled),
             // toggleOption("Text Messages", false),
             currencyOption("Currency", "EGP"),
             currencyOption("Languages", "English"),
-            currencyOption("Location", "Alexandria",onTap: () => Navigator.pushAndRemoveUntil(context,
-            MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),),(route) => false,)),
+            currencyOption("Location", "Alexandria", onTap: () =>
+                Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(
+                    builder: (context) => GoogleMapsLocationx(),), (
+                      route) => false,)),
           ],
         ),
       );
@@ -208,7 +234,8 @@ class ParentAccountScreen extends StatelessWidget {
   Widget sectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Text(title, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+      child: Text(title,
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -226,8 +253,12 @@ class ParentAccountScreen extends StatelessWidget {
       title: Text(title, style: TextStyle(fontSize: 16.sp)),
       trailing: Switch(
         value: isActive,
-        activeColor: Color(0xFF0D41E1),
-        onChanged: (value) {},
+        activeColor: const Color(0xFF0D41E1),
+        onChanged: (value) {
+          setState(() {
+            isOptionEnabled = value;
+          });
+        },
       ),
     );
   }
