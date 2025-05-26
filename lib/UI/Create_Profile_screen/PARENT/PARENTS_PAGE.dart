@@ -9,6 +9,7 @@ import '../../../LOGIC/Parent/parent_cubit.dart';
 import '../../../LOGIC/Parent/parent_state.dart';
 import '../../../LOGIC/delete account/account_deletion_handler.dart';
 import '../../../THEME/theme_provider.dart';
+import '../../PRIVACY AND POLICY/privacy_policy.dart';
 import 'CHILD/childData_screen.dart';
 import '../../forget_change_password/forgetscreen.dart';
 import 'EditProfileScreen.dart';
@@ -193,7 +194,9 @@ class ParentAccountScreen extends StatelessWidget {
                 (route) => false,
               ),
             ),
-            accountOption(context, Icons.privacy_tip, "Privacy and Policy"),
+            accountOption(context,Icons.privacy_tip, "Privacy and Policy",
+                onTap: ()=> Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
             accountOption(
               context,
               Icons.logout,

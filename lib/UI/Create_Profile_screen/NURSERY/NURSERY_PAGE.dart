@@ -8,6 +8,7 @@ import '../../../LOGIC/Nursery/nursery_state.dart';
 import '../../../LOGIC/delete account/account_deletion_handler.dart';
 import '../../../THEME/theme_provider.dart';
 import '../../GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
+import '../../PRIVACY AND POLICY/privacy_policy.dart';
 import '../../forget_change_password/forgetscreen.dart';
 import 'EditNurseryProfileScreen.dart';
 import 'NurseryProfileScreen.dart';
@@ -133,7 +134,9 @@ class NurseryAccountScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
                           (route) => false,
                     ),),
-                    accountOption(Icons.privacy_tip, "Privacy Settings"),
+                    accountOption(Icons.privacy_tip, "Privacy and Policy",
+                        onTap: ()=> Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
                     accountOption(
                       Icons.logout,
                       "Sign Out",
