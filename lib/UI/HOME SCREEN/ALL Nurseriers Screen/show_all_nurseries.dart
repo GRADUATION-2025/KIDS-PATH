@@ -498,7 +498,8 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
 
                       // Ratings Filter
                       if (_minRating != null) {
-                        if (nursery.rating == null || nursery.rating!.round() < _minRating!) {
+                        if (nursery.rating == null ||
+                            nursery.rating!.round() != _minRating!) {
                           return false;
                         }
                       }
