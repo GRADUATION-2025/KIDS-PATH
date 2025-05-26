@@ -133,7 +133,7 @@ class NurseryAccountScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
                           (route) => false,
                     ),),
-                    accountOption(Icons.privacy_tip, "Privacy Settings",
+                    accountOption(Icons.privacy_tip, "Privacy and Poilcy",
                     onTap: ()=> Navigator.push(context,
                         MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
                     accountOption(
