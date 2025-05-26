@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
+import '../../THEME/theme_provider.dart';
 import '../../UI/Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 
 class TopRatedCard extends StatelessWidget {
@@ -94,7 +96,7 @@ class _NurseryInfo extends StatelessWidget {
   String _formatDistance(double? distanceInMeters) {
     if (distanceInMeters == null) return 'Filter Will Show Distance';
     if (distanceInMeters == double.infinity) return 'Location not available';
-    
+
     if (distanceInMeters < 1000) {
       return '${distanceInMeters.round()} m away';
     } else {
@@ -104,6 +106,8 @@ class _NurseryInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -113,18 +117,19 @@ class _NurseryInfo extends StatelessWidget {
             nursery.name,
             style:  TextStyle(
               fontSize: 16.sp,
+              color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
-           SizedBox(height: 4.h),
+          SizedBox(height: 4.h),
           Row(
             children: [
               const Icon(Icons.location_on, size: 16, color: Colors.grey),
-               SizedBox(width: 4.w),
+              SizedBox(width: 4.w),
               Text(
                 _formatDistance(distance),
                 style: TextStyle(
-                  color: Colors.grey.shade700,
+                  color: isDark ? Colors.white : Colors.grey.shade700,
                   fontSize: 14.sp,
                 ),
               ),
@@ -132,11 +137,11 @@ class _NurseryInfo extends StatelessWidget {
               Row(
                 children: [
                   const Icon(LucideIcons.star, size: 16, color: Colors.amber),
-                   SizedBox(width: 4.w),
+                  SizedBox(width: 4.w),
                   Text(
                     nursery.rating.toStringAsFixed(1),
                     style: TextStyle(
-                      color: Colors.grey.shade700,
+                      color: isDark ? Colors.white : Colors.grey.shade700,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -162,12 +167,12 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.red),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           Text(
             'Error loading nurseries',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-           SizedBox(height: 8.h),
+          SizedBox(height: 8.h),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
@@ -175,7 +180,7 @@ class _ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           ElevatedButton(
             onPressed: () => context.read<HomeCubit>().refreshData(),
             child: const Text('Retry'),
@@ -198,12 +203,12 @@ class _EmptyView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.search_off, size: 48, color: Colors.grey),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           Text(
             message,
             style:  TextStyle(fontSize: 16.sp, color: Colors.grey),
           ),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           ElevatedButton(
             onPressed: () => context.read<HomeCubit>().refreshData(),
             child: const Text('Refresh'),
