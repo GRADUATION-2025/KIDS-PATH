@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,8 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-
-import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../../LOGIC/Home/home_cubit.dart';
 import '../../../LOGIC/Home/home_state.dart';
 import '../../../WIDGETS/BOTTOM NAV BAR/BTM_BAR_NAV_PARENT.dart';
