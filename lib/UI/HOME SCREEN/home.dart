@@ -6,11 +6,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../LOGIC/Home/home_cubit.dart';
 import '../../LOGIC/Home/home_state.dart';
 import '../../LOGIC/RATING/rating stats.dart';
 
+import '../../THEME/theme_provider.dart';
 import '../Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 import 'ALL Nurseriers Screen/show_all_nurseries.dart';
 
@@ -20,6 +22,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return BlocProvider(
       create: (context) => HomeCubit(),
       child: Scaffold(
@@ -49,7 +53,7 @@ class HomeScreen extends StatelessWidget {
                     style:  TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+              color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                 ],
@@ -169,29 +173,33 @@ class _HomeContentView extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+
+
   final VoidCallback? onTap;
 
   const _SearchBar({this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+            color: isDark ? Colors.grey[800] : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Theme.of(context).dividerColor),
+          border: Border.all(color: isDark ? Colors.white : Colors.black),
         ),
         child: Row(
           children: [
-            Icon(Icons.search, color: Theme.of(context).iconTheme.color),
+            Icon(Icons.search, color: isDark ? Colors.white : Colors.black),
             SizedBox(width: 15.w),
             Expanded(
               child: Text(
                 'Tap to Search...',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15.sp),
+                  style: GoogleFonts.inter(fontSize: 15.sp,color: isDark ? Colors.white : Colors.black )
               ),
             ),
           ],
@@ -249,9 +257,9 @@ class _PopularNurseriesSection extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         SizedBox(
-          height: 120.h,
+          height: 110.h,
           child: ListView.builder(
-            scrollDirection: Axis.horizontal,
+            scrollDirection:Axis.values.first,
             itemCount: 4,
             itemBuilder: (context, index) {
               return _PopularNurseryCard(nursery: nurseries[index]);
@@ -270,18 +278,20 @@ class _PopularNurseryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return GestureDetector(
       onTap: () => _navigateToProfile(context, nursery),
       child: Container(
-        width: 70.w,
-        margin: const EdgeInsets.only(right: 18),
+        width: 80.w,
+        margin: const EdgeInsets.only(right: 7),
         child: Column(
           children: [
             _NurseryAvatar(profileImageUrl: nursery.profileImageUrl),
              SizedBox(height: 8.h),
             Text(
               nursery.name,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12.sp),
+              style:  GoogleFonts.inter(color:isDark ? Colors.white: Colors.black ,fontSize: 12.sp),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -302,21 +312,29 @@ class _PopularNurseryCard extends StatelessWidget {
   }
 }
 
-class _NurseryAvatar extends StatelessWidget {
+class _NurseryAvatar extends StatefulWidget {
   final String? profileImageUrl;
 
   const _NurseryAvatar({required this.profileImageUrl});
 
   @override
+  State<_NurseryAvatar> createState() => _NurseryAvatarState();
+}
+
+class _NurseryAvatarState extends State<_NurseryAvatar> {
+
+
+  @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     return Hero(
-      tag: 'nursery-avatar-$profileImageUrl',
+      tag: 'nursery-avatar-${widget.profileImageUrl}',
       child: CircleAvatar(
         radius: 30.r,
-        backgroundColor: Theme.of(context).cardColor,
+        backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
         child: ClipOval(
           child: CachedNetworkImage(
-            imageUrl: profileImageUrl ?? '',
+            imageUrl: widget.profileImageUrl ?? '',
             width: 60.w,
             height: 60.h,
             fit: BoxFit.cover,
@@ -456,6 +474,8 @@ class _NurseryInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -470,7 +490,8 @@ class _NurseryInfo extends StatelessWidget {
             children: [
               Icon(Icons.location_on, size: 16, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
                SizedBox(width: 4.w),
-              Text('Filter will show Distance', style: Theme.of(context).textTheme.bodyMedium),
+              Text('Filter will show Distance',  style: TextStyle(
+                color: isDark ? Colors.white : Colors.black,),),
               const Spacer(),
               Row(
                 children: [
@@ -502,7 +523,9 @@ class _NurseryInfo extends StatelessWidget {
 
                       return Text(
                         averageRating.toStringAsFixed(1),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp),
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.grey.shade700,
+                            fontSize: 14.sp),
                       );
                     },
                   ),
