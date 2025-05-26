@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kidspath/UI/PRIVACY%20AND%20POLICY/privacy_policy.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import '../../../LOGIC/Nursery/nursery_cubit.dart';
 import '../../../LOGIC/Nursery/nursery_state.dart';
@@ -132,7 +133,9 @@ class NurseryAccountScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
                           (route) => false,
                     ),),
-                    accountOption(Icons.privacy_tip, "Privacy Settings"),
+                    accountOption(Icons.privacy_tip, "Privacy Settings",
+                    onTap: ()=> Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
                     accountOption(
                       Icons.logout,
                       "Sign Out",

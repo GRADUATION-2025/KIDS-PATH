@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
+import 'package:kidspath/UI/PRIVACY%20AND%20POLICY/privacy_policy.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 import '../../../LOGIC/Parent/parent_cubit.dart';
 import '../../../LOGIC/Parent/parent_state.dart';
@@ -174,7 +175,8 @@ class ParentAccountScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => BottombarParentScreen(initialIndex: 3,)),
                   (route) => false,
             ),),
-            accountOption(Icons.privacy_tip, "Privacy and Policy"),
+            accountOption(Icons.privacy_tip, "Privacy and Policy",onTap:() =>Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
             accountOption(
               Icons.logout,
               "Sign Out",
