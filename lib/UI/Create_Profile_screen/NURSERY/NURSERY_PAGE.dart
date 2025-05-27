@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import 'package:provider/provider.dart';
 import '../../../LOGIC/Nursery/nursery_cubit.dart';
@@ -19,15 +20,18 @@ class NurseryAccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return Center(child: Text("User not logged in"));
     }
 
     return BlocProvider(
+
       create: (context) => NurseryCubit()..fetchNurseryData(user.uid),
       child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: isDark ? Colors.black : Colors.white,
         // // appBar: AppBar(
         // //   elevation: 0,
         // //   backgroundColor: Colors.white,
@@ -45,6 +49,7 @@ class NurseryAccountScreen extends StatelessWidget {
             // The cubit will handle the state changes internally
           },
           builder: (context, state) {
+            final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
             if (state is NurseryLoaded) {
               final nursery = state.nursery;
               return SingleChildScrollView(
@@ -84,7 +89,7 @@ class NurseryAccountScreen extends StatelessWidget {
                                 right: 0,
                                 child: CircleAvatar(
                                   radius: 12.r,
-                                  backgroundColor: Theme.of(context).cardColor,
+                                  backgroundColor: isDark ? Colors.white : Colors.white,
                                   child: Icon(Icons.edit, size: 16.sp, color: Colors.blue),
                                 ),
                               ),
@@ -109,7 +114,8 @@ class NurseryAccountScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 20.h),
                     ListTile(
-                      title: Text("View profile", style: TextStyle(fontSize: 16.sp)),
+                      title: Text("View profile", style: TextStyle(fontSize: 16.sp,
+                          color: isDark ? Colors.white : Colors.black)),
                       trailing: Icon(Icons.arrow_forward_ios, size: 16.sp, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
@@ -121,7 +127,7 @@ class NurseryAccountScreen extends StatelessWidget {
                       },
                     ),
                     Divider(height: 20.h),
-                    sectionTitle("Account"),
+                    sectionTitle(context,"Account"),
                     accountOption(context,
                       Icons.lock,
                       "Change Password",
@@ -149,8 +155,8 @@ class NurseryAccountScreen extends StatelessWidget {
                       onTap: () => AccountActionsHandler.showDeleteDialog(context, user.uid, "Nursery"),
                     ),
                     Divider(height: 20.h),
-                    sectionTitle("More Options"),
-                    toggleOption("Dark Mode", true),
+                    sectionTitle(context,"More Options"),
+                    toggleOption(context,"Dark Mode", true),
                     // toggleOption("Text Messages", false),
                     currencyOption(context,"Currency", "EGP"),
                     currencyOption(context,"Languages", "English"),
@@ -170,13 +176,15 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget sectionTitle(String title) {
+  Widget sectionTitle( BuildContext context,String title) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Builder(
         builder: (context) => Text(
           title, 
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold)
+          style:GoogleFonts.inter(fontSize: 18.sp, fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black)
         ),
       ),
     );
@@ -208,10 +216,12 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget toggleOption(String title, bool isActive) {
+  Widget toggleOption( BuildContext context, String title, bool isActive) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return Builder(
       builder: (context) => ListTile(
-        title: Text(title, style: TextStyle(fontSize: 16.sp)),
+        title: Text(title, style: TextStyle(fontSize: 16.sp,
+            color: isDark ? Colors.white : Colors.black)),
         trailing: Switch(
           value: context.watch<ThemeProvider>().isDarkMode,
           activeColor: Color(0xFF0D41E1),
