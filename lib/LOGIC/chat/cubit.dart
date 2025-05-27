@@ -299,9 +299,10 @@ class ChatCubit extends Cubit<ChatState> {
 
 
 
-  Future<void> markMessagesAsRead(String chatRoomId, String userId) async {
+ Future<void> markMessagesAsRead(String chatRoomId, String userId) async {
     try {
-      final messages = await _firestore
+      // Get all unread messages first
+      final messages = await FirebaseFirestore.instance
           .collection('chatRooms')
           .doc(chatRoomId)
           .collection('messages')
@@ -311,16 +312,29 @@ class ChatCubit extends Cubit<ChatState> {
 
       if (messages.docs.isEmpty) return;
 
-      final batch = _firestore.batch();
+      // Use batch write for atomic updates
+      final batch = FirebaseFirestore.instance.batch();
+
       for (final doc in messages.docs) {
         batch.update(doc.reference, {'isRead': true});
       }
+
+      // Commit the batch
       await batch.commit();
+
+      // Force refresh the stream
+      FirebaseFirestore.instance
+          .collection('chatRooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .snapshots()
+          .listen((_) {}); // This triggers a refresh
+
     } catch (e) {
-      emit(ChatError('Failed to update read status: $e'));
+      debugPrint('Error marking messages as read: $e');
+      // Consider adding error handling in your UI
     }
   }
-
   @override
   Future<void> close() {
     _notificationSubscription?.cancel();
