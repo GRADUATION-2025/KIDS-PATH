@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_PARENT.dart';
 
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../../../DATA MODELS/Parent Model/Parent Model.dart';
 import '../../../LOGIC/Parent/parent_cubit.dart';
 import '../../../LOGIC/Parent/parent_state.dart';
 import '../../../LOGIC/image/profile_service.dart';
+import '../../../THEME/theme_provider.dart';
 import '../../GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 
 
@@ -112,8 +115,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Colors.black : Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
         child: Form(
@@ -126,7 +131,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   Text(
                     "Edit Profile",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.inter(fontSize: 25.sp, fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white:Colors.black),
                   ),
                   Stack(
                     children: [
@@ -163,11 +169,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
               SizedBox(height: 20.h),
-              Text("Name", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
+              Text("Name", style: TextStyle(color: isDark ? Colors.white:Colors.grey, fontSize: 16.sp)),
               TextFormField(
                 controller: _nameController,
                 keyboardType: TextInputType.name,
                 maxLength: 17,
+                  style: TextStyle(color: isDark ? Colors.white:Colors.black),
                   inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
           
                 decoration: InputDecoration(border: UnderlineInputBorder(),hintText: "Ex: John Mark",hintStyle: TextStyle(color: Colors.grey, fontSize: 15)),
@@ -175,17 +182,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
           
               SizedBox(height: 20.h),
-              Text("Email", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
+              Text("Email", style: TextStyle(color: isDark ? Colors.white:Colors.grey, fontSize: 16.sp)),
               TextFormField(
                 controller: TextEditingController(text: widget.parent.email),
+                style: TextStyle(color: isDark ? Colors.white:Colors.black),
                 decoration: InputDecoration(border: UnderlineInputBorder()),
                 readOnly: true,
               ),
               SizedBox(height: 20.h),
-              Text("Phone number", style: TextStyle(color: Colors.grey, fontSize: 16.sp)),
+              Text("Phone number", style: TextStyle(color: isDark ? Colors.white:Colors.grey, fontSize: 16.sp)),
               TextFormField(
                 controller: _phoneController,
                 keyboardType:TextInputType.number ,
+                style: TextStyle(color: isDark ? Colors.white:Colors.black),
                 maxLength: 11,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly
@@ -201,10 +210,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
                     activeColor: Color(0xFF07C8F9),
                   ),
-                  Text("I agree to the ", style: TextStyle(fontSize: 14.sp)),
+                  Text("I agree to the ", style: TextStyle(fontSize: 14.sp,color: isDark?Colors.white:Colors.black)),
                   Text(
                     "Terms of Service",
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold,color: isDark?Colors.white:Colors.black),
                   ),
                 ],
               ),

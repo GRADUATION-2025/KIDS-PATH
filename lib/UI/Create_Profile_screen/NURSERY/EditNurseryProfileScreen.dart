@@ -9,9 +9,11 @@ import 'package:kidspath/LOGIC/Nursery/nursery_state.dart';
 import 'package:kidspath/UI/GOOGLE_MAPS/GOOGLE_MAPS_LOCATION.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import '../../../DATA MODELS/Nursery model/Nursery Model.dart';
 import '../../../LOGIC/Nursery/nursery_cubit.dart';
+import '../../../THEME/theme_provider.dart';
 
 
 class EditNurseryProfileScreen extends StatefulWidget {
@@ -160,8 +162,10 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
         child: Form(
@@ -237,7 +241,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
 
               // Programs Section - Added this part
               SizedBox(height: 20.h),
-              Text("Programs", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16)),
+              Text("Programs", style: TextStyle(color: isDark ? Colors.white:Colors.grey,fontSize: 16)),
               ..._buildProgramFields(),
               Align(
                 alignment: Alignment.centerRight,
@@ -258,10 +262,10 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                     onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
                     activeColor: Color(0xFF07C8F9),
                   ),
-                  Text("I agree to the ", style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp)),
+                  Text("I agree to the ", style: TextStyle(fontSize: 14.sp,color: isDark?Colors.white:Colors.black)),
                   Text(
                     "Terms of Service",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold,color: isDark?Colors.white:Colors.black),
                   ),
                 ],
               ),
@@ -331,6 +335,8 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
   }
 
   List<Widget> _buildProgramFields() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return List<Widget>.generate(_programControllers.length, (index) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -344,7 +350,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
                 ],
                 keyboardType: TextInputType.name,
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Programs' : null,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: TextStyle(color: isDark?Colors.white:Colors.black),
                 decoration: InputDecoration(
                   hintText: "Enter program name",
                   hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
@@ -382,10 +388,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
 
   Widget _buildFormField(String label, TextEditingController controller, String hint,
       {bool readOnly = false, int maxLines = 1, maxlength, inputFormatters,keyboardtype,validator}) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)),
+        Text(label, style: TextStyle(color: isDark ? Colors.white:Colors.grey,fontSize: 16.sp)),
         TextFormField(
           controller: controller,
           maxLines: maxLines,
@@ -415,6 +423,8 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
 
 
   Widget _buildAgeGroupSelector() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     const ageGroups = {
       '6-12 Months': '6-12 Months',
       '1 year': '1 year',
@@ -426,12 +436,12 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text("Age Group", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)),
+         Text("Age Group",style: TextStyle(color: isDark ? Colors.white:Colors.grey,fontSize: 16.sp)),
         Column(
           children: ageGroups.entries.map((entry) {
             return RadioListTile<String>(
 
-              title: Text(entry.value,style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 15.sp,fontWeight: FontWeight.bold),),
+              title: Text(entry.value,style: TextStyle(color: isDark ? Colors.white:Colors.grey,fontSize: 15.sp,fontWeight: FontWeight.bold),),
               value: entry.key,
               groupValue: _selectedAge,
               onChanged: (value) {

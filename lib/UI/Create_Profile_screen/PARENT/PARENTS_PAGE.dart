@@ -37,7 +37,7 @@ class ParentAccountScreen extends StatelessWidget {
         builder: (context, state) {
           final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
           return Scaffold(
-            backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+            backgroundColor: isDark ? Colors.black : Colors.white,
             body: Padding(
               padding: EdgeInsets.only(top: 40.w),
               child: Builder(
@@ -96,7 +96,7 @@ class ParentAccountScreen extends StatelessWidget {
                         right: 0,
                         child: CircleAvatar(
                           radius: 12.r,
-                          backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+                          backgroundColor: isDark ? Colors.white : Colors.white,
                           child: Icon(Icons.edit, size: 16.sp, color: isDark ? Colors.blue[400] : Colors.blue),
                         ),
                       ),
