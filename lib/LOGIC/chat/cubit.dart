@@ -60,8 +60,8 @@ class ChatCubit extends Cubit<ChatState> {
                 'isRead': false,
                 'chatRoomId': chatRoomDoc.id,
                 'senderId': messageData['senderId'],
-                'senderName': messageData['name'],
-                'senderImageUrl': messageData['senderImageUrl'],
+                'senderName': messageData['senderName'],
+                'senderImageUrl': messageData['profileImageUrl'],
               });
 
               // Send immediate push notification for real-time feedback
@@ -76,7 +76,7 @@ class ChatCubit extends Cubit<ChatState> {
                   'chatRoomId': chatRoomDoc.id,
                   'senderId': messageData['senderId'],
                   'senderName': messageData['name'],
-                  'senderImageUrl': messageData['senderImageUrl'],
+                  'senderImageUrl': messageData['profileImageUrl'],
                   'shouldNavigate': true,
                 },
               );
@@ -132,17 +132,17 @@ class ChatCubit extends Cubit<ChatState> {
           'id': chatId,
           'nurseryId': nurseryId,
           'nurseryName': nurseryData['name'],
-          'nurseryImageUrl': nurseryData['imageUrl'],
+          'nurseryImageUrl': nurseryData['profileImageUrl'],
           'participantIds': [nurseryId, parentId],
           'participantData': {
             parentId: {
               'name': parentData['name'],
-              'imageUrl': parentData['imageUrl'],
+              'imageUrl': parentData['profileImageUrl'],
               'type': 'parent'
             },
             nurseryId: {
               'name': nurseryData['name'],
-              'imageUrl': nurseryData['imageUrl'],
+              'imageUrl': nurseryData['profileImageUrl'],
               'type': 'nursery'
             }
           },
@@ -163,14 +163,14 @@ class ChatCubit extends Cubit<ChatState> {
     if (!doc.exists) {
       return {
         'name': isNursery ? 'Nursery' : 'Parent',
-        'imageUrl': null
+        'profileImageUrl': "profileImageUrl"
       };
     }
 
     final data = doc.data()!;
     return {
       'name': data['name'] ?? (isNursery ? 'Nursery' : 'Parent'),
-      'imageUrl': data['profileImageUrl']
+      'profileImageUrl': data['profileImageUrl']
     };
   }
 
@@ -200,7 +200,7 @@ class ChatCubit extends Cubit<ChatState> {
         'content': content,
         'senderId': senderId,
         'senderName': userData["name"],
-        'senderImageUrl': senderImageUrl,
+        'senderImageUrl': userData['profileImageUrl'],
         'timestamp': timestamp,
         'isRead': isNursery,
         'deleted': false,
@@ -238,8 +238,8 @@ class ChatCubit extends Cubit<ChatState> {
           'isRead': false,
           'chatRoomId': chatRoomId,
           'senderId': senderId,
-          'senderName': senderName,
-          'senderImageUrl': senderImageUrl,
+          'senderName': userData["name"],
+          'senderImageUrl': userData['profileImageUrl'],
         });
 
         // Send immediate push notification
@@ -251,8 +251,8 @@ class ChatCubit extends Cubit<ChatState> {
             'type': 'chat',
             'chatRoomId': chatRoomId,
             'senderId': senderId,
-            'senderName': senderName,
-            'senderImageUrl': senderImageUrl,
+            'senderName': userData["name"],
+            'senderImageUrl': userData['profileImageUrl'],
           },
         );
       }
