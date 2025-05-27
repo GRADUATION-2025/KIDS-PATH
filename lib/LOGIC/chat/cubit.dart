@@ -245,7 +245,7 @@ class ChatCubit extends Cubit<ChatState> {
           'title': '$senderName sent you a message',
           'message': mediaUrl != null ? 'Sent you a ${mediaType ?? "media"}' : content,
           'timestamp': timestamp,
-          'isRead': false,
+          'isRead': isNursery,
           'chatRoomId': chatRoomId,
           'senderId': senderId,
           'senderName': userData["name"],
