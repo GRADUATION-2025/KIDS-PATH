@@ -454,7 +454,7 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                         prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.black),
-                          borderRadius: BorderRadius.circular(25.r),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.deepPurple),
@@ -467,13 +467,14 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                   InkWell(
                     onTap: _showFilterDialog,
                     child: Container(
-                      height: 50.h,
-                      width: 50.w,
+                      height: 40.h,
+                      width: 40.w,
                       decoration: BoxDecoration(
-                          color: isDark ? Colors.white : Colors.deepPurple,
-                        borderRadius: BorderRadius.circular(25.r),
+                       color: Colors.grey,
+
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
-                      child: Icon(Icons.filter_alt,color: isDark ? Colors.black : Colors.white,),
+                      child: Icon(Icons.filter_alt,color: isDark ? Colors.black : Colors.blue,size: 25,),
                     ),
                   ),
                 ],

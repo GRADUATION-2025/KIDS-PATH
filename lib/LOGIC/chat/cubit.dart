@@ -48,6 +48,7 @@ class ChatCubit extends Cubit<ChatState> {
 
             if (chatRoomData != null &&
                 (chatRoomData['participantIds'] as List).contains(userId)) {
+
               // Create notification document that will trigger the Cloud Function
               await _firestore.collection('notifications').add({
                 'userId': userId,
@@ -127,8 +128,7 @@ class ChatCubit extends Cubit<ChatState> {
       final chatDoc = await transaction.get(chatRef);
 
       if (!chatDoc.exists) {
-        final now = FieldValue.serverTimestamp();
-        final initialData = {
+        transaction.set(chatRef, {
           'id': chatId,
           'nurseryId': nurseryId,
           'nurseryName': nurseryData['name'],
@@ -137,21 +137,31 @@ class ChatCubit extends Cubit<ChatState> {
           'participantData': {
             parentId: {
               'name': parentData['name'],
-              'imageUrl': parentData['profileImageUrl'],
+              'profileImageUrl': parentData['profileImageUrl'],
               'type': 'parent'
             },
             nurseryId: {
               'name': nurseryData['name'],
-              'imageUrl': nurseryData['profileImageUrl'],
+              'profileImageUrl': nurseryData['profileImageUrl'],
               'type': 'nursery'
             }
           },
-          'lastMessage': '',
-          'lastMessageTimestamp': now,
-          'createdAt': now,
-          'lastUpdated': now,
-        };
-        transaction.set(chatRef, initialData, SetOptions(merge: true));
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      } else {
+        final existingParticipants = List<String>.from(chatDoc['participantIds'] ?? []);
+        if (!existingParticipants.contains(parentId)) {
+          transaction.update(chatRef, {
+            'participantIds': FieldValue.arrayUnion([parentId]),
+            'participantData.$parentId': {
+              'name': parentData['name'],
+              'profileImageUrl': parentData['profileImageUrl'],
+              'type': 'parent'
+            },
+            'lastUpdated': FieldValue.serverTimestamp(),
+          });
+        }
       }
     });
   }
