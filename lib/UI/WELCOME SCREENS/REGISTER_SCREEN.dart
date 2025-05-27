@@ -80,9 +80,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
+                                        hintText: "Email",
 
-                                        labelText: "Email",
-                                        labelStyle: const TextStyle(color: Colors.black),
+                                        // labelText: "Email",
+                                        // labelStyle: const TextStyle(color: Colors.black),
                                         prefixIcon: Icon(Icons.email, color: Color(0xFF08203E)), // Email Icon
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12.r),
@@ -98,8 +99,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        labelText: "Password",
-                                        labelStyle: const TextStyle(color: Colors.black),
+                                        hintText: "Password",
+                                        // labelText: "Password",
+                                        // labelStyle: const TextStyle(color: Colors.black),
                                         prefixIcon: Icon(Icons.lock, color: Color(0xFF08203E)), // Password Icon
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12.r),

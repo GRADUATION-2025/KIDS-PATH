@@ -56,7 +56,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             Text(
                               "Continue as",
                               style:GoogleFonts.inter(fontSize: 40.sp, fontWeight: FontWeight.bold,
-                              color:isDark?Colors.white:Colors.white ),
+                              color:isDark?Colors.white:Colors.black ),
                             ),
                           ],
                         ),
@@ -68,7 +68,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                               "To continue to the next page, please\n"
                                   "select which one you are",
                               style: GoogleFonts.inter(fontSize: 15.sp,
-                                  color:isDark?Colors.white:Colors.white ),
+                                  color:isDark?Colors.white:Colors.black ),
                             ),
                           ],
                         ),

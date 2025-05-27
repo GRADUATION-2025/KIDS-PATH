@@ -196,7 +196,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildTextField(
       TextEditingController controller,
-      String label,
+      // String label,
+      String hint,
       IconData icon, {
         bool obscureText = false,
         String? Function(String?)? validator,
@@ -206,8 +207,10 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: obscureText,
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.black),
+        hintText: hint,
+
+        // labelText: label,
+        // labelStyle: const TextStyle(color: Colors.red),
         prefixIcon: Icon(icon, color: Color(0xFF08203E)),
         filled: true,
         fillColor: Colors.white,
