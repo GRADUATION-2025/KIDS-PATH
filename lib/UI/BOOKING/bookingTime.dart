@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../LOGIC/booking/cubit.dart';
 import '../../LOGIC/booking/state.dart';
+import '../../THEME/theme_provider.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../PAYMENT/PAYMENT_SCREEN.dart';
 
@@ -197,13 +199,13 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                 _NurseryActions(
                   booking: booking,
                   onShowChildDetails: () => _showChildDetails(context, booking),
-                  onBuildStatusPill: (status) => _buildStatusPill(status),
+                  onBuildStatusPill: (status) => _buildStatusPill(context,status),
                 )
               else
                 _ParentActions(
                   booking: booking,
                   onShowRatingDialog: () => _showRatingDialog(context, booking),
-                  onBuildStatusPill: (status) => _buildStatusPill(status),
+                  onBuildStatusPill: (status) => _buildStatusPill(context,status),
                 ),
             ],
           ),
@@ -246,12 +248,13 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
     );
   }
 
-  static Widget _buildStatusPill(String status) {
+  static Widget _buildStatusPill( BuildContext context,  String status) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     final statusColors = {
       'confirmed': const Color(0xFF0D6EFD),
       'cancelled': Colors.grey,
       'pending': Colors.orange,
-      'payment_pending': Colors.purple,
+      'payment_pending': isDark ? Colors.yellow : Colors.deepPurple,
       'rated': Colors.green,
     };
 
