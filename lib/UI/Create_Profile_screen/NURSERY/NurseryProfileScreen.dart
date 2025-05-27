@@ -664,7 +664,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         title: Text(
           title,
           style:  GoogleFonts.inter(fontWeight: FontWeight.bold,
-              color: isDark ? Colors.black : Colors.grey.shade100),
+              color: isDark ? Colors.black : Colors.black),
         ),
 
       ),
