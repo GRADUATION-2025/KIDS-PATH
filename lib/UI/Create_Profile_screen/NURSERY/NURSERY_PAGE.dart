@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kidspath/WIDGETS/BOTTOM%20NAV%20BAR/BTM_BAR_NAV_NURSERY.dart';
+import 'package:provider/provider.dart';
 import '../../../LOGIC/Nursery/nursery_cubit.dart';
 import '../../../LOGIC/Nursery/nursery_state.dart';
 import '../../../LOGIC/delete account/account_deletion_handler.dart';
@@ -121,7 +122,7 @@ class NurseryAccountScreen extends StatelessWidget {
                     ),
                     Divider(height: 20.h),
                     sectionTitle("Account"),
-                    accountOption(
+                    accountOption(context,
                       Icons.lock,
                       "Change Password",
                       onTap: () => Navigator.push(
@@ -129,20 +130,20 @@ class NurseryAccountScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                       ),
                     ),
-                    accountOption(Icons.notifications, "Notifications",onTap: () => Navigator.pushAndRemoveUntil(
+                    accountOption(context,Icons.notifications, "Notifications",onTap: () => Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
                           (route) => false,
                     ),),
-                    accountOption(Icons.privacy_tip, "Privacy and Policy",
+                    accountOption(context,Icons.privacy_tip, "Privacy and Policy",
                         onTap: ()=> Navigator.push(context,
                             MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
-                    accountOption(
+                    accountOption(context,
                       Icons.logout,
                       "Sign Out",
                       onTap: () => AccountActionsHandler.signOut(context),
                     ),
-                    accountOption(
+                    accountOption(context,
                       Icons.delete,
                       "Delete Account",
                       onTap: () => AccountActionsHandler.showDeleteDialog(context, user.uid, "Nursery"),
@@ -151,9 +152,9 @@ class NurseryAccountScreen extends StatelessWidget {
                     sectionTitle("More Options"),
                     toggleOption("Dark Mode", true),
                     // toggleOption("Text Messages", false),
-                    currencyOption("Currency", "EGP"),
-                    currencyOption("Languages", "English"),
-                    currencyOption("Location", "Alexandria",onTap: () => Navigator.pushAndRemoveUntil(context,
+                    currencyOption(context,"Currency", "EGP"),
+                    currencyOption(context,"Languages", "English"),
+                    currencyOption(context,"Location", "Alexandria",onTap: () => Navigator.pushAndRemoveUntil(context,
                       MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),),(route) => false,)),
                   ],
                 ),
@@ -181,21 +182,29 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget accountOption(IconData icon, String title, {VoidCallback? onTap}) {
-    return Builder(
-      builder: (context) => ListTile(
-        leading: Icon(icon, color: Colors.blue, size: 28.sp),
-        title: Text(
-          title, 
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios, 
-          size: 16.sp, 
-          color: Theme.of(context).iconTheme.color?.withOpacity(0.5)
-        ),
-        onTap: onTap ?? () {},
+  Widget accountOption(BuildContext context, IconData icon, String title, {VoidCallback? onTap, bool isDelete = false}) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isDelete
+            ? (isDark ? Colors.blue[400] : Colors.blue)
+            : (isDark ? Colors.blue[400] : Colors.blue),
+        size: 28.sp,
       ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: 16.sp,
+        color: isDark ? Colors.grey[400] : Colors.grey,
+      ),
+      onTap: onTap ?? () {},
     );
   }
 
@@ -212,17 +221,22 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget currencyOption(String title, String value,{VoidCallback? onTap}) {
-    return Builder(
-      builder: (context) => ListTile(
-        onTap: onTap,
-        title: Text(
-          title, 
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp)
+  Widget currencyOption(BuildContext context, String title, String value, {VoidCallback? onTap}) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    return ListTile(
+      onTap: onTap,
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: isDark ? Colors.white : Colors.black,
         ),
-        trailing: Text(
-          value, 
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp)
+      ),
+      trailing: Text(
+        value,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: isDark ? Colors.grey[400] : Colors.grey,
         ),
       ),
     );
