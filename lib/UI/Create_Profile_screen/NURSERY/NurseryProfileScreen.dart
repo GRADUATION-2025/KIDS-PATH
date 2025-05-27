@@ -13,8 +13,8 @@ import '../../../LOGIC/chat/cubit.dart';
 import '../../../LOGIC/chat/state.dart';
 import '../../../LOGIC/image/img upload/upload img.dart';
 import '../../../LOGIC/RATING/rating stats.dart';
-import '../../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../../THEME/theme_provider.dart';
+import '../../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../../BOOKING/Booking.dart';
 import '../../CHAT/chat.dart';
 
@@ -151,18 +151,18 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
-    
     return Scaffold(
       backgroundColor: isDark ? Colors.grey[900] : Colors.white,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header Section
             Container(
               padding: const EdgeInsets.only(top: 50, bottom: 20, left: 16, right: 16),
               decoration: BoxDecoration(
-                color: isDark ? Colors.grey[850] : Colors.white,
-                borderRadius: BorderRadius.only(
+                  color: isDark ? Colors.grey[850] : Colors.white,
+                borderRadius:  BorderRadius.only(
                   bottomLeft: Radius.circular(20.r),
                   bottomRight: Radius.circular(20.r),
                 ),
@@ -181,8 +181,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                   Row(
                     children: [
                       CircleAvatar(
-                        radius: 35.r,
                         backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
+                        radius: 35.r,
                         backgroundImage: widget.nursery.profileImageUrl != null
                             ? NetworkImage(widget.nursery.profileImageUrl!)
                             : const AssetImage('assets/profile.jpg') as ImageProvider,
@@ -193,7 +193,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                         children: [
                           Text(
                             widget.nursery.name,
-                            style: TextStyle(
+                            style:  GoogleFonts.inter(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               color: isDark ? Colors.white : Colors.black,
@@ -211,18 +211,14 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     return Text(
                                       "Loading... • ${widget.nursery.language}",
-                                      style: TextStyle(
-                                        color: isDark ? Colors.grey[300] : Colors.black87,
-                                      ),
+                                      style:  TextStyle( color: isDark ? Colors.white : Colors.black,),
                                     );
                                   }
 
                                   if (snapshot.hasError) {
                                     return Text(
                                       "Error • ${widget.nursery.language}",
-                                      style: TextStyle(
-                                        color: isDark ? Colors.grey[300] : Colors.black87,
-                                      ),
+                                      style:TextStyle( color: isDark ? Colors.white : Colors.black,),
                                     );
                                   }
 
@@ -232,9 +228,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
 
                                   return Text(
                                     "${averageRating.toStringAsFixed(1)} • ${widget.nursery.language}",
-                                    style: TextStyle(
-                                      color: isDark ? Colors.grey[300] : Colors.black87,
-                                    ),
+                                    style:  TextStyle( color: isDark ? Colors.white : Colors.black),
                                   );
                                 },
                               ),
@@ -248,41 +242,57 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: AppGradients.Projectgradient,
-                            borderRadius: BorderRadius.circular(8.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blue.withOpacity(0.3),
-                                spreadRadius: 1,
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+                          child:
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: AppGradients.Projectgradient,
+                              borderRadius: BorderRadius.circular(8.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue.withOpacity(0.3),
+                                  spreadRadius: 1,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
                               ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider(
+                                    create: (context) => BookingCubit(),
+                                    child: BookingScreen(
+                                      nurseryId: widget.nursery.uid,
+                                      nurseryName: widget.nursery.name,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              child:  Text(
+                                'Book Now',
+                                style: GoogleFonts.inter(color: Colors.white,fontSize: 13.sp),
                               ),
                             ),
-                            onPressed: () => _navigateToBooking(context),
-                            child: const Text(
-                              'Book Now',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
+                          )
                       ),
                       SizedBox(width: 12.w),
                       Container(
                         decoration: BoxDecoration(
-                          gradient: AppGradients.Projectgradient,
-                          borderRadius: BorderRadius.circular(8.r),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.blue.withOpacity(0.3),
@@ -316,14 +326,14 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               ),
             ),
 
-            // Description Section
+            // About Section
             _sectionTitle("About"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.description,
-                style: TextStyle(
-                  color: isDark ? Colors.grey[300] : Colors.black87,
+                style:  TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
                   fontSize: 15.sp,
                   height: 1.4,
                 ),
@@ -333,15 +343,13 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             // Images Section
             _sectionTitle("Gallery"),
             _buildImageGallerySection(),
-
-            // Child Age Section
             _sectionTitle("Child Age"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.age,
-                style: TextStyle(
-                  color: isDark ? Colors.grey[300] : Colors.black87,
+                style:  TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
                   fontSize: 15.sp,
                   height: 1.4,
                 ),
@@ -351,22 +359,10 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
             // Programs Section
             _sectionTitle("Programs"),
             if (widget.nursery.programs.isNotEmpty)
-              ...widget.nursery.programs.map((program) => Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                color: isDark ? Colors.grey[850] : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 1,
-                child: ListTile(
-                  title: Text(
-                    program.split(' ')[0],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                ),
+              ...widget.nursery.programs.map((program) => _programCard(
+                program.split(' ')[0],
+
+
               )).toList(),
 
             // Price Section
@@ -375,9 +371,9 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.price,
-                style: TextStyle(
+                style:  TextStyle(
                   fontSize: 16.sp,
-                  color: isDark ? Colors.grey[300] : Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                   height: 1.4,
                 ),
               ),
@@ -389,16 +385,17 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 widget.nursery.hours,
-                style: TextStyle(
+                style:  TextStyle(
                   fontSize: 16.sp,
-                  color: isDark ? Colors.grey[300] : Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                   height: 1.4,
                 ),
               ),
             ),
 
-            // Ratings Section
-            _sectionTitle("Ratings & Reviews"),
+            // Client Feedback
+            // Client Feedback Section
+            _sectionTitle("Clients Ratings"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: StreamBuilder<QuerySnapshot>(
@@ -408,20 +405,22 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: isDark ? Colors.blue[400] : Colors.blue,
-                      ),
-                    );
+                    return  Center(child: CircularProgressIndicator(
+                        color: isDark ? Colors.blue[400] : Colors.blue
+                    ));
                   }
 
                   if (snapshot.hasError) {
-                    return Text(
-                      'Error loading ratings: ${snapshot.error}',
-                      style: TextStyle(
-                        color: isDark ? Colors.red[400] : Colors.red,
-                      ),
-                    );
+                    return Text('Error loading ratings: ${snapshot.error}' , style: TextStyle(
+                    color: isDark ? Colors.red[400] : Colors.red,
+                    ),
+                  );
+                  }
+                  // Update the average rating in Firestore whenever ratings change
+                  if (snapshot.hasData) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _updateAverageRating(widget.nursery.uid);
+                    });
                   }
 
                   final ratings = snapshot.data?.docs ?? [];
@@ -431,11 +430,11 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${_calculateAverageRating(stats.starCounts).toStringAsFixed(1)} out of 5",
-                        style: TextStyle(
+                        "${_calculateAverageRating(stats.starCounts).toStringAsFixed(1)} out of 5  /  ${stats.totalRatings} Ratings",
+                        style:  TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black,
+                            color: isDark ? Colors.white : Colors.black
                         ),
                       ),
                       SizedBox(height: 16.h),
@@ -451,20 +450,16 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
       ),
     );
   }
+// Add this method to calculate average rating
+  double _calculateAverageRating(Map<int, int> starCounts) {
+    int total = starCounts.values.reduce((a, b) => a + b);
+    if (total == 0) return 0.0;
 
-  Widget _sectionTitle(String title) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-      ),
-    );
+    int sum = starCounts.entries
+        .map((entry) => entry.key * entry.value)
+        .reduce((a, b) => a + b);
+
+    return sum / total;
   }
 
   Widget _buildImageUploadSection() {
@@ -497,6 +492,58 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildRatingBars(RatingStats stats) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    return [5, 4, 3, 2, 1].map((stars) {
+      final percentage = stats.starPercentages[stars] ?? 0.0;
+      final count = stats.starCounts[stars] ?? 0;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          children: [
+            SizedBox(
+                width: 100.w,
+                child: Text('${'⭐' }  $stars Stars', style: GoogleFonts.inter(
+                    fontSize: 15, fontWeight: FontWeight.bold,color: isDark ? Colors.white : Colors.black))),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: LinearProgressIndicator(
+                  value: percentage / 100,
+                  minHeight: 12,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    _getProgressBarColor(stars),
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 60,
+              child: Text(
+                  '${percentage.toStringAsFixed(1)}%',
+                  style:  TextStyle(fontSize: 14.sp,
+                      color: isDark ? Colors.white : Colors.black)),
+            ),
+
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Color _getProgressBarColor(int stars) {
+    return const [
+      Color(0xFFFF0000), // 1 star - red
+      Color(0xFFFF4500), // 2 stars - orange red
+      Color(0xFFFFA500), // 3 stars - orange
+      Color(0xFF9ACD32), // 4 stars - yellow green
+      Color(0xFF32CD32), // 5 stars - green
+    ][stars - 1];
   }
 
   Widget _buildImageGallerySection() {
@@ -589,76 +636,66 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     );
   }
 
-  double _calculateAverageRating(Map<int, int> starCounts) {
-    int total = starCounts.values.reduce((a, b) => a + b);
-    if (total == 0) return 0.0;
-
-    int sum = starCounts.entries
-        .map((entry) => entry.key * entry.value)
-        .reduce((a, b) => a + b);
-
-    return sum / total;
-  }
-
-  void _navigateToBooking(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (context) => BookingCubit(),
-          child: BookingScreen(
-            nurseryId: widget.nursery.uid,
-            nurseryName: widget.nursery.name,
-          ),
+  Widget _sectionTitle(String title) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        title,
+        style:  TextStyle(
+          fontSize: 18.sp,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : Colors.black,
         ),
       ),
     );
   }
 
-  List<Widget> _buildRatingBars(RatingStats stats) {
+  Widget _programCard(String title, ) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    return List.generate(5, (index) {
-      final starNumber = 5 - index;
-      final count = stats.starCounts[starNumber] ?? 0;
-      final percentage = stats.totalRatings > 0
-          ? (count / stats.totalRatings * 100).toStringAsFixed(1)
-          : '0.0';
-
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 4.h),
-        child: Row(
-          children: [
-            Text(
-              '$starNumber',
-              style: TextStyle(
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontSize: 14.sp,
-              ),
-            ),
-            Icon(Icons.star, size: 14.sp, color: Colors.amber),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4.r),
-                child: LinearProgressIndicator(
-                  value: stats.totalRatings > 0 ? count / stats.totalRatings : 0,
-                  backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
-                  minHeight: 8.h,
-                ),
-              ),
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              '$percentage%',
-              style: TextStyle(
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontSize: 14.sp,
-              ),
-            ),
-          ],
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        color: isDark ? Colors.grey[100] : Colors.grey.shade100,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 1,
+      child: ListTile(
+        title: Text(
+          title,
+          style:  GoogleFonts.inter(fontWeight: FontWeight.bold,
+              color: isDark ? Colors.black : Colors.grey.shade100),
         ),
-      );
-    });
+
+      ),
+    );
   }
+  Future<void> _updateAverageRating(String nurseryId) async {
+    try {
+      // Get all ratings for this nursery
+      final ratingsSnapshot = await FirebaseFirestore.instance
+          .collection('ratings')
+          .where('nurseryId', isEqualTo: nurseryId)
+          .get();
+
+      final ratings = ratingsSnapshot.docs;
+      final stats = RatingStats.fromRatings(ratings);
+      final averageRating = _calculateAverageRating(stats.starCounts);
+
+      // Update the nursery document with the new average rating
+      await FirebaseFirestore.instance
+          .collection('nurseries')
+          .doc(nurseryId)
+          .update({
+        'rating': widget.nursery.rating,
+        'totalRatings': stats.totalRatings,
+        "averageRating":averageRating
+
+      });
+    } catch (e) {
+      print('Error updating average rating: $e');
+      // You might want to handle this error in your UI
+    }
+  }
+
 }
