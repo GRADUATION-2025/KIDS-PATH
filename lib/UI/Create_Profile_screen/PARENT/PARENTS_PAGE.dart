@@ -127,55 +127,33 @@ class ParentAccountScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ChildDataScreen()),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.child_care,
-                              color: Colors.blue,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              "View Child Data",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: isDark ? Colors.white : Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 5.w,),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.grey,
-                          size: 16,
-                        ),
-                      ],
-                    ),
-                  ),
+            ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChildDataScreen()),
+                );
+              },
+              leading: Icon(
+                Icons.child_care,
+                color: Colors.blue,
+                size: 24,
+              ),
+              title: Text(
+                "View Child Data",
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  color: isDark ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.w500,
                 ),
-
-              ],
-
+              ),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey,
+                size: 16,
+              ),
             ),
+
             Divider(
               height: 20.h,
               color: isDark ? Colors.grey[700] : Colors.grey[300],

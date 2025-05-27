@@ -5,7 +5,7 @@ class AppTheme {
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: Colors.blue,
-    scaffoldBackgroundColor:  Colors.grey, // softer than white
+    scaffoldBackgroundColor: const Color(0xFFF5F5F5), // softer than white
     appBarTheme: AppBarTheme(
       backgroundColor: const Color(0xFFF0F0F0), // light grey tone
       elevation: 0,
