@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import 'package:provider/provider.dart';
 import '../../LOGIC/LOGIN/cubit.dart';
 import '../../LOGIC/LOGIN/state.dart';
+import '../../THEME/theme_provider.dart';
 import '../forget_change_password/forgetscreen.dart';
 import 'REGISTER_SCREEN.dart';
 
@@ -24,6 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return BlocProvider(
       create: (context) => LoginCubit(FirebaseAuth.instance),
       child: BlocConsumer<LoginCubit, LoginStates>(
@@ -42,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
           return Scaffold(
             body: Container(
               decoration:  BoxDecoration(
-                gradient: AppGradients.Projectgradient
+                  gradient: AppGradients.Projectgradient
 
               ),
               child: Center(
@@ -63,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             letterSpacing: 2.sp,
                           ),
                         ),
-                         SizedBox(height: 30.h),
+                        SizedBox(height: 30.h),
                         Form(
                           key: formKey,
                           child: Column(
@@ -142,9 +146,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           text: "Sign In",
                           isLoading: state is LoginLoadingState,
                         ),
-                         SizedBox(height: 15.h),
+                        SizedBox(height: 15.h),
                         const Divider(color: Colors.white, thickness: 1),
-                         SizedBox(height: 15.h),
+                        SizedBox(height: 15.h),
                         _buildSocialButton(
                           onPressed: () => context.read<LoginCubit>().signInWithGoogle(context),
                           text: "Continue with Google",
@@ -197,58 +201,39 @@ class _LoginScreenState extends State<LoginScreen> {
         bool obscureText = false,
         String? Function(String?)? validator,
       }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color?.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        validator: validator,
-        style: TextStyle(
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-          fontSize: 16.sp,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(
-            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
-            fontSize: 14.sp,
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: Theme.of(context).iconTheme.color?.withOpacity(0.7),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Theme.of(context).dividerColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Theme.of(context).dividerColor),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.blue, width: 2),
-          ),
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      style: const TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.black),
+        prefixIcon: Icon(icon, color: Color(0xFF08203E)),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide.none,
         ),
       ),
+      validator: validator,
     );
   }
 
   Widget _buildButton({required VoidCallback onPressed, required String text, bool isLoading = false}) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).cardTheme.color,
-        foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: isLoading
           ? const CircularProgressIndicator(color: Colors.blue)
-          : Text(text, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+          : Text(text, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
     );
   }
 
