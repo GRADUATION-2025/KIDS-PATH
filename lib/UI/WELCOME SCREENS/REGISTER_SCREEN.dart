@@ -76,9 +76,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     // Email TextField with Icon
                                     TextFormField(
                                       controller: emailController,
+                                      style: TextStyle(color: Colors.black),
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
+
                                         labelText: "Email",
                                         labelStyle: const TextStyle(color: Colors.black),
                                         prefixIcon: Icon(Icons.email, color: Color(0xFF08203E)), // Email Icon
@@ -92,6 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     // Password TextField with Icon
                                     TextFormField(
                                       controller: passwordController,
+                                      style: TextStyle(color: Colors.black),
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
