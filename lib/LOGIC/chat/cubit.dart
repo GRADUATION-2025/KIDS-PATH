@@ -60,14 +60,14 @@ class ChatCubit extends Cubit<ChatState> {
                 'isRead': false,
                 'chatRoomId': chatRoomDoc.id,
                 'senderId': messageData['senderId'],
-                'senderName': messageData['senderName'],
+                'senderName': messageData['name'],
                 'senderImageUrl': messageData['senderImageUrl'],
               });
 
               // Send immediate push notification for real-time feedback
               await _oneSignalService.sendNotificationToUser(
                 userId: userId,
-                title: '${messageData['senderName']} sent you a message',
+                title: '${messageData['name']} sent you a message',
                 message: messageData['mediaUrl'] != null
                     ? 'Sent you a ${messageData['mediaType'] ?? "media"}'
                     : messageData['content'],
@@ -75,7 +75,7 @@ class ChatCubit extends Cubit<ChatState> {
                   'type': 'chat',
                   'chatRoomId': chatRoomDoc.id,
                   'senderId': messageData['senderId'],
-                  'senderName': messageData['senderName'],
+                  'senderName': messageData['name'],
                   'senderImageUrl': messageData['senderImageUrl'],
                   'shouldNavigate': true,
                 },
@@ -184,6 +184,10 @@ class ChatCubit extends Cubit<ChatState> {
     String? mediaType, String? thumbnailUrl,
   }) async {
     try {
+
+      final isNursery = await isUserNursery(senderId);
+      final userData = await _getUserData(senderId, isNursery);
+
       final timestamp = FieldValue.serverTimestamp();
       final messageRef = _firestore
           .collection('chatRooms')
@@ -195,10 +199,10 @@ class ChatCubit extends Cubit<ChatState> {
         'id': messageRef.id,
         'content': content,
         'senderId': senderId,
-        'senderName': senderName,
+        'senderName': userData["name"],
         'senderImageUrl': senderImageUrl,
         'timestamp': timestamp,
-        'isRead': false,
+        'isRead': isNursery,
         'deleted': false,
         'senderType': await isUserNursery(senderId) ? 'nursery' : 'parent',
       };
@@ -269,6 +273,21 @@ class ChatCubit extends Cubit<ChatState> {
         .map((doc) => Message.fromMap(doc.data() as Map<String, dynamic>))
         .toList());
   }
+
+
+  Stream<List<ChatRoom>> getUserChats(String userId) {
+    return _firestore
+        .collection('chatRooms')
+        .where('participantIds', arrayContains: userId)
+        .orderBy('lastUpdated', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+        .map((doc) => ChatRoom.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList());
+  }
+
+
+
 
   Future<void> markMessagesAsRead(String chatRoomId, String userId) async {
     try {
