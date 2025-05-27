@@ -10,6 +10,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../DATA MODELS/chatModel/massage.dart';
 import '../../LOGIC/chat/cubit.dart';
@@ -417,14 +418,36 @@ class _ChatScreenState extends State<ChatScreen> {
     return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
   }
 
-  void _sendMessage(BuildContext context, String userName, String? userImage) {
+  Future<Map<String, dynamic>> _getNurseryProfile(String nurseryId) async {
+    final doc = await FirebaseFirestore.instance.collection('nurseries').doc(nurseryId).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      return {
+        'name': data['name'] ?? 'Nursery',
+        'profileImageUrl': data['profileImageUrl'],
+      };
+    }
+    return {'name': 'Nursery', 'profileImageUrl': null};
+  }
+
+  void _sendMessage(BuildContext context, String userName, String? userImage) async {
     final content = _messageController.text.trim();
     if (content.isNotEmpty) {
+      String nameToSend = userName;
+      String? imageToSend = userImage;
+
+      final isNursery = await context.read<ChatCubit>().isUserNursery(widget.userId);
+      if (isNursery) {
+        final profile = await _getNurseryProfile(widget.userId);
+        nameToSend = profile['name'];
+        imageToSend = profile['profileImageUrl'];
+      }
+
       context.read<ChatCubit>().sendMessage(
         chatRoomId: widget.chatRoomId,
         senderId: widget.userId,
-        senderName: userName,
-        senderImageUrl: userImage,
+        senderName: nameToSend,
+        senderImageUrl: imageToSend,
         content: content,
       );
       _messageController.clear();

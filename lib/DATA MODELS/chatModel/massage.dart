@@ -54,7 +54,7 @@ class Message {
       timestamp: messageTimestamp,
       isRead: map['isRead'] ?? false,
       deleted: map['deleted'] ?? false,
-      senderType: map['senderType'] ?? 'parent',
+      senderType: map['senderType'] ?? 'parent', // Default to parent if not specified
       deletedBy: map['deletedBy'],
       deletedAt: map['deletedAt'] != null ? (map['deletedAt'] as Timestamp).toDate() : null,
       mediaUrl: map['mediaUrl'],

@@ -170,7 +170,7 @@ class ChatCubit extends Cubit<ChatState> {
     final data = doc.data()!;
     return {
       'name': data['name'] ?? (isNursery ? 'Nursery' : 'Parent'),
-      'imageUrl': data['imageUrl']
+      'imageUrl': data['profileImageUrl']
     };
   }
 
@@ -200,6 +200,7 @@ class ChatCubit extends Cubit<ChatState> {
         'timestamp': timestamp,
         'isRead': false,
         'deleted': false,
+        'senderType': await isUserNursery(senderId) ? 'nursery' : 'parent',
       };
 
       if (mediaUrl != null) {
