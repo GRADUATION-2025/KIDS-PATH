@@ -411,11 +411,14 @@ class _RatingDialogState extends State<RatingDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return AlertDialog(
       backgroundColor: Theme.of(context).dialogBackgroundColor,
       title: Text(
         'Rate Nursery',
-        style: Theme.of(context).textTheme.titleLarge,
+        style: GoogleFonts.inter(fontSize: 30.sp,fontWeight: FontWeight.bold,
+        color: isDark?Colors.white:Colors.black),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
