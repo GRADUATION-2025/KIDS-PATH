@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,9 @@ class NurseryAccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -29,9 +32,11 @@ class NurseryAccountScreen extends StatelessWidget {
 
     return BlocProvider(
 
-      create: (context) => NurseryCubit()..fetchNurseryData(user.uid),
+      create: (context) =>
+      NurseryCubit()
+        ..fetchNurseryData(user.uid),
       child: Scaffold(
-          backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+        backgroundColor: isDark ? Colors.grey[850] : Colors.white,
         // // appBar: AppBar(
         // //   elevation: 0,
         // //   backgroundColor: Colors.white,
@@ -49,7 +54,9 @@ class NurseryAccountScreen extends StatelessWidget {
             // The cubit will handle the state changes internally
           },
           builder: (context, state) {
-            final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+            final isDark = Provider
+                .of<ThemeProvider>(context)
+                .isDarkMode;
             if (state is NurseryLoaded) {
               final nursery = state.nursery;
               return SingleChildScrollView(
@@ -57,20 +64,22 @@ class NurseryAccountScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     SizedBox(height: kToolbarHeight),
+                    SizedBox(height: kToolbarHeight),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditNurseryProfileScreen(
-                              nursery: nursery,
-                              role: "Nursery",
-                              onProfileComplete: () {
-                                // Simply fetch the data again after update
-                                context.read<NurseryCubit>().fetchNurseryData(user.uid);
-                              }, fromRegistration: false,
-                            ),
+                            builder: (context) =>
+                                EditNurseryProfileScreen(
+                                  nursery: nursery,
+                                  role: "Nursery",
+                                  onProfileComplete: () {
+                                    // Simply fetch the data again after update
+                                    context.read<NurseryCubit>()
+                                        .fetchNurseryData(user.uid);
+                                  }, fromRegistration: false,
+                                ),
                           ),
                         );
                       },
@@ -78,19 +87,17 @@ class NurseryAccountScreen extends StatelessWidget {
                         children: [
                           Stack(
                             children: [
-                              CircleAvatar(
-                                radius: 40.r,
-                                backgroundImage: nursery.profileImageUrl != null
-                                    ? NetworkImage(nursery.profileImageUrl!)
-                                    : AssetImage('assets/nursery_default.png') as ImageProvider,
-                              ),
+                              _UserAvatar(profileImageUrl: nursery.profileImageUrl),
                               Positioned(
                                 bottom: 0,
                                 right: 0,
                                 child: CircleAvatar(
                                   radius: 12.r,
-                                  backgroundColor: isDark ? Colors.white : Colors.white,
-                                  child: Icon(Icons.edit, size: 16.sp, color: Colors.blue),
+                                  backgroundColor: isDark
+                                      ? Colors.white
+                                      : Colors.white,
+                                  child: Icon(Icons.edit, size: 16.sp,
+                                      color: Colors.blue),
                                 ),
                               ),
                             ],
@@ -101,11 +108,20 @@ class NurseryAccountScreen extends StatelessWidget {
                             children: [
                               Text(
                                 nursery.name,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.bold),
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontSize: 20.sp,
+                                    fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 nursery.email,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 13.sp),
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontSize: 13.sp),
                               ),
                             ],
                           ),
@@ -114,36 +130,47 @@ class NurseryAccountScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 20.h),
                     ListTile(
-                      title: Text("View profile", style: TextStyle(fontSize: 16.sp,
+                      title: Text("View profile", style: TextStyle(fontSize: 16
+                          .sp,
                           color: isDark ? Colors.white : Colors.black)),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 16.sp, color: Colors.grey),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 16.sp,
+                          color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NurseryProfileScreen(nursery: nursery),
+                            builder: (context) =>
+                                NurseryProfileScreen(nursery: nursery),
                           ),
                         );
                       },
                     ),
                     Divider(height: 20.h),
-                    sectionTitle(context,"Account"),
+                    sectionTitle(context, "Account"),
                     accountOption(context,
                       Icons.lock,
                       "Change Password",
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
-                      ),
+                      onTap: () =>
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                ForgotPasswordScreen()),
+                          ),
                     ),
-                    accountOption(context,Icons.notifications, "Notifications",onTap: () => Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => BottombarNurseryScreen(initialIndex: 2,)),
-                          (route) => false,
-                    ),),
-                    accountOption(context,Icons.privacy_tip, "Privacy and Policy",
-                        onTap: ()=> Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
+                    accountOption(context, Icons.notifications, "Notifications",
+                      onTap: () =>
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                BottombarNurseryScreen(initialIndex: 2,)),
+                                (route) => false,
+                          ),),
+                    accountOption(
+                        context, Icons.privacy_tip, "Privacy and Policy",
+                        onTap: () =>
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>
+                                    PrivacyPolicyScreen(),))),
                     accountOption(context,
                       Icons.logout,
                       "Sign Out",
@@ -152,16 +179,20 @@ class NurseryAccountScreen extends StatelessWidget {
                     accountOption(context,
                       Icons.delete,
                       "Delete Account",
-                      onTap: () => AccountActionsHandler.showDeleteDialog(context, user.uid, "Nursery"),
+                      onTap: () => AccountActionsHandler.showDeleteDialog(
+                          context, user.uid, "Nursery"),
                     ),
                     Divider(height: 20.h),
-                    sectionTitle(context,"More Options"),
-                    toggleOption(context,"Dark Mode", true),
+                    sectionTitle(context, "More Options"),
+                    toggleOption(context, "Dark Mode", true),
                     // toggleOption("Text Messages", false),
-                    currencyOption(context,"Currency", "EGP"),
-                    currencyOption(context,"Languages", "English"),
-                    currencyOption(context,"Location", "Alexandria",onTap: () => Navigator.pushAndRemoveUntil(context,
-                      MaterialPageRoute(builder: (context) => GoogleMapsLocationx(),),(route) => false,)),
+                    currencyOption(context, "Currency", "EGP"),
+                    currencyOption(context, "Languages", "English"),
+                    currencyOption(
+                        context, "Location", "Alexandria", onTap: () =>
+                        Navigator.pushAndRemoveUntil(context,
+                          MaterialPageRoute(builder: (context) =>
+                              GoogleMapsLocationx(),), (route) => false,)),
                   ],
                 ),
               );
@@ -176,22 +207,29 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget sectionTitle( BuildContext context,String title) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+  Widget sectionTitle(BuildContext context, String title) {
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Builder(
-        builder: (context) => Text(
-          title, 
-          style:GoogleFonts.inter(fontSize: 18.sp, fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black)
-        ),
+        builder: (context) =>
+            Text(
+                title,
+                style: GoogleFonts.inter(
+                    fontSize: 18.sp, fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black)
+            ),
       ),
     );
   }
 
-  Widget accountOption(BuildContext context, IconData icon, String title, {VoidCallback? onTap, bool isDelete = false}) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+  Widget accountOption(BuildContext context, IconData icon, String title,
+      {VoidCallback? onTap, bool isDelete = false}) {
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return ListTile(
       leading: Icon(
         icon,
@@ -216,23 +254,31 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget toggleOption( BuildContext context, String title, bool isActive) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+  Widget toggleOption(BuildContext context, String title, bool isActive) {
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return Builder(
-      builder: (context) => ListTile(
-        title: Text(title, style: TextStyle(fontSize: 16.sp,
-            color: isDark ? Colors.white : Colors.black)),
-        trailing: Switch(
-          value: context.watch<ThemeProvider>().isDarkMode,
-          activeColor: Color(0xFF0D41E1),
-          onChanged: (value) => context.read<ThemeProvider>().toggleTheme(),
-        ),
-      ),
+      builder: (context) =>
+          ListTile(
+            title: Text(title, style: TextStyle(fontSize: 16.sp,
+                color: isDark ? Colors.white : Colors.black)),
+            trailing: Switch(
+              value: context
+                  .watch<ThemeProvider>()
+                  .isDarkMode,
+              activeColor: Color(0xFF0D41E1),
+              onChanged: (value) => context.read<ThemeProvider>().toggleTheme(),
+            ),
+          ),
     );
   }
 
-  Widget currencyOption(BuildContext context, String title, String value, {VoidCallback? onTap}) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+  Widget currencyOption(BuildContext context, String title, String value,
+      {VoidCallback? onTap}) {
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return ListTile(
       onTap: onTap,
       title: Text(
@@ -252,3 +298,36 @@ class NurseryAccountScreen extends StatelessWidget {
     );
   }
 }
+  class _UserAvatar extends StatelessWidget {
+  final String? profileImageUrl;
+
+  const _UserAvatar({required this.profileImageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 40.r,
+      backgroundColor: Colors.transparent,
+      child: ClipOval(
+        child: SizedBox(
+          width: 80.w, // 2 * radius
+          height: 80.h,
+          child: CachedNetworkImage(
+            imageUrl: profileImageUrl ?? '',
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+            errorWidget: (context, url, error) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+

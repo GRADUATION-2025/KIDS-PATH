@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +26,9 @@ class ParentAccountScreen extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (context) => ParentCubit()..fetchParentData(user.uid),
+      create: (context) =>
+      ParentCubit()
+        ..fetchParentData(user.uid),
       child: BlocConsumer<ParentCubit, ParentState>(
         listener: (context, state) {
           if (state is ParentError) {
@@ -35,7 +38,9 @@ class ParentAccountScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+          final isDark = Provider
+              .of<ThemeProvider>(context)
+              .isDarkMode;
           return Scaffold(
             backgroundColor: isDark ? Colors.grey[850] : Colors.white,
             body: Padding(
@@ -51,8 +56,10 @@ class ParentAccountScreen extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, ParentState state, String userId) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
+
     if (state is ParentLoaded) {
       final parent = state.parent;
       return SingleChildScrollView(
@@ -65,17 +72,19 @@ class ParentAccountScreen extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: BlocProvider.of<ParentCubit>(context),
-                      child: EditProfileScreen(
-                        parent: parent,
-                        role: "Parent",
-                        onProfileComplete: () {
-                          context.read<ParentCubit>().fetchParentData(userId);
-                        },
-                        fromRegistration: false,
-                      ),
-                    ),
+                    builder: (context) =>
+                        BlocProvider.value(
+                          value: BlocProvider.of<ParentCubit>(context),
+                          child: EditProfileScreen(
+                            parent: parent,
+                            role: "Parent",
+                            onProfileComplete: () {
+                              context.read<ParentCubit>().fetchParentData(
+                                  userId);
+                            },
+                            fromRegistration: false,
+                          ),
+                        ),
                   ),
                 ).then((_) {
                   context.read<ParentCubit>().fetchParentData(userId);
@@ -83,159 +92,160 @@ class ParentAccountScreen extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 40.r,
-                        backgroundImage: parent.profileImageUrl != null
-                            ? NetworkImage(parent.profileImageUrl!)
-                            : AssetImage('assets/profile.jpg') as ImageProvider,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 12.r,
-                          backgroundColor: isDark ? Colors.white : Colors.white,
-                          child: Icon(Icons.edit, size: 16.sp, color: isDark ? Colors.blue[400] : Colors.blue),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 12.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        parent.name,
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      Text(
-                        parent.email,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20.h),
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChildDataScreen()),
-                );
-              },
-              leading: Icon(
-                Icons.child_care,
-                color: Colors.blue,
-                size: 24,
-              ),
-              title: Text(
-                "View Child Data",
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  color: isDark ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey,
-                size: 16,
-              ),
-            ),
+              Stack(
+              children: [
 
-            Divider(thickness: 1.5,
-              height: 20.h,
-              color: isDark ? Colors.white: Colors.black54,
-            ),
-            sectionTitle(context, "Account"),
-            accountOption(
-              context,
-              Icons.lock,
-              "Change Password",
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
-              ),
-            ),
-            accountOption(
-              context,
-              Icons.notifications,
-              "Notifications",
-              onTap: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => BottombarParentScreen(initialIndex: 3,)),
-                (route) => false,
-              ),
-            ),
-            accountOption(context,Icons.privacy_tip, "Privacy and Policy",
-                onTap: ()=> Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
-            accountOption(
-              context,
-              Icons.logout,
-              "Sign Out",
-              onTap: () => AccountActionsHandler.signOut(context),
-            ),
-            accountOption(
-              context,
-              Icons.delete,
-              "Delete Account",
-              onTap: () => AccountActionsHandler.showDeleteDialog(context, userId, "Parent"),
-              isDelete: true,
-            ),
-            Divider(
-              thickness: 1.5,
-              height: 20.h,
-              color: isDark ? Colors.white : Colors.black54,
-            ),
-            sectionTitle(context, "More Options"),
-            toggleOption("Dark Mode", true),
-            currencyOption(context, "Currency", "EGP"),
-            currencyOption(context, "Languages", "English"),
-            currencyOption(
-              context,
-              "Location",
-              "Alexandria",
-              onTap: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => GoogleMapsLocationx()),
-                (route) => false,
+          _UserAvatar(profileImageUrl: parent.profileImageUrl),
+
+
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: CircleAvatar(
+                radius: 12.r,
+                backgroundColor: isDark ? Colors.white : Colors.white,
+                child: Icon(Icons.edit, size: 16.sp,
+                    color: isDark ? Colors.blue[400] : Colors.blue),
               ),
             ),
           ],
         ),
-      );
+        SizedBox(width: 12.w),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              parent.name,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            Text(
+              parent.email,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+        ],
+      ),
+    ),
+    SizedBox(height: 20.h),
+    ListTile(
+    onTap: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const ChildDataScreen()),
+    );
+    },
+    leading: Icon(
+    Icons.child_care,
+    color: Colors.blue,
+    size: 24,
+    ),
+    title: Text(
+    "View Child Data",
+    style: TextStyle(
+    fontSize: 15.sp,
+    color: isDark ? Colors.white : Colors.black,
+    fontWeight: FontWeight.w500,
+    ),
+    ),
+    trailing: const Icon(
+    Icons.arrow_forward_ios,
+    color: Colors.grey,
+    size: 16,
+    ),
+    ),
+
+    Divider(thickness: 1.5,
+    height: 20.h,
+    color: isDark ? Colors.white: Colors.black54,
+    ),
+    sectionTitle(context, "Account"),
+    accountOption(
+    context,
+    Icons.lock,
+    "Change Password",
+    onTap: () => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+    ),
+    ),
+    accountOption(
+    context,
+    Icons.notifications,
+    "Notifications",
+    onTap: () => Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => BottombarParentScreen(initialIndex: 3,)),
+    (route) => false,
+    ),
+    ),
+    accountOption(context,Icons.privacy_tip, "Privacy and Policy",
+    onTap: ()=> Navigator.push(context,
+    MaterialPageRoute(builder: (context) => PrivacyPolicyScreen(),))),
+    accountOption(
+    context,
+    Icons.logout,
+    "Sign Out",
+    onTap: () => AccountActionsHandler.signOut(context),
+    ),
+    accountOption(
+    context,
+    Icons.delete,
+    "Delete Account",
+    onTap: () => AccountActionsHandler.showDeleteDialog(context, userId, "Parent"),
+    isDelete: true,
+    ),
+    Divider(
+    thickness: 1.5,
+    height: 20.h,
+    color: isDark ? Colors.white : Colors.black54,
+    ),
+    sectionTitle(context, "More Options"),
+    toggleOption("Dark Mode", true),
+    currencyOption(context, "Currency", "EGP"),
+    currencyOption(context, "Languages", "English"),
+    currencyOption(
+    context,
+    "Location",
+    "Alexandria",
+    onTap: () => Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => GoogleMapsLocationx()),
+    (route) => false,
+    ),
+    ),
+    ],
+    ),
+    );
     } else if (state is ParentError) {
-      return Center(
-        child: Text(
-          state.message,
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black,
-          ),
-        ),
-      );
+    return Center(
+    child: Text(
+    state.message,
+    style: TextStyle(
+    color: isDark ? Colors.white : Colors.black,
+    ),
+    ),
+    );
     } else {
-      return Center(
-        child: CircularProgressIndicator(
-          color: isDark ? Colors.blue[400] : Colors.blue,
-        ),
-      );
+    return Center(
+    child: CircularProgressIndicator(
+    color: isDark ? Colors.blue[400] : Colors.blue,
+    ),
+    );
     }
   }
 
   Widget sectionTitle(BuildContext context, String title) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Text(
@@ -249,8 +259,11 @@ class ParentAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget accountOption(BuildContext context, IconData icon, String title, {VoidCallback? onTap, bool isDelete = false}) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+  Widget accountOption(BuildContext context, IconData icon, String title,
+      {VoidCallback? onTap, bool isDelete = false}) {
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return ListTile(
       leading: Icon(
         icon,
@@ -278,7 +291,9 @@ class ParentAccountScreen extends StatelessWidget {
   Widget toggleOption(String title, bool isActive) {
     return Builder(
       builder: (context) {
-        final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+        final isDark = Provider
+            .of<ThemeProvider>(context)
+            .isDarkMode;
         return ListTile(
           title: Text(
             title,
@@ -288,7 +303,9 @@ class ParentAccountScreen extends StatelessWidget {
             ),
           ),
           trailing: Switch(
-            value: context.watch<ThemeProvider>().isDarkMode,
+            value: context
+                .watch<ThemeProvider>()
+                .isDarkMode,
             activeColor: Color(0xFF0D41E1),
             onChanged: (value) => context.read<ThemeProvider>().toggleTheme(),
           ),
@@ -297,8 +314,11 @@ class ParentAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget currencyOption(BuildContext context, String title, String value, {VoidCallback? onTap}) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+  Widget currencyOption(BuildContext context, String title, String value,
+      {VoidCallback? onTap}) {
+    final isDark = Provider
+        .of<ThemeProvider>(context)
+        .isDarkMode;
     return ListTile(
       onTap: onTap,
       title: Text(
@@ -318,3 +338,36 @@ class ParentAccountScreen extends StatelessWidget {
     );
   }
 }
+class _UserAvatar extends StatelessWidget {
+  final String? profileImageUrl;
+
+  const _UserAvatar({required this.profileImageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 40.r,
+      backgroundColor: Colors.transparent,
+      child: ClipOval(
+        child: SizedBox(
+          width: 80.w, // 2 * radius
+          height: 80.h,
+          child: CachedNetworkImage(
+            imageUrl: profileImageUrl ?? '',
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+            errorWidget: (context, url, error) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
