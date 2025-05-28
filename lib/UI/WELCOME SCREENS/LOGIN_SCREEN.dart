@@ -34,15 +34,19 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is LoginSucessState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Login Successful")),
+              SnackBar(backgroundColor: isDark?Colors.black:Colors.white,
+                  content: Text("Login Successful",style: TextStyle(color: isDark?Colors.white:Colors.black),)),
             );
           } else if (state is LoginErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage)),
+              SnackBar(backgroundColor: isDark?Colors.black:Colors.white,
+                  content: Text(state.errorMessage,style: TextStyle(color: isDark?Colors.black:Colors.white),)),
             );
           }
         },
         builder: (context, state) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+          final isDark = themeProvider.isDarkMode;
           return Scaffold(
             body: Container(
               decoration:  BoxDecoration(
@@ -75,7 +79,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               _buildTextField(
                                 emailController,
                                 "Email",
+
                                 Icons.email,
+                                hintstyle:TextStyle(color: isDark?Colors.black:Colors.black),
+
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your email';
@@ -86,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 15),
                               _buildTextField(
                                 passwordController,
+                                hintstyle:TextStyle(color: isDark?Colors.black:Colors.black),
                                 "Password",
                                 Icons.lock,
                                 obscureText: true,
@@ -195,12 +203,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildTextField(
+
       TextEditingController controller,
+
       // String label,
       String hint,
+
       IconData icon, {
+
         bool obscureText = false,
-        String? Function(String?)? validator,
+        String? Function(String?)? validator, required TextStyle hintstyle,
       }) {
     return TextFormField(
       controller: controller,
@@ -208,6 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: hintstyle,
 
         // labelText: label,
         // labelStyle: const TextStyle(color: Colors.red),

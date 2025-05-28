@@ -37,7 +37,7 @@ class ParentAccountScreen extends StatelessWidget {
         builder: (context, state) {
           final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
           return Scaffold(
-            backgroundColor: isDark ? Colors.black : Colors.white,
+            backgroundColor: isDark ? Colors.grey[850] : Colors.white,
             body: Padding(
               padding: EdgeInsets.only(top: 40.w),
               child: Builder(
@@ -154,9 +154,9 @@ class ParentAccountScreen extends StatelessWidget {
               ),
             ),
 
-            Divider(
+            Divider(thickness: 1.5,
               height: 20.h,
-              color: isDark ? Colors.grey[700] : Colors.grey[300],
+              color: isDark ? Colors.white: Colors.black54,
             ),
             sectionTitle(context, "Account"),
             accountOption(
@@ -195,8 +195,9 @@ class ParentAccountScreen extends StatelessWidget {
               isDelete: true,
             ),
             Divider(
+              thickness: 1.5,
               height: 20.h,
-              color: isDark ? Colors.grey[700] : Colors.grey[300],
+              color: isDark ? Colors.white : Colors.black54,
             ),
             sectionTitle(context, "More Options"),
             toggleOption("Dark Mode", true),

@@ -4,10 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 import '../../DATA MODELS/chatModel/chatRoom.dart';
 import '../../DATA MODELS/chatModel/massage.dart';
 import '../../LOGIC/chat/cubit.dart';
+import '../../THEME/theme_provider.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import 'chat.dart';
 
@@ -16,18 +18,21 @@ class ChatListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final userImage = FirebaseAuth.instance.currentUser!.photoURL;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize:  Size.fromHeight(100.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBar(
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               elevation: 0,
               centerTitle: true,
               automaticallyImplyLeading: false,
@@ -125,12 +130,14 @@ class _ChatListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Material(
         elevation: 2,
         borderRadius: BorderRadius.circular(16.r),
-        color: Colors.white,
+        color: isDark?Colors.grey[300]:Colors.white,
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: CircleAvatar(
@@ -147,6 +154,7 @@ class _ChatListItem extends StatelessWidget {
             style:  TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16.sp,
+              color: isDark?Colors.black:Colors.black
             ),
           ),
           subtitle: StreamBuilder<QuerySnapshot>(
