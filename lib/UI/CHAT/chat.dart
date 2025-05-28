@@ -397,17 +397,7 @@ class _ChatScreenState extends State<ChatScreen> {
               if (!isMe && !message.deleted)
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 16.r,
-                      backgroundImage: message.senderImageUrl != null
-                          ? NetworkImage(message.senderImageUrl!)
-                          : null,
-                      child: message.senderImageUrl == null
-                          ? Text(message.senderName.isNotEmpty
-                          ? message.senderName.substring(0, 1).toUpperCase()
-                          : '?')
-                          : null,
-                    ),
+                    _SenderImage(profileImageUrl: message.senderImageUrl),
                     SizedBox(width: 8.w),
                     Text(
                       message.senderName,
@@ -649,6 +639,41 @@ class _NurseryAvatarState extends State<_NurseryAvatar> {
         ),);
   }
 }
+
+
+
+
+class _SenderImage extends StatefulWidget {
+  final String? profileImageUrl;
+
+  const _SenderImage({required this.profileImageUrl});
+
+  @override
+  State<_SenderImage> createState() => _SenderImageState();
+}
+
+class _SenderImageState extends State<_SenderImage> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    return CircleAvatar(
+      radius: 19.r,
+      backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: widget.profileImageUrl ?? '',
+          width: 60.w,
+          height: 60.h,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Icon(Icons.person, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+          errorWidget: (context, url, error) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+        ),
+      ),);
+  }
+}
+
 
 
 
