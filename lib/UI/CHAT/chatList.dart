@@ -264,7 +264,7 @@ class _ChatListItem extends StatelessWidget {
                   fit: BoxFit.cover,
                   placeholder: (context, url) =>
                       Icon(
-                        Icons.person,
+                        Icons.image,
                         color: Theme
                             .of(context)
                             .iconTheme
