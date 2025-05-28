@@ -31,7 +31,7 @@ class NurseryAccountScreen extends StatelessWidget {
 
       create: (context) => NurseryCubit()..fetchNurseryData(user.uid),
       child: Scaffold(
-          backgroundColor: isDark ? Colors.black : Colors.white,
+          backgroundColor: isDark ? Colors.grey[850] : Colors.white,
         // // appBar: AppBar(
         // //   elevation: 0,
         // //   backgroundColor: Colors.white,

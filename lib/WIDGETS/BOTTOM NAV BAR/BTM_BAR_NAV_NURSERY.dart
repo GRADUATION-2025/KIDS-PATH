@@ -1,3 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,11 +26,27 @@ class BottombarNurseryScreen extends StatefulWidget {
 
 class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
   late int _selectedindex;
+  String? profileImageUrl;
+  final UserProfileService _profileService = UserProfileService();
+
+
 
   @override
   void initState() {
     super.initState();
-    _selectedindex = widget.initialIndex; // Set starting tab
+    _selectedindex = widget.initialIndex;
+    _loadUserProfile();// Set starting tab
+  }
+  Future<void> _loadUserProfile() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final url = await _profileService.getProfileImageUrl(user.uid);
+      if (mounted) {
+        setState(() {
+          profileImageUrl = url;
+        });
+      }
+    }
   }
 
   @override
@@ -179,11 +198,7 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
           ),
           SizedBox(height: 4.h),// Space between line and icon
 
-          CircleAvatar(
-            radius: 15.r,
-            backgroundImage: AssetImage('assets/IMAGES/Avatar_default.png'),
-            backgroundColor: Colors.transparent,
-          ),
+          _UserAvatar(profileImageUrl: profileImageUrl),
         ],
       ),
       label: "ACCOUNT",
@@ -194,4 +209,57 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
   Color _getIconColor(int index) {
     return _selectedindex == index ? Color(0xFF156CD7) : Color(0xFF515978);
   }
-}
+  }
+
+  class _UserAvatar extends StatelessWidget {
+    final String? profileImageUrl;
+
+    const _UserAvatar({required this.profileImageUrl});
+
+    @override
+    Widget build(BuildContext context) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: Theme
+            .of(context)
+            .cardColor,
+        child: ClipOval(
+          child: CachedNetworkImage(
+            imageUrl: profileImageUrl ?? '',
+            width: 40.w,
+            height: 40.h,
+            fit: BoxFit.cover,
+            placeholder: (context, url) =>
+                Icon(Icons.person, color: Theme
+                    .of(context)
+                    .iconTheme
+                    .color
+                    ?.withOpacity(0.5)),
+            errorWidget: (context, url, error) =>
+                Icon(Icons.person, color: Theme
+                    .of(context)
+                    .iconTheme
+                    .color
+                    ?.withOpacity(0.5)),
+          ),
+        ),
+      );
+    }
+  }
+
+  class UserProfileService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<String?> getProfileImageUrl(String uid) async {
+  try {
+  DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+  return userDoc['profileImageUrl']; // Assuming you store the URL in this field
+  } catch (e) {
+  print('Error fetching profile image: $e');
+  return null;
+  }
+  }
+  }
+
+
+

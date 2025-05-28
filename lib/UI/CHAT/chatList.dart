@@ -18,14 +18,14 @@ class ChatListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.isDarkMode;
-
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final userImage = FirebaseAuth.instance.currentUser!.photoURL;
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
       appBar: PreferredSize(
         preferredSize:  Size.fromHeight(100.h),
         child: Column(
@@ -130,6 +130,7 @@ class _ChatListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
     return Padding(
@@ -137,7 +138,7 @@ class _ChatListItem extends StatelessWidget {
       child: Material(
         elevation: 2,
         borderRadius: BorderRadius.circular(16.r),
-        color: isDark?Colors.grey[300]:Colors.white,
+       color: theme.cardTheme.color,
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: CircleAvatar(
@@ -154,7 +155,7 @@ class _ChatListItem extends StatelessWidget {
             style:  TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16.sp,
-              color: isDark?Colors.black:Colors.black
+              color: isDark?Colors.white:Colors.black
             ),
           ),
           subtitle: StreamBuilder<QuerySnapshot>(
@@ -174,7 +175,7 @@ class _ChatListItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontStyle: lastMessage.deleted ? FontStyle.italic : FontStyle.normal,
-                    color: lastMessage.deleted ? Colors.grey : Colors.black87,
+                    color: isDark ? Colors.white : Colors.black87,
                     fontSize: 14.sp,
                   ),
                 );

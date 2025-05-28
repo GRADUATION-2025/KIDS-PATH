@@ -1,9 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import 'package:provider/provider.dart';
 import '../../LOGIC/booking/cubit.dart';
+import '../../THEME/theme_provider.dart';
 import '../../UI/BOOKING/bookingTime.dart';
 import '../../UI/CHAT/chatList.dart';
 import '../../UI/Create_Profile_screen/PARENT/PARENTS_PAGE.dart';
@@ -22,15 +27,33 @@ class BottombarParentScreen extends StatefulWidget {
 
 class _BottombarParentScreenState extends State<BottombarParentScreen> {
   late int _selectedindex;
+  String? profileImageUrl;
+  final UserProfileService _profileService = UserProfileService();
 
   @override
   void initState() {
     super.initState();
     _selectedindex = widget.initialIndex; // Set starting tab
+    _loadUserProfile(); // Set starting tab
   }
+
+  Future<void> _loadUserProfile() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final url = await _profileService.getProfileImageUrl(user.uid);
+      if (mounted) {
+        setState(() {
+          profileImageUrl = url;
+        });
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Scaffold(
       body: IndexedStack(
         index: _selectedindex,
@@ -38,7 +61,9 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
           HomeScreen(),
           ChatListScreen(),
           BlocProvider(
-            create: (context) => BookingCubit()..initBookingsStream(isNursery: false),
+            create: (context) =>
+            BookingCubit()
+              ..initBookingsStream(isNursery: false),
             child: BookingTimesScreen(isNursery: false),
           ),
           NotificationScreen(),
@@ -53,13 +78,17 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
             _selectedindex = index;
           });
         },
-        showSelectedLabels: true, // Show selected labels
-        showUnselectedLabels: false, // Show unselected labels
+        showSelectedLabels: true,
+        // Show selected labels
+        showUnselectedLabels: false,
+        // Show unselected labels
         selectedItemColor: Color(0xFF156CD7),
         selectedIconTheme: IconThemeData(color: Colors.red),
         unselectedItemColor: Color(0xFF515978),
-        selectedLabelStyle: GoogleFonts.inter(fontSize: 9.5.sp, fontWeight: FontWeight.bold),
-        unselectedLabelStyle: GoogleFonts.inter(fontSize: 9.5.sp, fontWeight: FontWeight.bold),
+        selectedLabelStyle: GoogleFonts.inter(
+            fontSize: 9.5.sp, fontWeight: FontWeight.bold),
+        unselectedLabelStyle: GoogleFonts.inter(
+            fontSize: 9.5.sp, fontWeight: FontWeight.bold),
         type: BottomNavigationBarType.fixed,
 
         items: [
@@ -74,7 +103,8 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
   }
 
 
-  BottomNavigationBarItem _buildBottomNavItem(IconData icon, String label, int index) {
+  BottomNavigationBarItem _buildBottomNavItem(IconData icon, String label,
+      int index) {
     return BottomNavigationBarItem(
       icon: Column(
 
@@ -112,11 +142,11 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
             width: 50.w,
             decoration: BoxDecoration(
               gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null: Colors.transparent,
+              color: _selectedindex == index ? null : Colors.transparent,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          SizedBox(height: 4.h),// Space between line and icon
+          SizedBox(height: 4.h), // Space between line and icon
           Image.asset(
             'assets/ICONS/CHAT_ICON.png',
             width: 24.w,
@@ -134,24 +164,24 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
       icon: Column(
 
         children: [
-        // 🔵 Top line indicator
-        Container(
-        height: 4.h,
-        width: 50.w,
-        decoration: BoxDecoration(
-          gradient: AppGradients.Projectgradient,
-          color: _selectedindex == index ? null: Colors.transparent,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-      SizedBox(height: 4.h),// Space between line and icon
-      Image.asset(
-        'assets/ICONS/BOOKING_ICON.png',
-        width: 24.w,
-        height: 24.h,
-        color: _getIconColor(index),
-      ),
-      ],
+          // 🔵 Top line indicator
+          Container(
+            height: 4.h,
+            width: 50.w,
+            decoration: BoxDecoration(
+              gradient: AppGradients.Projectgradient,
+              color: _selectedindex == index ? null : Colors.transparent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          SizedBox(height: 4.h), // Space between line and icon
+          Image.asset(
+            'assets/ICONS/BOOKING_ICON.png',
+            width: 24.w,
+            height: 24.h,
+            color: _getIconColor(index),
+          ),
+        ],
       ),
       label: "BOOKING",
     );
@@ -163,26 +193,25 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
 
         children: [
 
-        Container(
-        height: 4.h,
-        width: 50.w,
-        decoration: BoxDecoration(
-          gradient: AppGradients.Projectgradient,
-          color: _selectedindex == index ? null: Colors.transparent,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-      SizedBox(height: 2.h),// Space between line and icon
+          Container(
+            height: 4.h,
+            width: 50.w,
+            decoration: BoxDecoration(
+              gradient: AppGradients.Projectgradient,
+              color: _selectedindex == index ? null : Colors.transparent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          SizedBox(height: 2.h), // Space between line and icon
 
 
-
-      Image.asset(
-        'assets/ICONS/NOTIFICATION_ICON.png',
-        width: 24.w,
-        height: 24.h,
-        color: _getIconColor(index),
-      ),
-      ]
+          Image.asset(
+            'assets/ICONS/NOTIFICATION_ICON.png',
+            width: 24.w,
+            height: 24.h,
+            color: _getIconColor(index),
+          ),
+        ]
         ,
       ),
       label: "NOTIFICATION",
@@ -194,24 +223,20 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
       icon: Column(
 
         children: [
-        // 🔵 Top line indicator
-        Container(
-        height: 4.h,
-        width: 50.w,
-        decoration: BoxDecoration(
-          gradient: AppGradients.Projectgradient,
-          color: _selectedindex == index ? null: Colors.transparent,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-      SizedBox(height: 4.h),// Space between line and icon
+          // 🔵 Top line indicator
+          Container(
+            height: 4.h,
+            width: 50.w,
+            decoration: BoxDecoration(
+              gradient: AppGradients.Projectgradient,
+              color: _selectedindex == index ? null : Colors.transparent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          SizedBox(height: 4.h), // Space between line and icon
 
-      CircleAvatar(
-        radius: 15.r,
-        backgroundImage: AssetImage('assets/IMAGES/Avatar_default.png'),
-        backgroundColor: Colors.transparent,
-      ),
-      ],
+          _UserAvatar(profileImageUrl: profileImageUrl),
+        ],
       ),
       label: "ACCOUNT",
     );
@@ -219,6 +244,63 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
 
   /// Function to get icon color based on selection.
   Color _getIconColor(int index) {
-    return _selectedindex == index ? Color(0xFF156CD7) : Color(0xFF515978);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDark = themeProvider.isDarkMode;
+
+    return _selectedindex == index
+        ? Color(0xFF156CD7) // Selected color (blue)
+        : isDark
+        ? Colors.white! // Unselected in dark mode
+        : Color(0xFF515978); // Unselected in light mode (default)
   }
 }
+  class _UserAvatar extends StatelessWidget {
+  final String? profileImageUrl;
+
+  const _UserAvatar({required this.profileImageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+  return CircleAvatar(
+  radius: 20,
+  backgroundColor: Theme
+      .of(context)
+      .cardColor,
+  child: ClipOval(
+  child: CachedNetworkImage(
+  imageUrl: profileImageUrl ?? '',
+  width: 40.w,
+  height: 40.h,
+  fit: BoxFit.cover,
+  placeholder: (context, url) =>
+  Icon(Icons.person, color: Theme
+      .of(context)
+      .iconTheme
+      .color
+      ?.withOpacity(0.5)),
+  errorWidget: (context, url, error) =>
+  Icon(Icons.person, color: Theme
+      .of(context)
+      .iconTheme
+      .color
+      ?.withOpacity(0.5)),
+  ),
+  ),
+  );
+  }
+  }
+
+  class UserProfileService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<String?> getProfileImageUrl(String uid) async {
+  try {
+  DocumentSnapshot userDoc = await _firestore.collection('parents').doc(uid).get();
+  return userDoc['profileImageUrl']; // Assuming you store the URL in this field
+  } catch (e) {
+  print('Error fetching profile image: $e');
+  return null;
+  }
+  }
+  }
+
