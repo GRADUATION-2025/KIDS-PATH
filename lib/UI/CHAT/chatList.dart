@@ -1,4 +1,5 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -138,24 +139,20 @@ class _ChatListItem extends StatelessWidget {
       child: Material(
         elevation: 2,
         borderRadius: BorderRadius.circular(16.r),
-       color: theme.cardTheme.color,
+        color: theme.cardTheme.color,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          leading: CircleAvatar(
-            radius: 28.r,
-            backgroundImage: chat.nurseryImageUrl != null
-                ? NetworkImage(chat.nurseryImageUrl!)
-                : null,
-            child: chat.nurseryImageUrl == null
-                ? Text(chat.nurseryName.substring(0, 1).toUpperCase())
-                : null,
-          ),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 10),
+          leading:
+          _UserAvatar(profileImageUrl: chat.nurseryImageUrl),
+
+
           title: Text(
             chat.nurseryName,
-            style:  TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16.sp,
-              color: isDark?Colors.white:Colors.black
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.sp,
+                color: isDark ? Colors.white : Colors.black
             ),
           ),
           subtitle: StreamBuilder<QuerySnapshot>(
@@ -174,13 +171,15 @@ class _ChatListItem extends StatelessWidget {
                   lastMessage.deleted ? 'Message deleted' : lastMessage.content,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontStyle: lastMessage.deleted ? FontStyle.italic : FontStyle.normal,
+                    fontStyle: lastMessage.deleted
+                        ? FontStyle.italic
+                        : FontStyle.normal,
                     color: isDark ? Colors.white : Colors.black87,
                     fontSize: 14.sp,
                   ),
                 );
               }
-              return  Text(
+              return Text(
                 'No messages yet',
                 style: TextStyle(fontSize: 14.sp, color: Colors.grey),
               );
@@ -202,7 +201,7 @@ class _ChatListItem extends StatelessWidget {
                   backgroundColor: Colors.blueAccent,
                   child: Text(
                     unreadCount.toString(),
-                    style:  TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
@@ -218,13 +217,14 @@ class _ChatListItem extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                  chatRoomId: chat.id,
-                  nurseryName: chat.nurseryName,
-                  nurseryImageUrl: chat.nurseryImageUrl,
-                  userId: userId,
-                  userImage: userImage,
-                ),
+                builder: (context) =>
+                    ChatScreen(
+                      chatRoomId: chat.id,
+                      nurseryName: chat.nurseryName,
+                      nurseryImageUrl: chat.nurseryImageUrl,
+                      userId: userId,
+                      userImage: userImage,
+                    ),
               ),
             );
           },
@@ -233,3 +233,37 @@ class _ChatListItem extends StatelessWidget {
     );
   }
 }
+    class _UserAvatar extends StatelessWidget {
+  final String? profileImageUrl;
+
+  const _UserAvatar({required this.profileImageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 30.r,
+      backgroundColor: Colors.transparent,
+      child: ClipOval(
+        child: SizedBox(
+          width: 100.w, // 2 * radius
+          height: 100.h,
+          child: CachedNetworkImage(
+            imageUrl: profileImageUrl ?? '',
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+            errorWidget: (context, url, error) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+

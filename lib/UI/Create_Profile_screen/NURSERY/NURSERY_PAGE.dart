@@ -88,6 +88,7 @@ class NurseryAccountScreen extends StatelessWidget {
                           Stack(
                             children: [
                               _UserAvatar(profileImageUrl: nursery.profileImageUrl),
+
                               Positioned(
                                 bottom: 0,
                                 right: 0,

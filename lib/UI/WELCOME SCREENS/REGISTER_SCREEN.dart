@@ -2,10 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 import '../../LOGIC/SIGNUP/cubit.dart';
 import '../../LOGIC/SIGNUP/state.dart';
 
+import '../../THEME/theme_provider.dart';
 import 'Email Verify/Email Verify.dart';
 import 'LOGIN_SCREEN.dart';
 
@@ -23,6 +25,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return BlocProvider(
       create: (context) => SignupCubit(FirebaseAuth.instance),
       child: BlocConsumer<SignupCubit, SignUpStates>(
@@ -42,6 +46,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         builder: (context, state) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+          final isDark = themeProvider.isDarkMode;
           return Scaffold(
 
             body: Container(
@@ -81,6 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         filled: true,
                                         fillColor: Colors.white,
                                         hintText: "Email",
+                                          hintStyle: TextStyle(color: isDark?Colors.black:Colors.black),
 
                                         // labelText: "Email",
                                         // labelStyle: const TextStyle(color: Colors.black),
@@ -100,6 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         filled: true,
                                         fillColor: Colors.white,
                                         hintText: "Password",
+                                        hintStyle: TextStyle(color: isDark?Colors.black:Colors.black),
                                         // labelText: "Password",
                                         // labelStyle: const TextStyle(color: Colors.black),
                                         prefixIcon: Icon(Icons.lock, color: Color(0xFF08203E)), // Password Icon
