@@ -385,14 +385,16 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         appBar: AppBar(
           backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-          title: Text(
-            "All Nurseries",
-            style: GoogleFonts.inter(
-              fontSize: 25.sp,
-              foreground: Paint()
-                ..shader = AppGradients.Projectgradient.createShader(
-                  const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
-                ),
+          title: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return AppGradients.Projectgradient.createShader(bounds);
+            },
+            child: Text(
+              "All Nurseries",
+              style: GoogleFonts.inter(
+                fontSize: 25.sp,
+                color: Colors.white, // Important: Text color should be white for gradient to show
+              ),
             ),
           ),
           leading: Padding(
@@ -410,76 +412,84 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
           ),
           leadingWidth: 35,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Reset Filters',
-              onPressed: () {
-                _searchController.clear();
-                _minPriceController.clear();
-                _maxPriceController.clear();
-                _locationController.clear();
-                setState(() {
-                  _selectedLocation = null;
-                  _minPrice = null;
-                  _maxPrice = null;
-                  _selectedAge = null;
-                  _minRating = null;
-                  _selectedGeoPoint = null;
-                  _searchRadius = 10.0;
-                });
-                FocusScope.of(context).unfocus();
-              },
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: GestureDetector(
+                        child: Text("Reset",style: GoogleFonts.inter(fontSize: 18.sp,
+                            fontWeight: isDark? FontWeight.bold:null,
+                        color: isDark?Colors.white :Colors.black),),
+                onTap: () {
+                  _searchController.clear();
+                  _minPriceController.clear();
+                  _maxPriceController.clear();
+                  _locationController.clear();
+                  setState(() {
+                    _selectedLocation = null;
+                    _minPrice = null;
+                    _maxPrice = null;
+                    _selectedAge = null;
+                    _minRating = null;
+                    _selectedGeoPoint = null;
+                    _searchRadius = 10.0;
+                  });
+                  FocusScope.of(context).unfocus();
+                },
+              ),
             ),
           ],
         ),
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black,
+              padding: EdgeInsets.all(16.sp),
+              child: TextField(
+                controller: _searchController,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Search Nurseries By Name',
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  suffixIcon: Container(decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      gradient: AppGradients.Projectgradient
+                  ),
+                    child: IconButton(
+                      icon: Icon(
+                          Icons.filter_list,
+                          size: 40,
+                          color: isDark ? Colors.grey[400] : Colors.blue
                       ),
-                      keyboardType: TextInputType.name,
-                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[0-9]'))],
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        hintText: 'Search Nursery by Name',
-                        hintStyle: const TextStyle(color: Colors.black),
-                        prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.black),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.deepPurple),
-                          borderRadius: BorderRadius.circular(25.r),
-                        ),
-                      ),
+                      onPressed: _showFilterDialog,
                     ),
                   ),
-                  SizedBox(width: 8.w),
-                  InkWell(
-                    onTap: _showFilterDialog,
-                    child: Container(
-                      height: 40.h,
-                      width: 40.w,
-                      decoration: BoxDecoration(
-                       color: Colors.grey,
-
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Icon(Icons.filter_alt,color: isDark ? Colors.black : Colors.blue,size: 25,),
+                  filled: true,
+                  fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide:BorderSide(color: isDark?Colors.white:Colors.black),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(color: isDark?Colors.white:Colors.black),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: isDark ? Colors.blueAccent : Colors.blue,
+                      width: 2,
                     ),
                   ),
-                ],
+                ),
               ),
             ),
+
 
             Expanded(
               child: BlocBuilder<HomeCubit, HomeState>(

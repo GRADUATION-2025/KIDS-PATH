@@ -655,7 +655,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        color: isDark ? Colors.grey[100] : Colors.grey.shade100,
+      color: isDark ? Colors.grey[850] : Colors.grey[300],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -664,7 +664,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         title: Text(
           title,
           style:  GoogleFonts.inter(fontWeight: FontWeight.bold,
-              color: isDark ? Colors.black : Colors.black),
+              color: isDark ? Colors.white : Colors.black),
         ),
 
       ),

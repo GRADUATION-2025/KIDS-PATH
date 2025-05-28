@@ -14,13 +14,47 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => NotificationCubit(),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          elevation: 0,
-          title: const _GradientTitle('Notifications'),
+      child:   Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 0,
+              centerTitle: true,
+              automaticallyImplyLeading: false,
+              title: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return AppGradients.Projectgradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  );
+                },
+                child: Text(
+                  'Notifications',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontSize: 40.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                height: 2.h,
+                width: MediaQuery.of(context).size.width / 2,
+                decoration: const BoxDecoration(
+                  gradient: AppGradients.Projectgradient,
+                ),
+              ),
+            ),
+          ],
         ),
+      ),
         body: BlocBuilder<NotificationCubit, NotificationState>(
           builder: (context, state) {
             if (state is NotificationLoading) {

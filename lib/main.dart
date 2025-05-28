@@ -114,7 +114,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            home: AuthWrapper(),
+            home: SplashScreen(),
           ),
         );
       },
