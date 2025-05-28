@@ -6,12 +6,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'dart:io';
 
 import '../../DATA MODELS/chatModel/massage.dart';
 import '../../LOGIC/chat/cubit.dart';
+import '../../THEME/theme_provider.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -64,14 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
             titleSpacing: 0,
             title: Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: widget.nurseryImageUrl != null
-                      ? NetworkImage(widget.nurseryImageUrl!)
-                      : null,
-                  child: widget.nurseryImageUrl == null
-                      ? Text(widget.nurseryName.substring(0, 1).toUpperCase())
-                      : null,
-                ),
+              _NurseryAvatar(profileImageUrl: widget.nurseryImageUrl),
                 SizedBox(width: 10.w),
                 Text(widget.nurseryName),
               ],
@@ -555,7 +550,9 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
+    _controller =
+    AnimationController(vsync: this, duration: const Duration(seconds: 2))
+      ..repeat(reverse: true);
   }
 
   void _update(double progress) {
@@ -591,24 +588,30 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
                     value: _progress,
                     strokeWidth: 8,
                     backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.blueAccent),
                   ),
                 ),
                 ScaleTransition(
-                  scale: Tween(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
-                  child: Icon(Icons.cloud_upload_rounded, color: Colors.blueAccent, size: 40),
+                  scale: Tween(begin: 1.0, end: 1.2).animate(CurvedAnimation(
+                      parent: _controller, curve: Curves.easeInOut)),
+                  child: Icon(
+                      Icons.cloud_upload_rounded, color: Colors.blueAccent,
+                      size: 40),
                 ),
               ],
             ),
             SizedBox(height: 24.h),
             Text(
               'Uploading...',
-              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.blueAccent[700]),
+              style: TextStyle(fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent[700]),
             ),
             SizedBox(height: 12.h),
             Text(
               '${(_progress * 100).toStringAsFixed(0)}%',
-              style:  TextStyle(fontSize: 18.sp, color: Colors.black87),
+              style: TextStyle(fontSize: 18.sp, color: Colors.black87),
             ),
           ],
         ),
@@ -616,3 +619,36 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
     );
   }
 }
+  class _NurseryAvatar extends StatefulWidget {
+  final String? profileImageUrl;
+
+  const _NurseryAvatar({required this.profileImageUrl});
+
+  @override
+  State<_NurseryAvatar> createState() => _NurseryAvatarState();
+}
+
+class _NurseryAvatarState extends State<_NurseryAvatar> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    return CircleAvatar(
+        radius: 19.r,
+        backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
+        child: ClipOval(
+          child: CachedNetworkImage(
+            imageUrl: widget.profileImageUrl ?? '',
+            width: 60.w,
+            height: 60.h,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+            errorWidget: (context, url, error) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+          ),
+        ),);
+  }
+}
+
+
+
