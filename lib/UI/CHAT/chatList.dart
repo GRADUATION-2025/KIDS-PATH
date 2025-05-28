@@ -234,36 +234,59 @@ class _ChatListItem extends StatelessWidget {
   }
 }
     class _UserAvatar extends StatelessWidget {
-  final String? profileImageUrl;
 
-  const _UserAvatar({required this.profileImageUrl});
+      final String? profileImageUrl;
 
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 30.r,
-      backgroundColor: Colors.transparent,
-      child: ClipOval(
-        child: SizedBox(
-          width: 100.w, // 2 * radius
-          height: 100.h,
-          child: CachedNetworkImage(
-            imageUrl: profileImageUrl ?? '',
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Icon(
-              Icons.person,
-              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
-            ),
-            errorWidget: (context, url, error) => Icon(
-              Icons.person,
-              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+      const _UserAvatar({required this.profileImageUrl});
+
+      @override
+      Widget build(BuildContext context) {
+        final themeProvider = Provider.of<ThemeProvider>(context);
+        final isDark = themeProvider.isDarkMode;
+        return Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle, // Ensures the border is circular
+            border: Border.all(
+              color: Colors.transparent // Border color
+               // Border width
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
+          child: CircleAvatar(
+            radius: 30.r,
+              backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
+
+            child: ClipOval(
+              child: SizedBox(
+                width: 50.w, // 2 * radius (should match diameter)
+                height: 50.h,
+                child: CachedNetworkImage(
+                  imageUrl: profileImageUrl ?? '',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      Icon(
+                        Icons.person,
+                        color: Theme
+                            .of(context)
+                            .iconTheme
+                            .color
+                            ?.withOpacity(0.5),
+                      ),
+                  errorWidget: (context, url, error) =>
+                      Icon(
+                        Icons.image,
+                        color: Theme
+                            .of(context)
+                            .iconTheme
+                            .color
+                            ?.withOpacity(0.5),
+                      ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    }
 
 
 
