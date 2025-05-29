@@ -7,7 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kidspath/UI/Create_Profile_screen/NURSERY/NURSERY_PAGE.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
+import 'package:provider/provider.dart';
 import '../../LOGIC/booking/cubit.dart';
+import '../../THEME/theme_provider.dart';
 import '../../UI/BOOKING/Booking.dart';
 
 import '../../UI/BOOKING/bookingTime.dart';
@@ -207,10 +209,16 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
 
   /// Function to get icon color based on selection.
   Color _getIconColor(int index) {
-    return _selectedindex == index ? Color(0xFF156CD7) : Color(0xFF515978);
-  }
-  }
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDark = themeProvider.isDarkMode;
 
+    return _selectedindex == index
+        ? Color(0xFF156CD7) // Selected color (blue)
+        : isDark
+        ? Colors.white! // Unselected in dark mode
+        : Color(0xFF515978); // Unselected in light mode (default)
+  }
+}
   class _UserAvatar extends StatelessWidget {
     final String? profileImageUrl;
 
