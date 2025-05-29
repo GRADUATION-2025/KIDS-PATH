@@ -131,12 +131,7 @@ class _PremiumFeaturesScreenState extends State<PremiumFeaturesScreen> {
         'description': 'Get featured on the home screen to increase visibility',
         'premiumOnly': true,
       },
-      {
-        'icon': Icons.analytics,
-        'title': 'Advanced Analytics',
-        'description': 'Access detailed insights about your nursery\'s performance',
-        'premiumOnly': true,
-      },
+
       {
         'icon': Icons.verified,
         'title': 'Premium Badge',
@@ -150,9 +145,9 @@ class _PremiumFeaturesScreenState extends State<PremiumFeaturesScreen> {
         'premiumOnly': true,
       },
       {
-        'icon': Icons.child_care,
-        'title': 'Basic Features',
-        'description': 'Manage your nursery profile and bookings',
+        'icon': Icons.attach_money_sharp,
+        'title': 'Upgrade to Premium',
+        'description': 'Unlock all for just 400 EGP/month.',
         'premiumOnly': false,
       },
     ];
