@@ -8,9 +8,7 @@ import 'package:kidspath/DATA%20MODELS/Nursery%20model/Nursery%20Model.dart';
 import 'package:kidspath/LOGIC/Nursery/nursery_cubit.dart';
 import 'package:kidspath/UI/Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 import 'package:kidspath/LOGIC/PAYMOB/premium%20paymob/paymob_helper.dart';
-
-
-import '../../../LOGIC/sub man.dart';
+import '../../../LOGIC/PremiumUpgrade/sub man.dart';
 
 class PaymentScreenPremium extends StatefulWidget {
   final String nurseryId;

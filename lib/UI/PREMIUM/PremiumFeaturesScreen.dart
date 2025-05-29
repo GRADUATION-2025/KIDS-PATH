@@ -5,15 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:kidspath/DATA%20MODELS/Nursery%20model/Nursery%20Model.dart';
 import 'package:kidspath/LOGIC/Nursery/nursery_cubit.dart';
 import 'package:kidspath/LOGIC/Nursery/nursery_state.dart';
-
 import 'package:kidspath/THEME/theme_provider.dart';
 import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import 'package:kidspath/UI/PREMIUM/payment/PAYMENT_SCREEN.dart';
-
-import '../../LOGIC/sub man.dart';
+import '../../LOGIC/PremiumUpgrade/sub man.dart';
 
 class PremiumFeaturesScreen extends StatefulWidget {
   final String nurseryId;
