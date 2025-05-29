@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -157,7 +158,7 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.r),
                   child: profileImage != null
-                      ? Image.network(profileImage, fit: BoxFit.cover)
+                      ? CachedNetworkImage( fit: BoxFit.cover, imageUrl: profileImage)
                       : Container(
                     color: Theme.of(context).cardColor,
                     alignment: Alignment.center,
