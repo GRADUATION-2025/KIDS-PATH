@@ -122,7 +122,7 @@ class NurseryAccountScreen extends StatelessWidget {
                                     .of(context)
                                     .textTheme
                                     .bodyMedium
-                                    ?.copyWith(fontSize: 13.sp),
+                                    ?.copyWith(fontSize: 12.sp),
                               ),
                             ],
                           ),
