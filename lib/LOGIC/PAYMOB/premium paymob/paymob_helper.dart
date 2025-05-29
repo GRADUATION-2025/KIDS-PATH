@@ -48,7 +48,7 @@ class PaymobHelper {
           'items': [
             {
               'name': 'Premium Nursery Subscription',
-              'amount_cents': (300 * 100).round(),
+              'amount_cents': (amount * 100).round(),
               'description': '1 month premium subscription',
               'quantity': '1'
             }
@@ -80,7 +80,7 @@ class PaymobHelper {
         Uri.parse('https://accept.paymob.com/api/acceptance/payment_keys'),
         body: jsonEncode({
           'auth_token': token,
-          'amount_cents': (300 * 100).toStringAsFixed(0),
+          'amount_cents': (amount * 100).toStringAsFixed(0),
           'expiration': 3600,
           'order_id': orderId,
           'billing_data': {

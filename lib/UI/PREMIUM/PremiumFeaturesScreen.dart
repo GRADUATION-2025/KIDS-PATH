@@ -297,20 +297,14 @@ class _PremiumFeaturesScreenState extends State<PremiumFeaturesScreen> {
         return;
       }
 
+      // Optional: Check if nursery doc exists (for other purposes)
       final nurseryDoc = await FirebaseFirestore.instance
           .collection('nurseries')
           .doc(widget.nurseryId)
           .get();
 
       if (nurseryDoc.exists) {
-        final priceData = nurseryDoc['price'];
-        double price = 0.0;
-
-        if (priceData is String) {
-          price = double.tryParse(priceData) ?? 0.0;
-        } else if (priceData is num) {
-          price = priceData.toDouble();
-        }
+        double price = 400.0;  // Fixed price, ignoring Firestore price
 
         Navigator.push(
           context,
