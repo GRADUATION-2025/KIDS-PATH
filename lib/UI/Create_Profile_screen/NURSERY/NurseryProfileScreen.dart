@@ -130,35 +130,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     }
   }
 
-  Future<void> _handleMessageButtonPress() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
 
-    try {
-      await context.read<ChatCubit>().joinNurseryChat(
-        widget.nursery.uid,
-        user.uid,
-      );
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              ChatScreen(
-                chatRoomId: widget.nursery.uid,
-                nurseryName: widget.nursery.name,
-                nurseryImageUrl: widget.nursery.profileImageUrl,
-                userId: user.uid,
-                userImage: user.photoURL,
-              ),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to start chat: ${e.toString()}')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -453,14 +425,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                 );
                               }
                             },
-                            child: IconButton(
-                              onPressed: _handleMessageButtonPress,
-                              icon: const Icon(
-                                LucideIcons.messageCircle,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
+                            child: MessageButton(nursery:_currentNursery,)
                           ),
                         ),
                       ],
@@ -911,8 +876,13 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
      }
 
    }
-  class MessageButton extends StatefulWidget {
-  const MessageButton({super.key});
+class MessageButton extends StatefulWidget {
+  final NurseryProfile nursery; // Make sure you pass this when creating the widget
+
+  const MessageButton({
+    super.key,
+    required this.nursery,
+  });
 
   @override
   State<MessageButton> createState() => _MessageButtonState();
@@ -922,36 +892,68 @@ class _MessageButtonState extends State<MessageButton> {
   bool _isLoading = false;
 
   Future<void> _handleMessageButtonPress() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (_isLoading) return;
 
-    // Simulate your async operation
-    await Future.delayed(const Duration(seconds: 2)); // Replace with your actual async call
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please sign in to start chatting')),
+      );
+      return;
+    }
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = true);
+
+    try {
+      await context.read<ChatCubit>().joinNurseryChat(
+        widget.nursery.uid,
+        user.uid,
+      );
+
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            chatRoomId: widget.nursery.uid,
+            nurseryName: widget.nursery.name,
+            nurseryImageUrl: widget.nursery.profileImageUrl,
+            userId: user.uid,
+            userImage: user.photoURL,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to start chat: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: _isLoading ? null : _handleMessageButtonPress,
+      onPressed: _handleMessageButtonPress,
       icon: _isLoading
           ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      )
           : const Icon(
-              LucideIcons.messageCircle,
-              color: Colors.white,
-              size: 24,
-            ),
+        LucideIcons.messageCircle,
+        color: Colors.white,
+        size: 24,
+      ),
     );
   }
 }
