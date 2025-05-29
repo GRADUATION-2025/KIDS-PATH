@@ -68,7 +68,7 @@ class ChatCubit extends Cubit<ChatState> {
               // Send immediate push notification for real-time feedback
               await _oneSignalService.sendNotificationToUser(
                 userId: userId,
-                title: '${messageData['name']} sent you a message',
+                title: '${messageData['senderName']} sent you a message',
                 message: messageData['mediaUrl'] != null
                     ? 'Sent you a ${messageData['mediaType'] ?? "media"}'
                     : messageData['content'],
@@ -76,7 +76,7 @@ class ChatCubit extends Cubit<ChatState> {
                   'type': 'chat',
                   'chatRoomId': chatRoomDoc.id,
                   'senderId': messageData['senderId'],
-                  'senderName': messageData['name'],
+                  'senderName': messageData['senderName'],
                   'senderImageUrl': messageData['profileImageUrl'],
                   'shouldNavigate': true,
                 },
@@ -212,7 +212,7 @@ class ChatCubit extends Cubit<ChatState> {
         'senderName': userData["name"],
         'senderImageUrl': userData['profileImageUrl'],
         'timestamp': timestamp,
-        'isRead': isNursery,
+        'isRead': false,
         'deleted': false,
         'senderType': await isUserNursery(senderId) ? 'nursery' : 'parent',
       };
@@ -231,41 +231,7 @@ class ChatCubit extends Cubit<ChatState> {
         'lastUpdated': timestamp,
       });
 
-      // Get recipient's ID and send notification
-      final chatRoom = await _firestore.collection('chatRooms').doc(chatRoomId).get();
-      if (chatRoom.exists) {
-        final chatData = chatRoom.data()!;
-        final participantIds = List<String>.from(chatData['participantIds'] ?? []);
-        final recipientId = participantIds.firstWhere((id) => id != senderId);
 
-        // Create notification document that will trigger the Cloud Function
-        await _firestore.collection('notifications').add({
-          'userId': recipientId,
-          'type': 'chat',
-          'title': '$senderName sent you a message',
-          'message': mediaUrl != null ? 'Sent you a ${mediaType ?? "media"}' : content,
-          'timestamp': timestamp,
-          'isRead': false,
-          'chatRoomId': chatRoomId,
-          'senderId': senderId,
-          'senderName': userData["name"],
-          'senderImageUrl': userData['profileImageUrl'],
-        });
-
-        // Send immediate push notification
-        await _oneSignalService.sendNotificationToUser(
-          userId: recipientId,
-          title: '$senderName sent you a message',
-          message: mediaUrl != null ? 'Sent you a ${mediaType ?? "media"}' : content,
-          data: {
-            'type': 'chat',
-            'chatRoomId': chatRoomId,
-            'senderId': senderId,
-            'senderName': userData["name"],
-            'senderImageUrl': userData['profileImageUrl'],
-          },
-        );
-      }
     } catch (e) {
       debugPrint('Error in sendMessage: $e');
       emit(ChatError('Failed to send message: $e'));
@@ -299,10 +265,9 @@ class ChatCubit extends Cubit<ChatState> {
 
 
 
- Future<void> markMessagesAsRead(String chatRoomId, String userId) async {
+  Future<void> markMessagesAsRead(String chatRoomId, String userId) async {
     try {
-      // Get all unread messages first
-      final messages = await FirebaseFirestore.instance
+      final messages = await _firestore
           .collection('chatRooms')
           .doc(chatRoomId)
           .collection('messages')
@@ -312,27 +277,13 @@ class ChatCubit extends Cubit<ChatState> {
 
       if (messages.docs.isEmpty) return;
 
-      // Use batch write for atomic updates
-      final batch = FirebaseFirestore.instance.batch();
-
+      final batch = _firestore.batch();
       for (final doc in messages.docs) {
         batch.update(doc.reference, {'isRead': true});
       }
-
-      // Commit the batch
       await batch.commit();
-
-      // Force refresh the stream
-      FirebaseFirestore.instance
-          .collection('chatRooms')
-          .doc(chatRoomId)
-          .collection('messages')
-          .snapshots()
-          .listen((_) {}); // This triggers a refresh
-
     } catch (e) {
-      debugPrint('Error marking messages as read: $e');
-      // Consider adding error handling in your UI
+      emit(ChatError('Failed to update read status: $e'));
     }
   }
   @override
