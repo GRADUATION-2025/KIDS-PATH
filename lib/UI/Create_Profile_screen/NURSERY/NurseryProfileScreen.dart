@@ -245,159 +245,87 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                     Row(
                       children: [
                         Expanded(
-                            child:
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: AppGradients.Projectgradient,
-                                borderRadius: BorderRadius.circular(8.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.blue.withOpacity(0.3),
-                                    spreadRadius: 1,
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  if (_isOwner) {
-                                    if (_currentNursery.subscriptionStatus ==
-                                        'premium') {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            AlertDialog(
-                                              title: Text(
-                                                'Cancel Premium Subscription',
-                                                style: GoogleFonts.inter(
-                                                  fontSize: 18.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              content: Text(
-                                                'Are you sure you want to cancel your premium subscription? You will lose access to premium features.',
-                                                style: GoogleFonts.inter(
-                                                  fontSize: 14.sp,
-                                                ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(context),
-                                                  child: Text(
-                                                    'No, Keep Premium',
-                                                    style: GoogleFonts.inter(
-                                                      color: Colors.blue,
-                                                      fontSize: 14.sp,
-                                                    ),
-                                                  ),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () async {
-                                                    try {
-                                                      await context.read<
-                                                          NurseryCubit>()
-                                                          .updateSubscriptionStatus(
-                                                        nurseryId: _currentNursery
-                                                            .uid,
-                                                        status: 'regular',
-                                                      );
+                          child: StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('nurseries')
+                                .doc(_currentNursery.uid)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return Container(
+                                  height: 48, // or whatever height you want to keep space
+                                  alignment: Alignment.center,
+                                  child: CircularProgressIndicator(color: Colors.white),
+                                );
+                              }
 
-                                                      if (mounted) {
-                                                        Navigator.pop(context);
-                                                        ScaffoldMessenger.of(
-                                                            context)
-                                                            .showSnackBar(
-                                                          const SnackBar(
-                                                            content: Text(
-                                                                'Premium subscription cancelled. You can upgrade again anytime.'),
-                                                            backgroundColor: Colors
-                                                                .green,
-                                                          ),
-                                                        );
-                                                      }
-                                                    } catch (e) {
-                                                      if (mounted) {
-                                                        Navigator.pop(context);
-                                                        ScaffoldMessenger.of(
-                                                            context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                            content: Text(
-                                                                'Failed to cancel premium: ${e
-                                                                    .toString()}'),
-                                                            backgroundColor: Colors
-                                                                .red,
-                                                          ),
-                                                        );
-                                                      }
-                                                    }
-                                                  },
-                                                  child: Text(
-                                                    'Yes, Cancel Premium',
-                                                    style: GoogleFonts.inter(
-                                                      color: Colors.red,
-                                                      fontSize: 14.sp,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                              final nurseryDoc = snapshot.data!;
+                              final subscriptionStatus =
+                                  (nurseryDoc['subscriptionStatus'] as String?) ?? 'basic';
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: AppGradients.Projectgradient,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withOpacity(0.3),
+                                      spreadRadius: 1,
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    padding:
+                                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    if (_isOwner) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => PremiumFeaturesScreen(
+                                            nurseryId: _currentNursery.uid,
+                                          ),
+                                        ),
                                       );
                                     } else {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) =>
-                                              PremiumFeaturesScreen(
-                                                nurseryId: _currentNursery.uid,
-                                              ),
+                                          builder: (_) => BlocProvider(
+                                            create: (context) => BookingCubit(),
+                                            child: BookingScreen(
+                                              nurseryId: _currentNursery.uid,
+                                              nurseryName: _currentNursery.name,
+                                            ),
+                                          ),
                                         ),
                                       );
                                     }
-                                  } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            BlocProvider(
-                                              create: (context) =>
-                                                  BookingCubit(),
-                                              child: BookingScreen(
-                                                nurseryId: _currentNursery.uid,
-                                                nurseryName: _currentNursery
-                                                    .name,
-                                              ),
-                                            ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Text(
-                                  _isOwner
-                                      ? (_currentNursery.subscriptionStatus ==
-                                      'premium' ? 'Premium' : 'Go Premium')
-                                      : 'Book Now',
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontSize: 13.sp,
-                                    fontWeight: _isOwner
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                  },
+                                  child: Text(
+                                    _isOwner
+                                        ? (subscriptionStatus == 'premium' ? 'Premium' : 'Go Premium')
+                                        : 'Book Now',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontSize: 13.sp,
+                                      fontWeight:
+                                      _isOwner ? FontWeight.bold : FontWeight.normal,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
+                              );
+                            },
+                          ),
                         ),
                         SizedBox(width: 12.w),
                         Container(

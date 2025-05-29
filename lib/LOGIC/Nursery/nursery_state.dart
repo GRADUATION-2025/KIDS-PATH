@@ -20,3 +20,16 @@ class NurseryError extends NurseryState {
   final String message;
   NurseryError(this.message);
 }
+
+
+class SubscriptionUpdateLoading extends NurseryState {}
+
+class SubscriptionUpdateSuccess extends NurseryState {
+  final String newStatus;
+  SubscriptionUpdateSuccess(this.newStatus);
+}
+
+class SubscriptionUpdateError extends NurseryState {
+  final String message;
+  SubscriptionUpdateError(this.message);
+}

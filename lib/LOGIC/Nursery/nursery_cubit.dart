@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
+import '../sub man.dart';
 import 'nursery_state.dart';
 
 class NurseryCubit extends Cubit<NurseryState> {
@@ -335,17 +336,15 @@ class NurseryCubit extends Cubit<NurseryState> {
     required String nurseryId,
     required String status,
   }) async {
+    emit(SubscriptionUpdateLoading());
     try {
-      emit(NurseryLoading());
-
-      await _firestore.collection('nurseries').doc(nurseryId).update({
-        'subscriptionStatus': status,
-      });
-
-      // Fetch updated nursery data
-      await fetchNurseryData(nurseryId);
+      await SubscriptionManager.updateSubscriptionStatus(
+        nurseryId: nurseryId,
+        status: status,
+      );
+      emit(SubscriptionUpdateSuccess(status));
     } catch (e) {
-      emit(NurseryError('Failed to update subscription status: ${e.toString()}'));
+      emit(SubscriptionUpdateError(e.toString()));
     }
   }
 }
