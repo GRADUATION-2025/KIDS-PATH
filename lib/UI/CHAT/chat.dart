@@ -66,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
             titleSpacing: 0,
             title: Row(
               children: [
-              _NurseryAvatar(profileImageUrl: widget.nurseryImageUrl),
+                _NurseryAvatar(profileImageUrl: widget.nurseryImageUrl),
                 SizedBox(width: 10.w),
                 Text(widget.nurseryName),
               ],
@@ -609,7 +609,7 @@ class _UploadProgressDialogState extends State<_UploadProgressDialog> with Singl
     );
   }
 }
-  class _NurseryAvatar extends StatefulWidget {
+class _NurseryAvatar extends StatefulWidget {
   final String? profileImageUrl;
 
   const _NurseryAvatar({required this.profileImageUrl});
@@ -625,18 +625,18 @@ class _NurseryAvatarState extends State<_NurseryAvatar> {
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     return CircleAvatar(
-        radius: 19.r,
-        backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
-        child: ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: widget.profileImageUrl ?? '',
-            width: 60.w,
-            height: 60.h,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-            errorWidget: (context, url, error) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-          ),
-        ),);
+      radius: 19.r,
+      backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: widget.profileImageUrl ?? '',
+          width: 60.w,
+          height: 60.h,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+          errorWidget: (context, url, error) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+        ),
+      ),);
   }
 }
 
@@ -673,7 +673,3 @@ class _SenderImageState extends State<_SenderImage> {
       ),);
   }
 }
-
-
-
-

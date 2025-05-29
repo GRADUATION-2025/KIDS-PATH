@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import '../../LOGIC/Home/home_state.dart';
 import '../../LOGIC/RATING/rating stats.dart';
 
 import '../../THEME/theme_provider.dart';
+import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../Create_Profile_screen/NURSERY/NurseryProfileScreen.dart';
 import 'ALL Nurseriers Screen/show_all_nurseries.dart';
 
@@ -229,10 +232,66 @@ class _BannerImage extends StatelessWidget {
   }
 }
 
-class _PopularNurseriesSection extends StatelessWidget {
+class _PopularNurseriesSection extends StatefulWidget {
   final List<NurseryProfile> nurseries;
 
   const _PopularNurseriesSection({required this.nurseries});
+
+  @override
+  State<_PopularNurseriesSection> createState() => _PopularNurseriesSectionState();
+}
+
+class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
+  final ScrollController _scrollController = ScrollController();
+  Timer? _autoScrollTimer;
+  int _currentIndex = 0;
+  bool _isScrolling = false;
+
+  static const double _itemWidth = 87.0; // Width of each card (including spacing if needed)
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.nurseries.isNotEmpty) {
+      _startAutoScroll();
+    }
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_isScrolling || widget.nurseries.isEmpty) return;
+
+      _isScrolling = true;
+      _currentIndex++;
+
+      double targetOffset = _currentIndex * _itemWidth;
+
+      _scrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      ).then((_) {
+        if (!mounted) return;
+
+        if (_currentIndex >= widget.nurseries.length) {
+          // Seamlessly jump back to start after one full cycle
+          _scrollController.jumpTo(0);
+          _currentIndex = 0;
+        }
+
+        setState(() {
+          _isScrolling = false;
+        });
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -242,27 +301,27 @@ class _PopularNurseriesSection extends StatelessWidget {
         Row(
           children: [
             Text(
-              'Popular Nursery',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              'Premium Nurseries',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            // SizedBox(width: 140,),
-            // GestureDetector(onTap: (){
-            //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShowAllNurseries(),));
-            //
-            // },
-            //     child: Text("See All",
-            //       style:GoogleFonts.inter(fontSize: 15,) ,)),
-
           ],
         ),
         SizedBox(height: 10.h),
         SizedBox(
           height: 110.h,
           child: ListView.builder(
-            scrollDirection:Axis.values.first,
-            itemCount: 4,
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.nurseries.length * 2, // Duplicate list
             itemBuilder: (context, index) {
-              return _PopularNurseryCard(nursery: nurseries[index]);
+              final nursery = widget.nurseries[index % widget.nurseries.length];
+              return Padding(
+                padding: EdgeInsets.only(right: 8.w), // spacing between items
+                child: _PopularNurseryCard(nursery: nursery),
+              );
             },
           ),
         ),
@@ -270,7 +329,6 @@ class _PopularNurseriesSection extends StatelessWidget {
     );
   }
 }
-
 class _PopularNurseryCard extends StatelessWidget {
   final NurseryProfile nursery;
 
@@ -287,11 +345,38 @@ class _PopularNurseryCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 7),
         child: Column(
           children: [
-            _NurseryAvatar(profileImageUrl: nursery.profileImageUrl),
-             SizedBox(height: 8.h),
+            Stack(
+              children: [
+                _NurseryAvatar(profileImageUrl: nursery.profileImageUrl),
+                if (nursery.subscriptionStatus == 'premium')
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.Projectgradient,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'Premium',
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 8.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: 8.h),
             Text(
               nursery.name,
-              style:  GoogleFonts.inter(color:isDark ? Colors.white: Colors.black ,fontSize: 12.sp),
+              style: GoogleFonts.inter(
+                color: isDark ? Colors.white : Colors.black,
+                fontSize: 12.sp,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,

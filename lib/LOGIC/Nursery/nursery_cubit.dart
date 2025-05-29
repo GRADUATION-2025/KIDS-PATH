@@ -39,9 +39,9 @@ class NurseryCubit extends Cubit<NurseryState> {
         schedules: ['Full-time'],
         calendar: '',
         location: "",
-          Coordinates: userData['Coordinates'] != null
-              ? userData['Coordinates'] as GeoPoint
-              : GeoPoint(0.0, 0.0),
+        Coordinates: userData['Coordinates'] != null
+            ? userData['Coordinates'] as GeoPoint
+            : GeoPoint(0.0, 0.0),
         ownerId: uid,
 
       );
@@ -86,26 +86,26 @@ class NurseryCubit extends Cubit<NurseryState> {
 
       final userData = userDoc.data()!;
       final newNursery = NurseryProfile(
-        uid: uid,
-        name: userData['name'] ?? "",
-        profileImageUrl: userData['profileImageUrl'],
-        rating: 0.0,
-        description: "",
-        age: "",
-        price: '',
-        hours: '',
-        language: '',
-        programs: ['General Program'],
-        phoneNumber: userData['phoneNumber'] ?? '', // Initialize phone number
-        email: userData['email'] ?? '',
-        role: 'Nursery',
-        schedules: ['Full-time'],
-        calendar: '',
-        location: "",
+          uid: uid,
+          name: userData['name'] ?? "",
+          profileImageUrl: userData['profileImageUrl'],
+          rating: 0.0,
+          description: "",
+          age: "",
+          price: '',
+          hours: '',
+          language: '',
+          programs: ['General Program'],
+          phoneNumber: userData['phoneNumber'] ?? '', // Initialize phone number
+          email: userData['email'] ?? '',
+          role: 'Nursery',
+          schedules: ['Full-time'],
+          calendar: '',
+          location: "",
           Coordinates: GeoPoint(0, 0),
-        ownerId: uid,
-        averageRating: 0.0,
-        totalRatings: 0
+          ownerId: uid,
+          averageRating: 0.0,
+          totalRatings: 0
 
       );
 
@@ -328,6 +328,24 @@ class NurseryCubit extends Cubit<NurseryState> {
       if (state is NurseryLoaded) {
         emit(state as NurseryLoaded);
       }
+    }
+  }
+
+  Future<void> updateSubscriptionStatus({
+    required String nurseryId,
+    required String status,
+  }) async {
+    try {
+      emit(NurseryLoading());
+
+      await _firestore.collection('nurseries').doc(nurseryId).update({
+        'subscriptionStatus': status,
+      });
+
+      // Fetch updated nursery data
+      await fetchNurseryData(nurseryId);
+    } catch (e) {
+      emit(NurseryError('Failed to update subscription status: ${e.toString()}'));
     }
   }
 }

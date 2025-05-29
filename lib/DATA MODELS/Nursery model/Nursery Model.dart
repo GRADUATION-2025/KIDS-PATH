@@ -21,6 +21,7 @@ class NurseryProfile {
   final String? profileImageUrl;
   final double averageRating;
   final int totalRatings;
+  final String subscriptionStatus; // Added subscription status
 
   var ownerId;
 
@@ -46,10 +47,11 @@ class NurseryProfile {
     required this.totalRatings,
     this.profileImageUrl,
     required this.ownerId,
+    this.subscriptionStatus = 'regular', // Default to regular
   });
 
   // Add a getter for valid coordinates
-  bool get hasValidCoordinates => 
+  bool get hasValidCoordinates =>
       Coordinates.latitude != 0.0 || Coordinates.longitude != 0.0;
 
   // Add a method to validate coordinates
@@ -91,6 +93,7 @@ class NurseryProfile {
       location: map['location'] ?? '',
       profileImageUrl: map['profileImageUrl'],
       ownerId: map['ownerId'] ?? '',
+      subscriptionStatus: map['subscriptionStatus'] ?? 'regular',
     );
   }
 
@@ -116,6 +119,7 @@ class NurseryProfile {
       'Coordinates':Coordinates,
       'profileImageUrl': profileImageUrl,
       'ownerId': ownerId,
+      'subscriptionStatus': subscriptionStatus,
     };
   }
   LatLng get latLng => LatLng(Coordinates.latitude, Coordinates.longitude);

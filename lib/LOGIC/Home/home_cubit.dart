@@ -132,7 +132,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   NurseryProfile _mapToNurseryProfile(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     // Validate coordinates
     GeoPoint coordinates;
     if (data['Coordinates'] != null && data['Coordinates'] is GeoPoint) {
@@ -165,12 +165,24 @@ class HomeCubit extends Cubit<HomeState> {
         location: data['location'] ?? '',
         Coordinates: coordinates,
         averageRating: (data['averageRating'] as num?)?.toDouble() ?? 0.0,
-        totalRatings: (data['totalRatings'] as num?)?.toInt() ?? 0
+        totalRatings: (data['totalRatings'] as num?)?.toInt() ?? 0,
+        subscriptionStatus: data['subscriptionStatus'] ?? 'regular'
     );
   }
 
   List<NurseryProfile> _getPopularNurseries(List<NurseryProfile> allNurseries) {
-    return List<NurseryProfile>.from(allNurseries)..shuffle();
+    // Filter only premium nurseries
+    final premiumNurseries = allNurseries.where((nursery) =>
+    nursery.subscriptionStatus == 'premium'
+    ).toList();
+
+    // If we have premium nurseries, return them shuffled
+    if (premiumNurseries.isNotEmpty) {
+      return List<NurseryProfile>.from(premiumNurseries)..shuffle();
+    }
+
+    // If no premium nurseries, return empty list
+    return [];
   }
 
   Future<List<NurseryProfile>> getTopRatedNurseries(List<NurseryProfile> allNurseries) async {
