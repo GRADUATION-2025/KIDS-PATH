@@ -34,8 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is LoginSucessState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(backgroundColor: isDark?Colors.black:Colors.white,
-                  content: Text("Login Successful",style: TextStyle(color: isDark?Colors.white:Colors.black),)),
+              SnackBar(backgroundColor: isDark?Colors.white:Colors.black,
+                  content: Text("Login Successful",style:
+                  TextStyle(color: isDark?Colors.black:Colors.white),)),
             );
           } else if (state is LoginErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
