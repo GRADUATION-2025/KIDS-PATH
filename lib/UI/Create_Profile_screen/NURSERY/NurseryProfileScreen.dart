@@ -288,16 +288,17 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                   ),
                                   onPressed: () {
                                     if (_isOwner) {
-                                      Navigator.push(
+                                      Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => PremiumFeaturesScreen(
                                             nurseryId: _currentNursery.uid,
                                           ),
                                         ),
+
                                       );
                                     } else {
-                                      Navigator.push(
+                                      Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => BlocProvider(

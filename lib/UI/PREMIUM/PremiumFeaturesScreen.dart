@@ -61,15 +61,6 @@ class _PremiumFeaturesScreenState extends State<PremiumFeaturesScreen> {
         ),
         backgroundColor: isDark ? Colors.grey[850] : Colors.white,
         elevation: 0,
-        actions: _isPremium
-            ? [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _checkSubscriptionStatus,
-            tooltip: 'Refresh Status',
-          ),
-        ]
-            : null,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
