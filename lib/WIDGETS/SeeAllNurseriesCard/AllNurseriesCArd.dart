@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kidspath/WIDGETS/GRADIENT_COLOR/gradient%20_color.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
@@ -30,11 +31,36 @@ class TopRatedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.r),
           ),
           elevation: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              _NurseryMainImage(profileImageUrl: nursery.profileImageUrl),
-              _NurseryInfo(nursery: nursery, distance: distance),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _NurseryMainImage(profileImageUrl: nursery.profileImageUrl),
+                  _NurseryInfo(nursery: nursery, distance: distance),
+                ],
+              ),
+              if (nursery.subscriptionStatus == "premium")
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      gradient: AppGradients.Projectgradient,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'PREMIUM',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -51,6 +77,7 @@ class TopRatedCard extends StatelessWidget {
     );
   }
 }
+
 
 class _NurseryMainImage extends StatelessWidget {
   final String? profileImageUrl;

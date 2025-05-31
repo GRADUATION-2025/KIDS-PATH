@@ -41,7 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
           } else if (state is LoginErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(backgroundColor: isDark?Colors.black:Colors.white,
-                  content: Text(state.errorMessage,style: TextStyle(color: isDark?Colors.black:Colors.white),)),
+                  content: Text(state.errorMessage,
+                    style: TextStyle(color: isDark?Colors.white:Colors.black),)),
             );
           }
         },

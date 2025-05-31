@@ -563,6 +563,29 @@ class _ShowAllNurseriesState extends State<ShowAllNurseries> {
                       return true;
                     }).toList();
 
+                    filteredNurseries.sort((a, b) {
+                      // Get the subscription status in lowercase for case-insensitive comparison
+                      final aSubs = a.subscriptionStatus?.toLowerCase() ?? '';
+                      final bSubs = b.subscriptionStatus?.toLowerCase() ?? '';
+
+                      // Premium comes first
+                      if (aSubs == 'premium' && bSubs != 'premium') {
+                        return -1;
+                      }
+                      else if (aSubs != 'premium' && bSubs == 'premium') {
+                        return 1;
+                      }
+                      // If both have same status, maintain original order
+                      return 0;
+                    });
+
+
+
+
+
+
+
+
                     if (filteredNurseries.isEmpty) {
                       return Center(
                         child: Column(
