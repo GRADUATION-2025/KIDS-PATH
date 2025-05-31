@@ -326,6 +326,15 @@ class ChatCubit extends Cubit<ChatState> {
         'deletedBy': currentUserId,
         'deletedAt': FieldValue.serverTimestamp(),
       });
+
+      // Add a timer to completely remove the message after 10 seconds
+      Future.delayed(const Duration(seconds: 10), () async {
+        try {
+          await messageRef.delete();
+        } catch (e) {
+          debugPrint('Error removing deleted message: $e');
+        }
+      });
     } catch (e) {
       emit(ChatError('Failed to delete message: $e'));
     }

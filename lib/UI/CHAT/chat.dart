@@ -55,6 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     final userName = FirebaseAuth.instance.currentUser!.displayName ?? 'User';
     final userImage = FirebaseAuth.instance.currentUser!.photoURL;
 
@@ -63,71 +64,80 @@ class _ChatScreenState extends State<ChatScreen> {
         Scaffold(
           appBar: AppBar(
             elevation: 1,
+            backgroundColor: isDark ? Colors.grey[900] : null,
             titleSpacing: 0,
             title: Row(
               children: [
                 _NurseryAvatar(profileImageUrl: widget.nurseryImageUrl),
                 SizedBox(width: 10.w),
-                Text(widget.nurseryName),
+                Text(
+                  widget.nurseryName,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
               ],
             ),
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: FutureBuilder<bool>(
-                  future: _isNurseryFuture,
-                  builder: (context, isNurserySnapshot) {
-                    return StreamBuilder<List<Message>>(
-                      stream: context.read<ChatCubit>().getMessages(widget.chatRoomId),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData || !isNurserySnapshot.hasData) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-
-                        final isNursery = isNurserySnapshot.data!;
-                        final messages = snapshot.data!;
-
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (_scrollController.hasClients && messages.isNotEmpty) {
-                            _scrollController.animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut,
-                            );
+          body: Container(
+            color: isDark ? Colors.grey[900] : Colors.white,
+            child: Column(
+              children: [
+                Expanded(
+                  child: FutureBuilder<bool>(
+                    future: _isNurseryFuture,
+                    builder: (context, isNurserySnapshot) {
+                      return StreamBuilder<List<Message>>(
+                        stream: context.read<ChatCubit>().getMessages(widget.chatRoomId),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData || !isNurserySnapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
                           }
-                        });
 
-                        return ListView.builder(
-                          controller: _scrollController,
-                          reverse: true,
-                          itemCount: messages.length,
-                          itemBuilder: (context, index) {
-                            final message = messages[index];
-                            final isMe = message.senderId == widget.userId;
+                          final isNursery = isNurserySnapshot.data!;
+                          final messages = snapshot.data!;
 
-                            return GestureDetector(
-                              onLongPress: () {
-                                if (message.canDelete(widget.userId, isNursery)) {
-                                  _showDeleteDialog(context, message);
-                                }
-                              },
-                              child: _buildMessageBubble(message, isMe),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_scrollController.hasClients && messages.isNotEmpty) {
+                              _scrollController.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                              );
+                            }
+                          });
+
+                          return ListView.builder(
+                            controller: _scrollController,
+                            reverse: true,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = messages[index];
+                              final isMe = message.senderId == widget.userId;
+
+                              return GestureDetector(
+                                onLongPress: () {
+                                  if (message.canDelete(widget.userId, isNursery)) {
+                                    _showDeleteDialog(context, message);
+                                  }
+                                },
+                                child: _buildMessageBubble(message, isMe, isDark),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-              _buildMessageInput(userName, widget.userImage),
-            ],
+                _buildMessageInput(userName, widget.userImage, isDark),
+              ],
+            ),
           ),
         ),
         if (_isUploading)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: isDark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.3),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -135,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   CircularProgressIndicator(value: _uploadProgress),
                   SizedBox(height: 16.h),
                   Text('${(_uploadProgress * 100).toStringAsFixed(0)}%',
-                      style:  TextStyle(color: Colors.white, fontSize: 18.sp)),
+                      style:  TextStyle(color: isDark ? Colors.white : Colors.white, fontSize: 18.sp)),
                 ],
               ),
             ),
@@ -144,14 +154,14 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageInput(String userName, String? userImage) {
+  Widget _buildMessageInput(String userName, String? userImage, bool isDark) {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.add_circle, color: Colors.blue, size: 32),
+              icon: Icon(Icons.add_circle, color: isDark ? Colors.blue[200] : Colors.blue, size: 32),
               onPressed: _showMediaPickerOptions,
             ),
             Expanded(
@@ -163,15 +173,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 padding: const EdgeInsets.all(2),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.grey[850] : Colors.white,
                     borderRadius: BorderRadius.circular(25.r),
                   ),
                   child: TextField(
                     controller: _messageController,
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                    decoration: InputDecoration(
                       hintText: 'Write a comment',
+                      hintStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
                     onSubmitted: (_) => _sendMessage(context, userName, userImage),
                   ),
@@ -359,7 +371,17 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Widget _buildMessageBubble(Message message, bool isMe) {
+  Widget _buildMessageBubble(Message message, bool isMe, bool isDark) {
+    if (message.deleted) {
+      Future.delayed(const Duration(seconds: 10), () {
+        if (mounted) {
+          setState(() {
+            // This will trigger a rebuild and the message will be removed
+          });
+        }
+      });
+    }
+
     return GestureDetector(
       onTap: () {
         if (!message.deleted && message.mediaUrl != null) {
@@ -380,10 +402,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 ? AppGradients.Projectgradient
                 : null,
             color: message.deleted
-                ? Colors.grey[200]
+                ? (isDark ? Colors.grey[800] : Colors.grey[200])
                 : isMe
                 ? null
-                : Colors.grey[300],
+                : (isDark ? Colors.grey[850] : Colors.grey[300]),
             borderRadius: BorderRadius.only(
               topLeft:  Radius.circular(16.r),
               topRight:  Radius.circular(16.r),
@@ -404,6 +426,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       style:  TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                   ],
@@ -417,10 +440,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     : message.content,
                 style: TextStyle(
                   color: message.deleted
-                      ? Colors.grey[600]
+                      ? (isDark ? Colors.grey[400] : Colors.grey[600])
                       : isMe
                       ? Colors.white
-                      : Colors.black,
+                      : (isDark ? Colors.white : Colors.black),
                   fontStyle: message.deleted ? FontStyle.italic : null,
                   fontSize: 15.sp,
                 ),
@@ -433,10 +456,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: message.deleted
-                        ? Colors.grey[500]
+                        ? (isDark ? Colors.grey[500] : Colors.grey[500])
                         : isMe
                         ? Colors.white70
-                        : Colors.grey[700],
+                        : (isDark ? Colors.grey[400] : Colors.grey[700]),
                   ),
                 ),
               ),

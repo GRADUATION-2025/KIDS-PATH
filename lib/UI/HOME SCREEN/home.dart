@@ -1,12 +1,10 @@
 import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../DATA MODELS/Nursery model/Nursery Model.dart';
@@ -22,7 +20,6 @@ import 'ALL Nurseriers Screen/show_all_nurseries.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -46,41 +43,31 @@ class HomeScreen extends StatelessWidget {
                   : state is HomeLoading
                   ? state.profileImageUrl
                   : null;
-
               return Row(
                 children: [
                   _UserAvatar(profileImageUrl: profileImageUrl),
-                   SizedBox(width: 10.w),
+                  SizedBox(width: 10.w),
                   Text(
                     "Hi, $userName",
                     style:  TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                 ],
               );
             },
           ),
-          // actions: [
-          //   IconButton(
-          //     icon: const Icon(Icons.refresh, color: Colors.black),
-          //     onPressed: () => context.read<HomeCubit>().refreshData(),
-          //   ),
-          // ],
         ),
         body: _HomeBody(),
       ),
     );
   }
 }
-
 class _UserAvatar extends StatelessWidget {
   final String? profileImageUrl;
-
   const _UserAvatar({required this.profileImageUrl});
-
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
@@ -162,11 +149,11 @@ class _HomeContentView extends StatelessWidget {
               },
             ),
 
-             SizedBox(height: 20.h),
+            SizedBox(height: 20.h),
             _BannerImage(),
-             SizedBox(height: 20.h),
+            SizedBox(height: 20.h),
             _PopularNurseriesSection(nurseries: popularNurseries),
-             SizedBox(height: 5.h),
+            SizedBox(height: 5.h),
             _TopRatedSection(nurseries: topRatedNurseries),
           ],
         ),
@@ -191,7 +178,7 @@ class _SearchBar extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-            color: isDark ? Colors.grey[800] : Colors.grey.shade200,
+          color: isDark ? Colors.grey[800] : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: isDark ? Colors.white : Colors.black),
         ),
@@ -201,7 +188,7 @@ class _SearchBar extends StatelessWidget {
             SizedBox(width: 15.w),
             Expanded(
               child: Text(
-                'Tap to Search...',
+                  'Tap to Search...',
                   style: GoogleFonts.inter(fontSize: 15.sp,color: isDark ? Colors.white : Colors.black )
               ),
             ),
@@ -218,20 +205,19 @@ class _BannerImage extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Image.asset(
-        'assets/IMAGES/children.jpg',
+        'assets/IMAGES/banner.png',
         width: double.infinity,
-        height: 120.h,
+        height: 160.h,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Container(
           color: Theme.of(context).cardColor,
-          height: 150.h,
+          height: 160.h,
           child: Icon(Icons.error, color: Theme.of(context).iconTheme.color),
         ),
       ),
     );
   }
 }
-
 class _PopularNurseriesSection extends StatefulWidget {
   final List<NurseryProfile> nurseries;
 
@@ -242,16 +228,17 @@ class _PopularNurseriesSection extends StatefulWidget {
 }
 
 class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
-  final ScrollController _scrollController = ScrollController();
+  late final PageController _pageController;
   Timer? _autoScrollTimer;
-  int _currentIndex = 0;
-  bool _isScrolling = false;
-
-  static const double _itemWidth = 87.0; // Width of each card (including spacing if needed)
+  int _currentPage = 5000; // Start in middle of large range
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(
+      initialPage: _currentPage,
+      viewportFraction: 0.25, // Show 4 items at a time
+    );
     if (widget.nurseries.isNotEmpty) {
       _startAutoScroll();
     }
@@ -260,41 +247,43 @@ class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
   @override
   void dispose() {
     _autoScrollTimer?.cancel();
-    _scrollController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   void _startAutoScroll() {
     _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (_isScrolling || widget.nurseries.isEmpty) return;
+      if (!mounted) return;
 
-      _isScrolling = true;
-      _currentIndex++;
-
-      double targetOffset = _currentIndex * _itemWidth;
-
-      _scrollController.animateTo(
-        targetOffset,
+      _currentPage++;
+      _pageController.animateToPage(
+        _currentPage,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
-      ).then((_) {
-        if (!mounted) return;
+      );
 
-        if (_currentIndex >= widget.nurseries.length) {
-          // Seamlessly jump back to start after one full cycle
-          _scrollController.jumpTo(0);
-          _currentIndex = 0;
-        }
-
-        setState(() {
-          _isScrolling = false;
-        });
-      });
+      // Jump to middle position when approaching edges
+      if (_currentPage > 9000 || _currentPage < 1000) {
+        _currentPage = 5000;
+        _pageController.jumpToPage(_currentPage);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.nurseries.isEmpty) {
+      return SizedBox(
+        height: 110.h,
+        child: Center(
+          child: Text(
+            'No premium nurseries',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -312,16 +301,14 @@ class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
         SizedBox(height: 10.h),
         SizedBox(
           height: 110.h,
-          child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.nurseries.length * 2, // Duplicate list
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: 10000, // Large number for infinite effect
+            onPageChanged: (index) => _currentPage = index,
             itemBuilder: (context, index) {
-              final nursery = widget.nurseries[index % widget.nurseries.length];
-              return Padding(
-                padding: EdgeInsets.only(right: 8.w), // spacing between items
-                child: _PopularNurseryCard(nursery: nursery),
-              );
+              final nurseryIndex = index % widget.nurseries.length;
+              final nursery = widget.nurseries[nurseryIndex];
+              return _PopularNurseryCard(nursery: nursery);
             },
           ),
         ),
@@ -329,6 +316,7 @@ class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
     );
   }
 }
+
 class _PopularNurseryCard extends StatelessWidget {
   final NurseryProfile nursery;
 
@@ -445,11 +433,11 @@ class _TopRatedSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text(
+        Text(
           'Top Rated',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
-         SizedBox(height: 10.h),
+        SizedBox(height: 10.h),
         if (topRatedNurseries.isEmpty)
           Text(
             'No 5-star nurseries yet.',
@@ -570,18 +558,18 @@ class _NurseryInfo extends StatelessWidget {
             nursery.name,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
-           SizedBox(height: 4.h),
+          SizedBox(height: 4.h),
           Row(
             children: [
               Icon(Icons.location_on, size: 16, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
-               SizedBox(width: 4.w),
+              SizedBox(width: 4.w),
               Text('Filter will show Distance',  style: TextStyle(
                 color: isDark ? Colors.white : Colors.black,),),
               const Spacer(),
               Row(
                 children: [
                   const Icon(LucideIcons.star, size: 16, color: Colors.amber),
-                   SizedBox(width: 4.w),
+                  SizedBox(width: 4.w),
                   StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('ratings')
@@ -636,12 +624,12 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.search_off, size: 48, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp),
           ),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           ElevatedButton(
             onPressed: () => context.read<HomeCubit>().refreshData(),
             child: const Text('Retry'),
@@ -664,12 +652,12 @@ class _EmptyView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.search_off, size: 48, color: Theme.of(context).iconTheme.color?.withOpacity(0.6)),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp),
           ),
-           SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
           ElevatedButton(
             onPressed: () => context.read<HomeCubit>().refreshData(),
             child: const Text('Refresh'),

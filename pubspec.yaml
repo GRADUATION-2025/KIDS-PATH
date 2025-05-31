@@ -104,6 +104,9 @@ flutter:
     - assets/ICONS/
     - assets/App-LOGO/
     - assets/IMAGES/children.jpg
+    - assets/IMAGES/banner.png
+
+
 
 flutter_icons:
     android: true

@@ -262,7 +262,7 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
   @override
   Widget build(BuildContext context) {
   return CircleAvatar(
-  radius: 20,
+  radius: 18,
   backgroundColor: Theme
       .of(context)
       .cardColor,

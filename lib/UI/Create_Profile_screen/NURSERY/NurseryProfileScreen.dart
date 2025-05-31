@@ -22,12 +22,10 @@ import '../../BOOKING/Booking.dart';
 import '../../CHAT/chat.dart';
 import '../../PREMIUM/PremiumFeaturesScreen.dart';
 
-
 class NurseryProfileScreen extends StatefulWidget {
   final NurseryProfile nursery;
 
-
-  const NurseryProfileScreen({Key? key, required this.nursery, }) : super(key: key);
+  const NurseryProfileScreen({Key? key, required this.nursery}) : super(key: key);
 
   @override
   State<NurseryProfileScreen> createState() => _NurseryProfileScreenState();
@@ -37,12 +35,13 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
   final NurseryImageService _imageService = NurseryImageService();
   final nurseries = FirebaseFirestore.instance.collection("nurseries");
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  late Future<List<String>> _imagesFuture;
+  List<String> _imageUrls = [];
   bool _isUploading = false;
   double _uploadProgress = 0;
   List<File> _selectedImages = [];
   bool _isPickingImages = false;
   bool _isOwner = false;
+  bool _isLoadingImages = false;
   late NurseryProfile _currentNursery;
 
   @override
@@ -62,18 +61,57 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     }
   }
 
-  void _loadImages() {
-    setState(() {
-      _imagesFuture = _imageService.getNurseryImages(widget.nursery.uid);
-    });
+  Future<void> _loadImages() async {
+    setState(() => _isLoadingImages = true);
+    try {
+      final images = await _imageService.getNurseryImages(widget.nursery.uid);
+      setState(() => _imageUrls = images);
+    } catch (e) {
+      print('Error loading images: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load images: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _isLoadingImages = false);
+    }
   }
 
   Future<void> _pickAndUploadImages() async {
     try {
       setState(() => _isPickingImages = true);
 
+      final nurseryDoc = await FirebaseFirestore.instance
+          .collection('nurseries')
+          .doc(widget.nursery.uid)
+          .get();
+
+      final subscriptionStatus = (nurseryDoc['subscriptionStatus'] as String?) ?? 'regular';
+      final isPremium = subscriptionStatus == 'premium';
+
+      if (!isPremium && _imageUrls.length >= 4) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Regular nurseries can only upload up to 4 images. Upgrade to premium for unlimited uploads.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        setState(() => _isPickingImages = false);
+        return;
+      }
+
       final pickedImages = await _imageService.pickMultipleImages();
       if (pickedImages.isEmpty) return;
+
+      if (!isPremium && (_imageUrls.length + pickedImages.length) > 4) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You can only upload up to 4 images total. Please select fewer images.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        setState(() => _isPickingImages = false);
+        return;
+      }
 
       setState(() {
         _selectedImages = pickedImages;
@@ -90,19 +128,19 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         },
       );
 
+      setState(() {
+        _imageUrls.addAll(urls);
+        _selectedImages.clear();
+        _isUploading = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Images uploaded successfully!')),
       );
-
-      setState(() {
-        _selectedImages.clear();
-      });
-      _loadImages();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
-    } finally {
       setState(() {
         _isPickingImages = false;
         _isUploading = false;
@@ -111,26 +149,79 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
   }
 
   Future<void> _deleteImage(String imageUrl) async {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDark = themeProvider.isDarkMode;
+
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Image'),
+          content: const Text('Are you sure you want to delete this image?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
     try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
+
       await _imageService.deleteImage(imageUrl);
-      _loadImages();
+
+      // Optimistic update - remove the image immediately
+      setState(() {
+        _imageUrls.remove(imageUrl);
+      });
+
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(backgroundColor:isDark?Colors.white:Colors.black ,
-             content: Text('Image deleted successfully',
-               style:TextStyle(color: isDark?Colors.black:Colors.white) ,)),
+        SnackBar(
+          backgroundColor: isDark ? Colors.white : Colors.black,
+          content: Text(
+            'Image deleted successfully',
+            style: TextStyle(color: isDark ? Colors.black : Colors.white),
+          ),
+        ),
       );
     } catch (e) {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor:isDark?Colors.white:Colors.black ,
-            content: Text('Failed to delete image: $e',
-              style:TextStyle(color: isDark?Colors.black:Colors.white) ,)),
+        SnackBar(
+          backgroundColor: isDark ? Colors.white : Colors.black,
+          content: Text(
+            'Failed to delete image: ${e.toString()}',
+            style: TextStyle(color: isDark ? Colors.black : Colors.white),
+          ),
+        ),
       );
+    } finally {
+      // Refresh the list from server to ensure consistency
+      _loadImages();
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +253,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: isDark ? Colors.black26 : Colors.grey.withOpacity(
-                          0.2),
+                      color: isDark ? Colors.black26 : Colors.grey.withOpacity(0.2),
                       spreadRadius: 2,
                       blurRadius: 5,
                       offset: const Offset(0, 3),
@@ -176,7 +266,6 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                     Row(
                       children: [
                         _UserAvatar(profileImageUrl: widget.nursery.profileImageUrl),
-
                         SizedBox(width: 12.w),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,23 +280,19 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                             ),
                             Row(
                               children: [
-                                const Icon(
-                                    Icons.star, color: Colors.yellow, size: 16),
+                                const Icon(Icons.star, color: Colors.yellow, size: 16),
                                 StreamBuilder<QuerySnapshot>(
                                   stream: FirebaseFirestore.instance
                                       .collection('ratings')
-                                      .where('nurseryId',
-                                      isEqualTo: widget.nursery.uid)
+                                      .where('nurseryId', isEqualTo: widget.nursery.uid)
                                       .snapshots(),
                                   builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
                                       return Text(
-                                        "Loading... • ${widget.nursery
-                                            .language}",
+                                        "Loading... • ${widget.nursery.language}",
                                         style: TextStyle(
-                                          color: isDark ? Colors.white : Colors
-                                              .black,),
+                                          color: isDark ? Colors.white : Colors.black,
+                                        ),
                                       );
                                     }
 
@@ -215,23 +300,20 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                       return Text(
                                         "Error • ${widget.nursery.language}",
                                         style: TextStyle(
-                                          color: isDark ? Colors.white : Colors
-                                              .black,),
+                                          color: isDark ? Colors.white : Colors.black,
+                                        ),
                                       );
                                     }
 
                                     final ratings = snapshot.data?.docs ?? [];
-                                    final stats = RatingStats.fromRatings(
-                                        ratings);
-                                    final averageRating = _calculateAverageRating(
-                                        stats.starCounts);
+                                    final stats = RatingStats.fromRatings(ratings);
+                                    final averageRating = _calculateAverageRating(stats.starCounts);
 
                                     return Text(
-                                      "${averageRating.toStringAsFixed(
-                                          1)} • ${widget.nursery.language}",
+                                      "${averageRating.toStringAsFixed(1)} • ${widget.nursery.language}",
                                       style: TextStyle(
-                                          color: isDark ? Colors.white : Colors
-                                              .black),
+                                        color: isDark ? Colors.white : Colors.black,
+                                      ),
                                     );
                                   },
                                 ),
@@ -253,7 +335,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
                                 return Container(
-                                  height: 48, // or whatever height you want to keep space
+                                  height: 48,
                                   alignment: Alignment.center,
                                   child: CircularProgressIndicator(color: Colors.white),
                                 );
@@ -280,8 +362,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
                                     shadowColor: Colors.transparent,
-                                    padding:
-                                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8.r),
                                     ),
@@ -295,7 +376,6 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                             nurseryId: _currentNursery.uid,
                                           ),
                                         ),
-
                                       );
                                     } else {
                                       Navigator.pushReplacement(
@@ -319,8 +399,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                     style: GoogleFonts.inter(
                                       color: Colors.white,
                                       fontSize: 13.sp,
-                                      fontWeight:
-                                      _isOwner ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: _isOwner ? FontWeight.bold : FontWeight.normal,
                                     ),
                                   ),
                                 ),
@@ -354,7 +433,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                                 );
                               }
                             },
-                            child: MessageButton(nursery:_currentNursery,)
+                            child: MessageButton(nursery: _currentNursery),
                           ),
                         ),
                       ],
@@ -366,8 +445,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               // About Section
               _sectionTitle("About"),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   widget.nursery.description,
                   style: TextStyle(
@@ -378,13 +456,33 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                 ),
               ),
 
+              _sectionTitle("Location"),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        widget.nursery.location,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black87,
+                          fontSize: 15.sp,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               // Images Section
               _sectionTitle("Gallery"),
               _buildImageGallerySection(),
               _sectionTitle("Child Age"),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   widget.nursery.age,
                   style: TextStyle(
@@ -399,17 +497,12 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               _sectionTitle("Programs"),
               if (widget.nursery.programs.isNotEmpty)
                 ...widget.nursery.programs.map((program) =>
-                    _programCard(
-                      program.split(' ')[0],
-
-
-                    )).toList(),
+                    _programCard(program.split(' ')[0])).toList(),
 
               // Price Section
               _sectionTitle("Interview Price"),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   widget.nursery.price,
                   style: TextStyle(
@@ -423,8 +516,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               // Operating Hours
               _sectionTitle("Operating Hours"),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   widget.nursery.hours,
                   style: TextStyle(
@@ -435,12 +527,10 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                 ),
               ),
 
-              // Client Feedback
               // Client Feedback Section
               _sectionTitle("Clients Ratings"),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('ratings')
@@ -449,8 +539,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator(
-                          color: isDark ? Colors.blue[400] : Colors.blue
-                      ));
+                          color: isDark ? Colors.blue[400] : Colors.blue));
                     }
 
                     if (snapshot.hasError) {
@@ -460,7 +549,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                         ),
                       );
                     }
-                    // Update the average rating in Firestore whenever ratings change
+
                     if (snapshot.hasData) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _updateAverageRating(widget.nursery.uid);
@@ -474,14 +563,11 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "${_calculateAverageRating(stats.starCounts)
-                              .toStringAsFixed(1)} out of 5  /  ${stats
-                              .totalRatings} Ratings",
+                          "${_calculateAverageRating(stats.starCounts).toStringAsFixed(1)} out of 5  /  ${stats.totalRatings} Ratings",
                           style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black
-                          ),
+                              color: isDark ? Colors.white : Colors.black),
                         ),
                         SizedBox(height: 16.h),
                         ..._buildRatingBars(stats),
@@ -496,23 +582,6 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         ),
       ),
     );
-  }
-
-
-
-
-
-
-// Add this method to calculate average rating
-  double _calculateAverageRating(Map<int, int> starCounts) {
-    int total = starCounts.values.reduce((a, b) => a + b);
-    if (total == 0) return 0.0;
-
-    int sum = starCounts.entries
-        .map((entry) => entry.key * entry.value)
-        .reduce((a, b) => a + b);
-
-    return sum / total;
   }
 
   Widget _buildImageUploadSection() {
@@ -539,8 +608,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
           ],
         ),
         child: _isPickingImages
-            ? const Center(
-            child: CircularProgressIndicator(color: Colors.white))
+            ? const Center(child: CircularProgressIndicator(color: Colors.white))
             : const Center(
           child: Icon(Icons.add, size: 40, color: Colors.white),
         ),
@@ -548,10 +616,83 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     );
   }
 
+  Widget _buildImageGallerySection() {
+    if (_isLoadingImages) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_imageUrls.isEmpty && !_isOwner) {
+      return const Center(child: Text('No images available'));
+    }
+
+    return SizedBox(
+      height: 120,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          if (_isOwner) _buildImageUploadSection(),
+          ..._imageUrls.map((imageUrl) => Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 100.w,
+                    height: 100.h,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.broken_image, color: Colors.grey),
+                    ),
+                  ),
+                ),
+                if (_isOwner)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () => _deleteImage(imageUrl),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          )).toList(),
+        ],
+      ),
+    );
+  }
+
+  double _calculateAverageRating(Map<int, int> starCounts) {
+    int total = starCounts.values.reduce((a, b) => a + b);
+    if (total == 0) return 0.0;
+
+    int sum = starCounts.entries
+        .map((entry) => entry.key * entry.value)
+        .reduce((a, b) => a + b);
+
+    return sum / total;
+  }
+
   List<Widget> _buildRatingBars(RatingStats stats) {
-    final isDark = Provider
-        .of<ThemeProvider>(context)
-        .isDarkMode;
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return [5, 4, 3, 2, 1].map((stars) {
       final percentage = stats.starPercentages[stars] ?? 0.0;
       final count = stats.starCounts[stars] ?? 0;
@@ -562,7 +703,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
           children: [
             SizedBox(
                 width: 100.w,
-                child: Text('${'⭐' }  $stars Stars', style: GoogleFonts.inter(
+                child: Text('${'⭐'} $stars Stars', style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black))),
@@ -587,7 +728,6 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
                   style: TextStyle(fontSize: 14.sp,
                       color: isDark ? Colors.white : Colors.black)),
             ),
-
           ],
         ),
       );
@@ -604,102 +744,8 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     ][stars - 1];
   }
 
-  Widget _buildImageGallerySection() {
-    return FutureBuilder<List<String>>(
-      future: _imagesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-
-        final images = snapshot.data ?? [];
-        final allItems = _isOwner ? [null, ...images] : images;
-
-        return SizedBox(
-          height: 120,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: allItems.map((item) {
-              if (item == null) {
-                return _buildImageUploadSection();
-              }
-              return Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        item,
-                        width: 100.w,
-                        height: 100.h,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            width: 100.w,
-                            height: 100.h,
-                            color: Colors.grey[200],
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                    null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 100.w,
-                            height: 100.h,
-                            color: Colors.grey[200],
-                            child: const Icon(
-                                Icons.broken_image, color: Colors.grey),
-                          );
-                        },
-                      ),
-                    ),
-                    if (_isOwner)
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: GestureDetector(
-                          onTap: () => _deleteImage(item),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _sectionTitle(String title) {
-    final isDark = Provider
-        .of<ThemeProvider>(context)
-        .isDarkMode;
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
@@ -713,7 +759,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     );
   }
 
-  Widget _programCard(String title, ) {
+  Widget _programCard(String title) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -725,17 +771,16 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
       child: ListTile(
         title: Text(
           title,
-          style:  GoogleFonts.inter(fontWeight: FontWeight.bold,
+          style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.black),
         ),
-
       ),
     );
   }
 
   Future<void> _updateAverageRating(String nurseryId) async {
     try {
-      // Get all ratings for this nursery
       final ratingsSnapshot = await FirebaseFirestore.instance
           .collection('ratings')
           .where('nurseryId', isEqualTo: nurseryId)
@@ -745,7 +790,6 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
       final stats = RatingStats.fromRatings(ratings);
       final averageRating = _calculateAverageRating(stats.starCounts);
 
-      // Update the nursery document with the new average rating
       await FirebaseFirestore.instance
           .collection('nurseries')
           .doc(nurseryId)
@@ -756,57 +800,45 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
       });
     } catch (e) {
       print('Error updating average rating: $e');
-      // You might want to handle this error in your UI
     }
   }
-
 }
-   class _UserAvatar extends StatelessWidget {
-     final String? profileImageUrl;
 
-     const _UserAvatar({required this.profileImageUrl});
+class _UserAvatar extends StatelessWidget {
+  final String? profileImageUrl;
 
-     @override
-     Widget build(BuildContext context) {
-       return CircleAvatar(
-         radius: 35.r,
-         backgroundColor: Colors.transparent,
-         backgroundImage: AssetImage(
-             'assets/profile.jpg') as ImageProvider,
-         child: ClipOval(
-           child: SizedBox(
-             width: 80.w, // 2 * radius
-             height: 80.h,
-             child: CachedNetworkImage(
-               imageUrl: profileImageUrl ?? '',
-               fit: BoxFit.cover,
-               placeholder: (context, url) =>
-                   Icon(
-                     Icons.person,
-                     color: Theme
-                         .of(context)
-                         .iconTheme
-                         .color
-                         ?.withOpacity(0.5),
-                   ),
-               errorWidget: (context, url, error) =>
-                   Icon(
-                     Icons.person,
-                     color: Theme
-                         .of(context)
-                         .iconTheme
-                         .color
-                         ?.withOpacity(0.5),
-                   ),
-             ),
-           ),
-         ),
-       );
-     }
+  const _UserAvatar({required this.profileImageUrl});
 
-   }
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 35.r,
+      backgroundColor: Colors.transparent,
+      backgroundImage: const AssetImage('assets/profile.jpg') as ImageProvider,
+      child: ClipOval(
+        child: SizedBox(
+          width: 80.w,
+          height: 80.h,
+          child: CachedNetworkImage(
+            imageUrl: profileImageUrl ?? '',
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+            errorWidget: (context, url, error) => Icon(
+              Icons.person,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class MessageButton extends StatefulWidget {
-  final NurseryProfile nursery; // Make sure you pass this when creating the widget
+  final NurseryProfile nursery;
 
   const MessageButton({
     super.key,
@@ -886,6 +918,3 @@ class _MessageButtonState extends State<MessageButton> {
     );
   }
 }
-
-
-

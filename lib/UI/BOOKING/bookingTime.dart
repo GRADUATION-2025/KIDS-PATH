@@ -119,6 +119,45 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
         itemCount: bookings.length,
         itemBuilder: (context, index) {
           final booking = bookings[index];
+
+          // Only make cancelled/confirmed bookings dismissible
+          if (booking.status == 'cancelled' || booking.status == 'confirmed') {
+            return Dismissible(
+              key: Key(booking.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: Colors.redAccent,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Icon(Icons.delete, color: Colors.white, size: 36),
+              ),
+              confirmDismiss: (direction) async {
+                return await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Booking'),
+                    content: const Text('Are you sure you want to permanently delete this booking?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              onDismissed: (direction) {
+                context.read<BookingCubit>().deleteBooking(booking.id);
+              },
+              child: _buildBookingItem(context, booking),
+            );
+          }
+
+          // For other statuses, show regular booking item
           return _buildBookingItem(context, booking);
         },
       ),
@@ -419,7 +458,7 @@ class _RatingDialogState extends State<RatingDialog> {
       title: Text(
         'Rate Nursery',
         style: GoogleFonts.inter(fontSize: 30.sp,fontWeight: FontWeight.bold,
-        color: isDark?Colors.white:Colors.black),
+            color: isDark?Colors.white:Colors.black),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -518,7 +557,7 @@ class _GradientActionButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 18),
-             SizedBox(width: 6.w),
+            SizedBox(width: 6.w),
             Text(
               label,
               style: TextStyle(
@@ -569,7 +608,7 @@ class _GradientRateButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 18),
-             SizedBox(width: 6.w),
+            SizedBox(width: 6.w),
             Text(
               label,
               style: TextStyle(
@@ -584,3 +623,4 @@ class _GradientRateButton extends StatelessWidget {
     );
   }
 }
+

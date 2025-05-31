@@ -204,6 +204,35 @@ class BookingCubit extends Cubit<BookingState> {
     }
   }
 
+  /// NEW: Delete booking permanently
+  Future<void> deleteBooking(String bookingId) async {
+    if (_isProcessing) return;
+    _isProcessing = true;
+    try {
+      // First delete the booking
+      await _firestore.collection('bookings').doc(bookingId).delete();
+
+      // Delete associated notifications
+      final notifications = await _firestore
+          .collection('notifications')
+          .where('bookingId', isEqualTo: bookingId)
+          .get();
+
+      for (final doc in notifications.docs) {
+        await doc.reference.delete();
+      }
+
+      // Refresh bookings list
+      if (state is BookingsLoaded) {
+        initBookingsStream(isNursery: (state as BookingsLoaded).isNurseryView);
+      }
+    } catch (e) {
+      emit(BookingError('Deletion failed: $e'));
+    } finally {
+      _isProcessing = false;
+    }
+  }
+
   /// Write notification doc
   Future<void> _createNotification({
     required String userId,
