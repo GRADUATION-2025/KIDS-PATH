@@ -10,6 +10,7 @@ import '../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../LOGIC/booking/cubit.dart';
 import '../../LOGIC/booking/state.dart';
 import '../../THEME/theme_provider.dart';
+import '../../WIDGETS/GRADIENT_COLOR/boxbordergradient.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../PAYMENT/PAYMENT_SCREEN.dart';
 
@@ -314,12 +315,12 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                   children: [
                     // Details Container
                     Container(
-                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark?Colors.white:Colors.black,
-                          width: 1,
+                        // This creates the gradient border effect:
+                        border: GradientBoxBorder(
+                          gradient:AppGradients.Projectgradient,
+                          width: 2,
                         ),
                       ),
                       child: Column(
