@@ -680,7 +680,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
     );
   }
 
-  double _calculateAverageRating(Map<int, int> starCounts) {
+  num _calculateAverageRating(Map<int, int> starCounts) {
     int total = starCounts.values.reduce((a, b) => a + b);
     if (total == 0) return 0.0;
 
@@ -688,7 +688,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
         .map((entry) => entry.key * entry.value)
         .reduce((a, b) => a + b);
 
-    return sum / total;
+    return (sum / total).round();
   }
 
   List<Widget> _buildRatingBars(RatingStats stats) {

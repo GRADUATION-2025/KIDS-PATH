@@ -166,7 +166,7 @@ class _NurseryInfo extends StatelessWidget {
                   const Icon(LucideIcons.star, size: 16, color: Colors.amber),
                   SizedBox(width: 4.w),
                   Text(
-                    nursery.rating.toStringAsFixed(1),
+                    nursery.averageRating.toStringAsFixed(1),
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.grey.shade700,
                       fontSize: 14.sp,

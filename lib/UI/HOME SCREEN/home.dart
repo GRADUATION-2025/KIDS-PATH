@@ -428,7 +428,7 @@ class _TopRatedSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Filter nurseries with rating exactly 5.0
-    final topRatedNurseries = nurseries.where((n) => n.rating == 5.0).toList();
+    final topRatedNurseries = nurseries.where((n) => n.averageRating == 5.0).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +527,7 @@ class _NurseryMainImage extends StatelessWidget {
   }
 }
 
-double _calculateAverageRating(Map<int, int> starCounts) {
+num _calculateAverageRating(Map<int, int> starCounts) {
   int total = starCounts.values.fold(0, (a, b) => a + b);
   if (total == 0) return 0.0;
 
@@ -536,7 +536,7 @@ double _calculateAverageRating(Map<int, int> starCounts) {
           (sum, entry) => sum + entry.key * entry.value
   );
 
-  return sum / total;
+  return (sum / total).round();
 }
 
 
@@ -574,6 +574,7 @@ class _NurseryInfo extends StatelessWidget {
                     stream: FirebaseFirestore.instance
                         .collection('ratings')
                         .where('nurseryId', isEqualTo: nursery.uid)
+
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
