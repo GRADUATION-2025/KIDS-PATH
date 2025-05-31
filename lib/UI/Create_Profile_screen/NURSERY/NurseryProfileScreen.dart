@@ -504,7 +504,7 @@ class _NurseryProfileScreenState extends State<NurseryProfileScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  widget.nursery.price,
+                  '${widget.nursery.price} EGP',
                   style: TextStyle(
                     fontSize: 16.sp,
                     color: isDark ? Colors.white : Colors.black87,

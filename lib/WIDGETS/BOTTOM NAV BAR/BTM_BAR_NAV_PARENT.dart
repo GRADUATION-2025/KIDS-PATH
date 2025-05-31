@@ -14,6 +14,7 @@ import '../../UI/CHAT/chatList.dart';
 import '../../UI/Create_Profile_screen/PARENT/PARENTS_PAGE.dart';
 import '../../UI/HOME SCREEN/home.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
+import '../notification badge/badge.dart';
 
 
 class BottombarParentScreen extends StatefulWidget {
@@ -33,8 +34,66 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedindex = widget.initialIndex; // Set starting tab
-    _loadUserProfile(); // Set starting tab
+    _selectedindex = widget.initialIndex;
+    _loadUserProfile();
+  }
+
+  void _onTabChanged(int index) {
+    setState(() {
+      _selectedindex = index;
+    });
+
+    // Clear notifications when entering respective screens
+    if (index == 1) { // Chat tab
+      _clearChatNotifications();
+    } else if (index == 2) { // Booking tab
+      _clearBookingNotifications();
+    } else if (index == 3) { // Notification tab
+      _clearAllNotifications();
+    }
+  }
+
+  Future<void> _clearChatNotifications() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+
+
+  }
+
+  Future<void> _clearBookingNotifications() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final notifications = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .where('type', isEqualTo: 'booking')
+        .where('isRead', isEqualTo: false)
+        .get();
+
+    final batch = FirebaseFirestore.instance.batch();
+    for (var doc in notifications.docs) {
+      batch.update(doc.reference, {'isRead': true});
+    }
+    await batch.commit();
+  }
+
+  Future<void> _clearAllNotifications() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final notifications = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .where('isRead', isEqualTo: false)
+        .get();
+
+    final batch = FirebaseFirestore.instance.batch();
+    for (var doc in notifications.docs) {
+      batch.update(doc.reference, {'isRead': true});
+    }
+    await batch.commit();
   }
 
   Future<void> _loadUserProfile() async {
@@ -73,11 +132,7 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedindex,
-        onTap: (index) {
-          setState(() {
-            _selectedindex = index;
-          });
-        },
+        onTap: _onTabChanged,
         showSelectedLabels: true,
         // Show selected labels
         showUnselectedLabels: false,
@@ -134,25 +189,43 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
   BottomNavigationBarItem _buildCHATItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
-          // 🔵 Top line indicator
-          Container(
-            height: 4.h,
-            width: 50.w,
-            decoration: BoxDecoration(
-              gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null : Colors.transparent,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          SizedBox(height: 4.h), // Space between line and icon
-          Image.asset(
-            'assets/ICONS/CHAT_ICON.png',
-            width: 24.w,
-            height: 24.h,
-            color: _getIconColor(index),
-          ),
+        Container(
+        height: 4.h,
+        width: 50.w,
+        decoration: BoxDecoration(
+          gradient: AppGradients.Projectgradient,
+          color: _selectedindex == index ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(2),
+        ),),
+        SizedBox(height: 4.h),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collectionGroup('messages')
+              .where('isRead', isEqualTo: false)
+              .where('senderId', isNotEqualTo: FirebaseAuth.instance.currentUser?.uid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final count = snapshot.data?.docs.length ?? 0;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Image.asset(
+                  'assets/ICONS/CHAT_ICON.png',
+                  width: 24.w,
+                  height: 24.h,
+                  color: _getIconColor(index),
+                ),
+                if (count > 0)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: BadgeCount(count: count, size: 18.w),
+                  ),
+              ],
+            );
+          },
+        ),
         ],
       ),
       label: "CHATS",
@@ -162,25 +235,44 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
   BottomNavigationBarItem _buildBOOKINGItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
-          // 🔵 Top line indicator
-          Container(
-            height: 4.h,
-            width: 50.w,
-            decoration: BoxDecoration(
-              gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null : Colors.transparent,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          SizedBox(height: 4.h), // Space between line and icon
-          Image.asset(
-            'assets/ICONS/BOOKING_ICON.png',
-            width: 24.w,
-            height: 24.h,
-            color: _getIconColor(index),
-          ),
+        Container(
+        height: 4.h,
+        width: 50.w,
+        decoration: BoxDecoration(
+          gradient: AppGradients.Projectgradient,
+          color: _selectedindex == index ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(2),
+        ),),
+        SizedBox(height: 4.h),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('notifications')
+              .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+              .where('type', isEqualTo: 'booking')
+              .where('isRead', isEqualTo: false)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final count = snapshot.data?.docs.length ?? 0;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Image.asset(
+                  'assets/ICONS/BOOKING_ICON.png',
+                  width: 24.w,
+                  height: 24.h,
+                  color: _getIconColor(index),
+                ),
+                if (count > 0)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: BadgeCount(count: count, size: 18.w),
+                  ),
+              ],
+            );
+          },
+        ),
         ],
       ),
       label: "BOOKING",
@@ -190,29 +282,44 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
   BottomNavigationBarItem _buildNOTIFICATIONItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
-
-          Container(
-            height: 4.h,
-            width: 50.w,
-            decoration: BoxDecoration(
-              gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null : Colors.transparent,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          SizedBox(height: 2.h), // Space between line and icon
-
-
-          Image.asset(
-            'assets/ICONS/NOTIFICATION_ICON.png',
-            width: 24.w,
-            height: 24.h,
-            color: _getIconColor(index),
-          ),
-        ]
-        ,
+        Container(
+        height: 4.h,
+        width: 50.w,
+        decoration: BoxDecoration(
+          gradient: AppGradients.Projectgradient,
+          color: _selectedindex == index ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(2),
+        ),),
+        SizedBox(height: 2.h),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('notifications')
+              .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+              .where('isRead', isEqualTo: false)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final count = snapshot.data?.docs.length ?? 0;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Image.asset(
+                  'assets/ICONS/NOTIFICATION_ICON.png',
+                  width: 24.w,
+                  height: 24.h,
+                  color: _getIconColor(index),
+                ),
+                if (count > 0)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: BadgeCount(count: count, size: 18.w),
+                  ),
+              ],
+            );
+          },
+        ),
+        ],
       ),
       label: "NOTIFICATION",
     );
@@ -254,53 +361,52 @@ class _BottombarParentScreenState extends State<BottombarParentScreen> {
         : Color(0xFF515978); // Unselected in light mode (default)
   }
 }
-  class _UserAvatar extends StatelessWidget {
+class _UserAvatar extends StatelessWidget {
   final String? profileImageUrl;
 
   const _UserAvatar({required this.profileImageUrl});
 
   @override
   Widget build(BuildContext context) {
-  return CircleAvatar(
-  radius: 18,
-  backgroundColor: Theme
-      .of(context)
-      .cardColor,
-  child: ClipOval(
-  child: CachedNetworkImage(
-  imageUrl: profileImageUrl ?? '',
-  width: 40.w,
-  height: 40.h,
-  fit: BoxFit.cover,
-  placeholder: (context, url) =>
-  Icon(Icons.person, color: Theme
-      .of(context)
-      .iconTheme
-      .color
-      ?.withOpacity(0.5)),
-  errorWidget: (context, url, error) =>
-  Icon(Icons.person, color: Theme
-      .of(context)
-      .iconTheme
-      .color
-      ?.withOpacity(0.5)),
-  ),
-  ),
-  );
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: Theme
+          .of(context)
+          .cardColor,
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: profileImageUrl ?? '',
+          width: 40.w,
+          height: 40.h,
+          fit: BoxFit.cover,
+          placeholder: (context, url) =>
+              Icon(Icons.person, color: Theme
+                  .of(context)
+                  .iconTheme
+                  .color
+                  ?.withOpacity(0.5)),
+          errorWidget: (context, url, error) =>
+              Icon(Icons.person, color: Theme
+                  .of(context)
+                  .iconTheme
+                  .color
+                  ?.withOpacity(0.5)),
+        ),
+      ),
+    );
   }
-  }
+}
 
-  class UserProfileService {
+class UserProfileService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String?> getProfileImageUrl(String uid) async {
-  try {
-  DocumentSnapshot userDoc = await _firestore.collection('parents').doc(uid).get();
-  return userDoc['profileImageUrl']; // Assuming you store the URL in this field
-  } catch (e) {
-  print('Error fetching profile image: $e');
-  return null;
+    try {
+      DocumentSnapshot userDoc = await _firestore.collection('parents').doc(uid).get();
+      return userDoc['profileImageUrl']; // Assuming you store the URL in this field
+    } catch (e) {
+      print('Error fetching profile image: $e');
+      return null;
+    }
   }
-  }
-  }
-
+}

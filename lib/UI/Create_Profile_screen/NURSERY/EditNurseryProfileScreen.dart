@@ -224,11 +224,11 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
               _buildFormField("Description", _descriptionController,"Describe your nursery", maxLines: 3,maxlength: 100,
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Description' : null,),
               SizedBox(height: 20),
-              _buildFormField("Interview Price", _priceController,"Interview Price",maxlength: 5,
+              _buildFormField("Interview Price", _priceController,"Interview Price (In EGP)",maxlength: 5,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],keyboardtype:TextInputType.number,
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Interview Price' : null,),
               SizedBox(height: 20),
-              _buildFormField("Operating Hours", _hoursController,"Operating Hours",maxlength: 10,keyboardtype: TextInputType.text,
+              _buildFormField("Operating Hours", _hoursController,"Operating Hours (Ex:7AM-8PM)",maxlength: 10,keyboardtype: TextInputType.text,
                 inputFormatters: [
                   FilteringTextInputFormatter.deny(RegExp(r'[a-zA-Z\s]'))],
                 validator: (value) => value == null || value.trim().isEmpty ? 'Enter Hours' : null,),
@@ -441,7 +441,7 @@ class _EditNurseryProfileScreenState extends State<EditNurseryProfileScreen> {
           children: ageGroups.entries.map((entry) {
             return RadioListTile<String>(
 
-              title: Text(entry.value,style: TextStyle(color: isDark ? Colors.white:Colors.grey,fontSize: 15.sp,fontWeight: FontWeight.bold),),
+              title: Text(entry.value,style: TextStyle(color: isDark ? Colors.white:Colors.black,fontSize: 15.sp,fontWeight: FontWeight.bold),),
               value: entry.key,
               groupValue: _selectedAge,
               onChanged: (value) {

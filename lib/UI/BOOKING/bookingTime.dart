@@ -453,73 +453,125 @@ class _RatingDialogState extends State<RatingDialog> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
-    return AlertDialog(
-      backgroundColor: Theme.of(context).dialogBackgroundColor,
-      title: Text(
-        'Rate Nursery',
-        style: GoogleFonts.inter(fontSize: 30.sp,fontWeight: FontWeight.bold,
-            color: isDark?Colors.white:Colors.black),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (index) => IconButton(
-              icon: Icon(
-                index < _rating ? Icons.star : Icons.star_border,
-                color: Colors.amber,
-                size: 35.w,
-              ),
-              onPressed: () => setState(() => _rating = index + 1),
-            )),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _commentController,
-            style: Theme.of(context).textTheme.bodyMedium,
-            decoration: InputDecoration(
-              labelText: 'Comment (optional)',
-              labelStyle: Theme.of(context).textTheme.bodyMedium,
-              border: OutlineInputBorder(),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-            maxLines: 3,
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            'Cancel',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-          ),
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+
+    return Dialog(
+        backgroundColor: Theme.of(context).dialogBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
-          ),
-          onPressed: _rating > 0 ? () {
-            context.read<BookingCubit>().submitRating(
-              nurseryId: widget.nurseryId,
-              bookingId: widget.bookingId,
-              rating: _rating,
-              comment: _commentController.text,
-            );
-            Navigator.pop(context);
-          } : null,
-          child: const Text('Submit'),
+        child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Container(
+                width: size.width * 0.9,
+                constraints: BoxConstraints(
+                  maxWidth: 400.w,
+                  maxHeight: size.height * 0.8,
+                ),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Rate Nursery',
+                          style: GoogleFonts.inter(
+                            fontSize: isSmallScreen ? 24.sp : 30.sp,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 16.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) => IconButton(
+                            icon: Icon(
+                              index < _rating ? Icons.star : Icons.star_border,
+                              color: Colors.amber,
+                              size: isSmallScreen ? 30.w : 35.w,
+                            ),
+                            onPressed: () => setState(() => _rating = index + 1),
+                          )),
+                        ),
+                        SizedBox(height: 16.h),
+                        TextFormField(
+                          controller: _commentController,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          decoration: InputDecoration(
+                            labelText: 'Comment (optional)',
+                            labelStyle: Theme.of(context).textTheme.bodyMedium,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                              borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                            ),
+                          ),
+                          maxLines: 3,
+                        ),
+                        SizedBox(height: 24.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: isSmallScreen ? 14.sp : 16.sp,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 8.h,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                              ),
+                              onPressed: _rating > 0 ? () {
+                                context.read<BookingCubit>().submitRating(
+                                  nurseryId: widget.nurseryId,
+                                  bookingId: widget.bookingId,
+                                  rating: _rating,
+                                  comment: _commentController.text,
+                                );
+                                Navigator.pop(context);
+                              } : null,
+                              child: Text(
+                                'Submit',
+                                style: TextStyle(
+                                  fontSize: isSmallScreen ? 14.sp : 16.sp,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
         ),
-      ],
-    );
-  }
+        );
+    }
 }
 
 class _GradientActionButton extends StatelessWidget {

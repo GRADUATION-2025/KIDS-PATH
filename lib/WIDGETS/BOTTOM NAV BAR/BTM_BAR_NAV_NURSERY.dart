@@ -16,6 +16,7 @@ import '../../UI/BOOKING/bookingTime.dart';
 import '../../UI/CHAT/chatList.dart';
 import '../../UI/NOTIFICATION/Notifcation.dart';
 import '../../UI/CHAT/chat.dart';
+import '../notification badge/badge.dart';
 
 class BottombarNurseryScreen extends StatefulWidget {
   final int initialIndex;
@@ -31,14 +32,70 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
   String? profileImageUrl;
   final UserProfileService _profileService = UserProfileService();
 
-
-
   @override
   void initState() {
     super.initState();
     _selectedindex = widget.initialIndex;
-    _loadUserProfile();// Set starting tab
+    _loadUserProfile();
   }
+
+  void _onTabChanged(int index) {
+    setState(() {
+      _selectedindex = index;
+    });
+
+    // Clear notifications when entering respective screens
+    if (index == 0) { // Chat tab
+      _clearChatNotifications();
+    } else if (index == 1) { // Booking tab
+      _clearBookingNotifications();
+    } else if (index == 2) { // Notification tab
+      _clearAllNotifications();
+    }
+  }
+
+  Future<void> _clearChatNotifications() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+
+  }
+
+  Future<void> _clearBookingNotifications() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final notifications = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .where('type', isEqualTo: 'booking')
+        .where('isRead', isEqualTo: false)
+        .get();
+
+    final batch = FirebaseFirestore.instance.batch();
+    for (var doc in notifications.docs) {
+      batch.update(doc.reference, {'isRead': true});
+    }
+    await batch.commit();
+  }
+
+  Future<void> _clearAllNotifications() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final notifications = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .where('isRead', isEqualTo: false)
+        .get();
+
+    final batch = FirebaseFirestore.instance.batch();
+    for (var doc in notifications.docs) {
+      batch.update(doc.reference, {'isRead': true});
+    }
+    await batch.commit();
+  }
+
   Future<void> _loadUserProfile() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -64,25 +121,19 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
           ),
           NotificationScreen(),
           NurseryAccountScreen(),
-
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedindex,
-        onTap: (index) {
-          setState(() {
-            _selectedindex = index;
-          });
-        },
-        showSelectedLabels: true, // Show selected labels
-        showUnselectedLabels: false, // Show unselected labels
+        onTap: _onTabChanged,
+        showSelectedLabels: true,
+        showUnselectedLabels: false,
         selectedItemColor: Color(0xFF156CD7),
         selectedIconTheme: IconThemeData(color: Colors.red),
         unselectedItemColor: Color(0xFF515978),
         selectedLabelStyle: GoogleFonts.inter(fontSize: 9.5.sp, fontWeight: FontWeight.bold),
         unselectedLabelStyle: GoogleFonts.inter(fontSize: 9.5.sp, fontWeight: FontWeight.bold),
         type: BottomNavigationBarType.fixed,
-
         items: [
           _buildCHATItem(0),
           _buildBOOKINGItem(1),
@@ -93,29 +144,45 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
     );
   }
 
-
-
   BottomNavigationBarItem _buildCHATItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
-          // 🔵 Top line indicator
           Container(
             height: 4.h,
             width: 50.w,
             decoration: BoxDecoration(
               gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null: Colors.transparent,
+              color: _selectedindex == index ? null : Colors.transparent,
               borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          SizedBox(height: 4.h),// Space between line and icon
-          Image.asset(
-            'assets/ICONS/CHAT_ICON.png',
-            width: 24.w,
-            height: 24.h,
-            color: _getIconColor(index),
+            ),),
+          SizedBox(height: 4.h),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collectionGroup('messages')
+                .where('isRead', isEqualTo: false)
+                .where('senderId', isNotEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              final count = snapshot.data?.docs.length ?? 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Image.asset(
+                    'assets/ICONS/CHAT_ICON.png',
+                    width: 24.w,
+                    height: 24.h,
+                    color: _getIconColor(index),
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: BadgeCount(count: count, size: 18.w),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -126,24 +193,43 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
   BottomNavigationBarItem _buildBOOKINGItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
-          // 🔵 Top line indicator
           Container(
             height: 4.h,
             width: 50.w,
             decoration: BoxDecoration(
               gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null: Colors.transparent,
+              color: _selectedindex == index ? null : Colors.transparent,
               borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          SizedBox(height: 4.h),// Space between line and icon
-          Image.asset(
-            'assets/ICONS/BOOKING_ICON.png',
-            width: 24.w,
-            height: 24.h,
-            color: _getIconColor(index),
+            ),),
+          SizedBox(height: 4.h),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('notifications')
+                .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                .where('type', isEqualTo: 'booking')
+                .where('isRead', isEqualTo: false)
+                .snapshots(),
+            builder: (context, snapshot) {
+              final count = snapshot.data?.docs.length ?? 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Image.asset(
+                    'assets/ICONS/BOOKING_ICON.png',
+                    width: 24.w,
+                    height: 24.h,
+                    color: _getIconColor(index),
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: BadgeCount(count: count, size: 18.w),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -154,30 +240,44 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
   BottomNavigationBarItem _buildNOTIFICATIONItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
-
           Container(
             height: 4.h,
             width: 50.w,
             decoration: BoxDecoration(
               gradient: AppGradients.Projectgradient,
-              color: _selectedindex == index ? null: Colors.transparent,
+              color: _selectedindex == index ? null : Colors.transparent,
               borderRadius: BorderRadius.circular(2),
-            ),
+            ),),
+          SizedBox(height: 2.h),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('notifications')
+                .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                .where('isRead', isEqualTo: false)
+                .snapshots(),
+            builder: (context, snapshot) {
+              final count = snapshot.data?.docs.length ?? 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Image.asset(
+                    'assets/ICONS/NOTIFICATION_ICON.png',
+                    width: 24.w,
+                    height: 24.h,
+                    color: _getIconColor(index),
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: BadgeCount(count: count, size: 18.w),
+                    ),
+                ],
+              );
+            },
           ),
-          SizedBox(height: 2.h),// Space between line and icon
-
-
-
-          Image.asset(
-            'assets/ICONS/NOTIFICATION_ICON.png',
-            width: 24.w,
-            height: 24.h,
-            color: _getIconColor(index),
-          ),
-        ]
-        ,
+        ],
       ),
       label: "NOTIFICATION",
     );
@@ -186,7 +286,6 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
   BottomNavigationBarItem _buildProfileItem(int index) {
     return BottomNavigationBarItem(
       icon: Column(
-
         children: [
           // 🔵 Top line indicator
           Container(
@@ -219,55 +318,53 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
         : Color(0xFF515978); // Unselected in light mode (default)
   }
 }
-  class _UserAvatar extends StatelessWidget {
-    final String? profileImageUrl;
 
-    const _UserAvatar({required this.profileImageUrl});
+class _UserAvatar extends StatelessWidget {
+  final String? profileImageUrl;
 
-    @override
-    Widget build(BuildContext context) {
-      return CircleAvatar(
-        radius: 18,
-        backgroundColor: Theme
-            .of(context)
-            .cardColor,
-        child: ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: profileImageUrl ?? '',
-            width: 40.w,
-            height: 40.h,
-            fit: BoxFit.cover,
-            placeholder: (context, url) =>
-                Icon(Icons.person, color: Theme
-                    .of(context)
-                    .iconTheme
-                    .color
-                    ?.withOpacity(0.5)),
-            errorWidget: (context, url, error) =>
-                Icon(Icons.person, color: Theme
-                    .of(context)
-                    .iconTheme
-                    .color
-                    ?.withOpacity(0.5)),
-          ),
+  const _UserAvatar({required this.profileImageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: Theme
+          .of(context)
+          .cardColor,
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: profileImageUrl ?? '',
+          width: 40.w,
+          height: 40.h,
+          fit: BoxFit.cover,
+          placeholder: (context, url) =>
+              Icon(Icons.person, color: Theme
+                  .of(context)
+                  .iconTheme
+                  .color
+                  ?.withOpacity(0.5)),
+          errorWidget: (context, url, error) =>
+              Icon(Icons.person, color: Theme
+                  .of(context)
+                  .iconTheme
+                  .color
+                  ?.withOpacity(0.5)),
         ),
-      );
-    }
+      ),
+    );
   }
+}
 
-  class UserProfileService {
+class UserProfileService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String?> getProfileImageUrl(String uid) async {
-  try {
-  DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
-  return userDoc['profileImageUrl']; // Assuming you store the URL in this field
-  } catch (e) {
-  print('Error fetching profile image: $e');
-  return null;
-  }
-  }
-  }
-
-
-
+    try {
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      return userDoc['profileImageUrl']; // Assuming you store the URL in this field
+    } catch (e) {
+      print('Error fetching profile image: $e');
+      return null;
+    }
+    }
+}
