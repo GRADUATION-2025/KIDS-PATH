@@ -32,7 +32,6 @@ class BookingCubit extends Cubit<BookingState> {
       final list = snap.docs.map((d) => Booking.fromFirestore(d)).toList();
       emit(BookingsLoaded(list, isNursery));
     }, onError: (e) {
-      emit(BookingError('Failed to load bookings: $e'));
     });
   }
 

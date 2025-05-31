@@ -149,9 +149,9 @@ class _HomeContentView extends StatelessWidget {
               },
             ),
 
-            SizedBox(height: 20.h),
+            SizedBox(height: 10.h),
             _BannerImage(),
-            SizedBox(height: 20.h),
+            SizedBox(height: 15.h),
             _PopularNurseriesSection(nurseries: popularNurseries),
             SizedBox(height: 5.h),
             _TopRatedSection(nurseries: topRatedNurseries),
