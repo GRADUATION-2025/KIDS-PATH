@@ -254,144 +254,172 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
     );
   }
 
-  static void _showChildDetails(BuildContext context, Booking booking) {
+  static void _showChildDetails(BuildContext context, Booking booking, ) {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+
     showDialog(
       context: context,
-      builder: (context) =>
-          Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24.0),
-            ),
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: AppGradients.Projectgradient,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 12,
-                    spreadRadius: 4,
-                  )
-                ],
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.0),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey[850] : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 12,
+                spreadRadius: 4,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Child Information',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                            Icons.close, color: Colors.black,size: 25,),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with gradient
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF07C8F9), Color(0xFF0D41E1)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Details Container
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildDetailRow(
-                            Icons.person_outline, ' Child Name', booking.childName),
-                        const Divider(color: Colors.white24, height: 24),
-                        _buildDetailRow(Icons.cake_outlined, ' Child Age',
-                            '${booking.childAge} years'),
-                        const Divider(color: Colors.white24, height: 24),
-                        _buildDetailRow(
-                          booking.childGender.toLowerCase() == 'male'
-                              ? Icons.male_outlined
-                              : Icons.female_outlined,
-                          'Gender',
-                          booking.childGender,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Close Button
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue.shade700,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 14),
-                      elevation: 2,
-                    ),
-                    child: const Text(
-                      'Done',
-                      style: TextStyle(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.child_care, color: Colors.white),
+                    SizedBox(width: 10.w),
+                    Text(
+                      'Child Information',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 18.sp,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ) ,
+
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    // Details Container
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark?Colors.white:Colors.black,
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildDetailRow(
+                            Icons.person_outline,
+                            'Child Name',
+                            booking.childName,
+                            isDark,
+                          ),
+                           Divider(color: isDark?Colors.white:Colors.black, height: 24),
+                          _buildDetailRow(
+                            Icons.cake_outlined,
+                            'Child Age',
+                            '${booking.childAge} years',
+                            isDark,
+                          ),
+                           Divider(color: isDark?Colors.white:Colors.black, height: 24),
+                          _buildDetailRow(
+                            booking.childGender.toLowerCase() == 'male'
+                                ? Icons.male_outlined
+                                : Icons.female_outlined,
+                            'Gender',
+                            booking.childGender,
+                            isDark,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Close Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF0D41E1),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          'Done',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  static Widget _buildDetailRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-      Icon(icon, color: Colors.white.withOpacity(0.9)),
-      const SizedBox(width: 16),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  static Widget _buildDetailRow(IconData icon, String label, String value, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.black,fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+          Icon(icon, color: isDark ? Colors.white : const Color(0xFF0D41E1), size: 28),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.grey[700],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
-
-    ]);
+    );
   }
-
   static void _showRatingDialog(BuildContext context, Booking booking) {
     showDialog(
       context: context,
