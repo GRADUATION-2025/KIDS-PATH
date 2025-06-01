@@ -318,9 +318,8 @@ class _BookingTimesScreenState extends State<BookingTimesScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         // This creates the gradient border effect:
-                        border: GradientBoxBorder(
-                          gradient:AppGradients.Projectgradient,
-                          width: 2,
+                        border: Border.all(
+                          color: isDark?Colors.white:Colors.black
                         ),
                       ),
                       child: Column(
