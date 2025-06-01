@@ -10,7 +10,6 @@ import '../../DATA MODELS/bookingModel/bookingModel.dart';
 import '../../LOGIC/booking/cubit.dart';
 import '../../LOGIC/booking/state.dart';
 import '../../THEME/theme_provider.dart';
-import '../../WIDGETS/GRADIENT_COLOR/boxbordergradient.dart';
 import '../../WIDGETS/GRADIENT_COLOR/gradient _color.dart';
 import '../PAYMENT/PAYMENT_SCREEN.dart';
 
