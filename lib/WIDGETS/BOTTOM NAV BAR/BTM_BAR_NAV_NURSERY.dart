@@ -58,7 +58,17 @@ class _BottombarNurseryScreenState extends State<BottombarNurseryScreen> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
+    final messages = await FirebaseFirestore.instance
+        .collectionGroup('messages')
+        .where('isRead', isEqualTo: false)
+        .where('senderId', isNotEqualTo: userId)
+        .get();
 
+    final batch = FirebaseFirestore.instance.batch();
+    for (var doc in messages.docs) {
+      batch.update(doc.reference, {'isRead': false});
+    }
+    await batch.commit();
   }
 
   Future<void> _clearBookingNotifications() async {

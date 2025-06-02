@@ -218,6 +218,7 @@ class _BannerImage extends StatelessWidget {
     );
   }
 }
+
 class _PopularNurseriesSection extends StatefulWidget {
   final List<NurseryProfile> nurseries;
 
@@ -230,16 +231,18 @@ class _PopularNurseriesSection extends StatefulWidget {
 class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
   late final PageController _pageController;
   Timer? _autoScrollTimer;
-  int _currentPage = 5000; // Start in middle of large range
+  int _currentPage = 5000;
+
+  bool get _isScrollable => widget.nurseries.length > 4;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(
       initialPage: _currentPage,
-      viewportFraction: 0.25, // Show 4 items at a time
+      viewportFraction: 0.25,
     );
-    if (widget.nurseries.isNotEmpty) {
+    if (_isScrollable) {
       _startAutoScroll();
     }
   }
@@ -262,7 +265,6 @@ class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
         curve: Curves.easeInOut,
       );
 
-      // Jump to middle position when approaching edges
       if (_currentPage > 9000 || _currentPage < 1000) {
         _currentPage = 5000;
         _pageController.jumpToPage(_currentPage);
@@ -301,15 +303,23 @@ class _PopularNurseriesSectionState extends State<_PopularNurseriesSection> {
         SizedBox(height: 10.h),
         SizedBox(
           height: 110.h,
-          child: PageView.builder(
+          child: _isScrollable
+              ? PageView.builder(
             controller: _pageController,
-            itemCount: 10000, // Large number for infinite effect
+            itemCount: 10000,
             onPageChanged: (index) => _currentPage = index,
             itemBuilder: (context, index) {
               final nurseryIndex = index % widget.nurseries.length;
               final nursery = widget.nurseries[nurseryIndex];
               return _PopularNurseryCard(nursery: nursery);
             },
+          )
+              : ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.nurseries.length,
+            itemBuilder: (context, index) =>
+                _PopularNurseryCard(nursery: widget.nurseries[index]),
+            separatorBuilder: (context, index) => SizedBox(width: 7),
           ),
         ),
       ],
@@ -385,34 +395,33 @@ class _PopularNurseryCard extends StatelessWidget {
   }
 }
 
-class _NurseryAvatar extends StatefulWidget {
+class _NurseryAvatar extends StatelessWidget {
   final String? profileImageUrl;
 
   const _NurseryAvatar({required this.profileImageUrl});
 
   @override
-  State<_NurseryAvatar> createState() => _NurseryAvatarState();
-}
-
-class _NurseryAvatarState extends State<_NurseryAvatar> {
-
-
-  @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     return Hero(
-      tag: 'nursery-avatar-${widget.profileImageUrl}',
+      tag: 'nursery-avatar-${profileImageUrl}',
       child: CircleAvatar(
         radius: 30.r,
-        backgroundColor: isDark ? Colors.grey[600]:Colors.grey.shade300 ,
+        backgroundColor: isDark ? Colors.grey[600] : Colors.grey.shade300,
         child: ClipOval(
           child: CachedNetworkImage(
-            imageUrl: widget.profileImageUrl ?? '',
+            imageUrl: profileImageUrl ?? '',
             width: 60.w,
             height: 60.h,
             fit: BoxFit.cover,
-            placeholder: (context, url) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-            errorWidget: (context, url, error) => Icon(Icons.photo, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+            placeholder: (context, url) => Icon(
+              Icons.photo,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
+            errorWidget: (context, url, error) => Icon(
+              Icons.photo,
+              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+            ),
           ),
         ),
       ),
